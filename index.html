@@ -17,8 +17,8 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
 body{margin:0;background:#06201f;color:var(--ink);font-family:Georgia,"Iowan Old Style",serif;line-height:1.6;overflow-x:hidden}
-canvas#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;image-rendering:pixelated}
-canvas#gl{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block;image-rendering:pixelated}
 canvas#fx2{position:fixed;inset:0;width:100%;height:100%;z-index:2;display:block;image-rendering:pixelated}
 main{position:relative;z-index:3}
 section{min-height:100vh;min-height:100svh;padding:12vh 6vw calc(12vh + 44px);display:flex;flex-direction:column;justify-content:center}
@@ -254,10 +254,15 @@ void main(){
  vec2 world=(p2-MAP.zw)/CAM.x;
  vec2 tl=vec2((world.x-ORG.x)/16.+((world.y-ORG.y)/8.),((world.y-ORG.y)/8.-(world.x-ORG.x)/16.))/2.;
  float d=-wd(tl);
- float m=smoothstep(.06,-.06,d);
- if(m<=.002){gl_FragColor=vec4(0.);return;}
- vec2 p=(tl-vec2(26.5,24.5))/6.;
  float day=1.-N,L=mix(1.,.55,ST);
+ float sy=clamp(scr.y/R.y,0.,1.);
+ vec3 skyT=mix(vec3(.12,.24,.31),vec3(.015,.03,.06),N),skyB=mix(vec3(.23,.38,.39),vec3(.04,.07,.11),N);
+ skyT=mix(skyT,vec3(.62,.26,.14),D*day*.8);skyB=mix(skyB,vec3(.55,.22,.12),D*day*.9);
+ skyT=mix(skyT,vec3(.11,.12,.13),ST*.7);skyB=mix(skyB,vec3(.11,.12,.13),ST*.7);
+ vec3 sky=mix(skyT,skyB,sy);
+ float m=smoothstep(.06,-.06,d);
+ if(m<=.002){gl_FragColor=vec4(sky,1.);return;}
+ vec2 p=(tl-vec2(26.5,24.5))/6.;
  vec3 sk=mix(vec3(.5,.74,.92),vec3(.02,.05,.1),N);sk=mix(sk,vec3(1.,.55,.3),D*day*.7);sk=mix(sk,vec3(.28,.32,.36)*(1.-N*.7),ST);
  float depth=clamp((-d-.10)*1.45,0.,1.);
  float e=.004;
@@ -269,7 +274,7 @@ void main(){
  fl+=caus(fp*.9)*vec3(.42,.86,.74)*(.22+.78*depth)*(1.-.88*N)*L;
  vec4 k=koi(fp);fl=mix(fl,k.rgb,k.a*.96);
  vec3 wc=fl*mix(vec3(1.),vec3(.35,.78,.86),depth*.7);
- float fr=(.04+.5*pow(1.-n.z,2.5)+.1)*(.35+.65*depth);wc=mix(wc,sk+.12*fb4(p*3.+T*.01)*day,fr);
+ float fr=(.04+.5*pow(1.-n.z,2.5)+.1)*(.35+.65*depth);wc=mix(wc,sky+.12*fb4(p*3.+T*.01)*day,fr);
  wc+=step(.994,hs(floor((p+n.xy*.1)*220.)))*N*(1.-ST)*.8;
  vec3 Hh=normalize(normalize(vec3(-.4,.5,.7))+vec3(0,0,1));
  wc+=pow(max(dot(n,Hh),0.),220.)*mix(vec3(1.,.95,.85),vec3(.7,.8,1.),N)*(1.3-.7*N)*(1.-ST*.7);
@@ -328,7 +333,7 @@ $('wx').onclick=e=>e.target.dataset.k&&setWx(e.target.dataset.k);
 // The sky starts in the visitor's own local time of day.
 {const h=new Date().getHours();setTod(h>=7&&h<17?'day':(h>=5&&h<7)||(h>=17&&h<19)?'dusk':'night');Object.assign(cur,tgt)}
 
-addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>(e.buttons?10:38)){lx=e.clientX;ly=e.clientY;ripple(lx,ly,e.buttons?1.2:.6)}},{passive:true});
+addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>(e.buttons?10:22)){lx=e.clientX;ly=e.clientY;ripple(lx,ly,e.buttons?1.2:.6)}},{passive:true});
 addEventListener('pointerdown',e=>ripple(e.clientX,e.clientY,1.8));
 
 // Wishing pond
@@ -775,15 +780,23 @@ function churn(){
   return{c,ox:7,oy:17,sh:[2,1,5,2]}}
 // the mill wheel that turns in the stream
 function millWheel(){
-  const c=mk(30,30),x=c.getContext('2d');
-  disc(x,15,15,13,13,rgb([88,66,44]));disc(x,15,15,10,10,rgb([60,44,30]));
+  const c=mk(36,40),x=c.getContext('2d'),cx=18,cy=18;
+  // the timber housing the wheel turns in
+  px(x,2,6,rgb([118,84,52]),32,3);px(x,2,7,rgb([88,62,38]),32,1);
+  px(x,3,9,rgb([104,74,46]),3,26);px(x,30,9,rgb([104,74,46]),3,26);
+  px(x,6,34,rgb([118,84,52]),24,3);px(x,6,35,rgb([88,62,38]),24,1);
   const fr=[];
-  for(let k=0;k<6;k++){const sc=mk(30,30),sx=sc.getContext('2d');
-    for(let b=0;b<8;b++){const a=k*Math.PI/4+b*Math.PI/4;ln(sx,15,15,15+Math.cos(a)*12,15+Math.sin(a)*12,'#7a5636')}
-    for(let b=0;b<8;b++){const a=k*Math.PI/4+b*Math.PI/4+Math.PI/8,px_=15+Math.cos(a)*8,py=15+Math.sin(a)*8;
-      px(sx,px_-2,py-2,rgb([188,152,94]),5,5)}
-    fr.push(sc)}
-  return{c,ox:15,oy:15,fr}}
+  for(let k=0;k<8;k++){const sc=mk(36,40),sx=sc.getContext('2d'),a=k*Math.PI/4;
+   for(let t=0;t<30;t++){const ang=t/30*6.283;
+    px(sx,Math.round(cx+Math.cos(ang)*12),Math.round(cy+Math.sin(ang)*12),rgb([150,112,70]),3,3)}
+   for(let b=0;b<8;b++){const ang=a+b*Math.PI/4,ex=cx+Math.cos(ang)*11,ey=cy+Math.sin(ang)*11;
+    ln(sx,cx,cy,ex,ey,'#8a6238');
+    const qx=Math.cos(ang+1.571)*2,qy=Math.sin(ang+1.571)*2;
+    px(sx,Math.round(ex+qx)-3,Math.round(ey+qy)-2,rgb([178,140,88]),6,4);
+    px(sx,Math.round(ex+qx)-3,Math.round(ey+qy)-2,rgb([206,176,124]),6,1)}
+   disc(sx,cx,cy,3,3,rgb([104,74,46]));disc(sx,cx,cy,2,2,rgb([62,44,28]));
+   fr.push(sc)}
+  return{c,ox:cx,oy:cy,fr,sh:[5,1,15,5]}}
 
 // a villager, in three poses and two steps
 function villager(p,f,dir){
@@ -817,15 +830,16 @@ function build(){
   const yard=(a,b)=>{for(const[y0,y1,r]of YARDS)if(Math.hypot(a-y0,b-y1)<r+(vn(a*2,b*2)-.5)*.8)return 1;return 0};
  const dirt=(a,b)=>fieldAt(a,b)<.4+(vn(a*5,b*5)-.5)*.3;
  for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;if(fi<-.5||fj<-.5||fi>=VN-.5||fj>=VN-.5)continue;
-  const w=WD(fi,fj),o=(y*Wd+x)*4;let k;
+  const w=WD(fi,fj),o=(y*Wd+x)*4;let k,al=255;
   if(w>0){
      wm[y*Wd+x]=clamp(Math.round(w/3*255),1,255);
-     const dep=clamp(w/3.4,0,1),fn=vn(fi*4.6,fj*4.6)*.6+hh(x,y)*.4;
-     k=mixc([216,198,160],[150,138,106],clamp(dep*1.7,0,1));
-     k=mixc(k,[44,66,58],clamp((dep-.5)*2.1,0,1));
-     if(fn>.88)k=mixc(k,[200,192,172],.5);
-     else if(fn<.09)k=mixc(k,[84,88,74],.42);
-     if(vn(fi*3.4+4,fj*3.4)>.66&&dep>.22)k=mixc(k,[48,104,62],.5);
+     if(GL.ok){k=[0,0,0];al=0}
+     else{const dep=clamp(w/3.4,0,1),fn=vn(fi*4.6,fj*4.6)*.6+hh(x,y)*.4;
+      k=mixc([216,198,160],[150,138,106],clamp(dep*1.7,0,1));
+      k=mixc(k,[44,66,58],clamp((dep-.5)*2.1,0,1));
+      if(fn>.88)k=mixc(k,[200,192,172],.5);
+      else if(fn<.09)k=mixc(k,[84,88,74],.42);
+      if(vn(fi*3.4+4,fj*3.4)>.66&&dep>.22)k=mixc(k,[48,104,62],.5)}
      if(x<x0)x0=x;if(y<y0)y0=y;if(x>x1)x1=x;if(y>y1)y1=y}
   else{const n=vn(fi*2.6,fj*2.6)*.55+vn(fi*8,fj*8)*.25+hh(x,y)*.28;
    if(w>-.5)k=SA[Math.floor(n*2.7)%3];
@@ -839,7 +853,7 @@ function build(){
       k=col}
      else if(zone==='river'){k=GP[rg][gi];if(hh(x,y)>.93)k=mixc(k,[174,166,148],.5)}
      else k=GP[rg][gi]}}
-  d[o]=k[0];d[o+1]=k[1];d[o+2]=k[2];d[o+3]=255}c.putImageData(id,0,0);wb=[x0,y0,x1-x0+1,y1-y0+1];wc=mk(wb[2],wb[3]);wi=wc.getContext('2d').createImageData(wb[2],wb[3]);
+  d[o]=k[0];d[o+1]=k[1];d[o+2]=k[2];d[o+3]=al}c.putImageData(id,0,0);wb=[x0,y0,x1-x0+1,y1-y0+1];wc=mk(wb[2],wb[3]);wi=wc.getContext('2d').createImageData(wb[2],wb[3]);
  // keep a copy of the pond floor so the water can bend light through it
  FLD=wc.getContext('2d').createImageData(wb[2],wb[3]);FLD.data.set(c.getImageData(wb[0],wb[1],wb[2],wb[3]).data);
  // cliffs
@@ -918,7 +932,7 @@ function build(){
  put(34.4,10.8,shrine(),2,.05);
  put(35.6,40.2,lookout(),2,.05);
  put(14.9,9.6,stall([196,72,52],[240,232,214]),1);put(16.9,10.4,stall([86,120,72],[240,232,214]),1);put(13.4,8.2,stall([72,96,124],[240,232,214]),1);
- SURF.wheel=put(35.0,24.7,millWheel(),1);SURF.wheel.surf=1;
+ put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0],y:PF(35.3,22.9)[1]+8};
  // props
  const PR=[[16.5,10.6,barrel,0],[16.9,10.9,barrel,0],[16.2,10.1,crates,0],[17.2,9.4,hay,0],[17.6,9.0,hay,0],[10.0,12.3,wellS,0],[15.5,13.6,lamp,3],[18.2,11.4,lamp,3],[12.4,13.3,pumpkinS,0],
   [9.3,10.0,()=>logS(1),0],[11.0,11.5,()=>logS(2),0],[10.0,10.5,campfire,5],[9.6,14.6,hive,0],[10.2,14.8,hive,0],[14.55,16.9,scarecrow,0],[15.8,13.9,signpost,0],[13.0,18.4,laundry,4],[16.55,12.55,cat,0],[17.2,17.9,()=>bench(0),0],[26.6,18.2,pier,0],[14.1,13.2,flowerPot,0],[12.9,13.2,flowerPot,0],[16.0,13.0,flowerPot,0],[18.3,10.2,woodpile,0],
@@ -958,19 +972,19 @@ function bakeCloud(){const w=128,h=64;CLOUD=mk(w,h);const x=CLOUD.getContext('2d
 const PEOPLE=[];
 const CAST=[
  {pal:[[196,72,58],[58,62,92],[92,54,32],[228,182,144],null],spd:.95,seg:0,
-  route:[[21.55,19.55],[26.5,17.5],[31.45,19.55],[33.5,24.5],[31.45,29.45],[26.5,31.5],[21.55,29.45],[19.5,24.5],[21.55,19.55]]},
+  route:[[21.55,19.55],[26.5,17.5],[31.45,19.55],[33.5,22.5],[33.5,26.5],[31.45,29.45],[26.5,31.5],[21.55,29.45],[19.5,24.5],[21.55,19.55]]},
  {pal:[[78,118,148],[62,58,66],[214,206,186],[222,178,140],[176,128,74]],spd:1.05,seg:3,
   route:[[3.5,9.2],[8.2,11.4],[13.0,12.9],[17.2,14.0],[19.2,15.4],[20.6,17.2],[21.55,19.55],[19.2,19.8],[17.0,19.6],[15.4,18.4],[14.9,16.6],[15.1,15.0],[15.2,13.4],[13.0,12.9],[10.8,12.2],[5.6,10.2],[3.5,9.2]]},
  {pal:[[222,196,84],[92,86,70],[142,84,40],[236,196,152],null],spd:1.4,seg:0,
-  route:[[15.2,13.4],[15.1,15.0],[14.9,16.6],[15.4,18.4],[17.0,19.6],[19.2,19.8],[21.55,19.55],[21.55,17.5],[26.5,17.5],[31.45,19.55],[31.45,29.45],[26.5,31.5],[21.55,29.45],[19.5,24.5],[21.55,19.55]]},
+  route:[[15.2,13.4],[15.1,15.0],[14.9,16.6],[15.4,18.4],[17.0,19.6],[19.2,19.8],[21.55,19.55],[21.55,17.5],[26.5,17.5],[31.45,19.55],[33.5,22.5],[33.5,26.5],[31.45,29.45],[26.5,31.5],[21.55,29.45],[19.5,24.5],[21.55,19.55]]},
  {pal:[[120,104,84],[70,74,88],[238,232,220],[214,166,126],null],spd:.8,seg:0,
   route:[[26.5,31.5],[27.8,33.4],[29.6,35.0],[31.8,36.4],[34.0,37.6],[35.6,39.6],[34.0,37.6],[31.8,36.4],[29.6,35.0],[27.8,33.4],[26.5,31.5]]},
  {pal:[[142,158,120],[64,66,60],[198,186,150],[220,172,132],null],spd:.9,seg:0,
   route:[[17.4,9.4],[19.2,8.6],[21.2,7.6],[23.6,6.8],[26.2,6.4],[28.8,6.8],[31.0,7.8],[32.6,9.2],[31.0,7.8],[28.8,6.8],[26.2,6.4],[23.6,6.8],[21.2,7.6],[19.2,8.6],[17.4,9.4]]},
  {pal:[[206,96,72],[74,62,56],[60,48,40],[224,184,148],null],spd:1.15,seg:0,
-  route:[[11.8,7.6],[13.4,8.2],[14.9,9.6],[16.9,10.4],[17.4,9.4],[16.0,8.6],[14.6,7.6],[13.2,6.4],[11.4,5.6],[9.6,5.2]]},
+  route:[[3.5,9.2],[6.0,10.4],[8.6,11.6],[11.0,12.4],[13.0,12.9],[11.0,12.4],[8.6,11.6],[6.0,10.4],[3.5,9.2]]},
  {pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],spd:.9,seg:0,
-  route:[[33.5,24.5],[34.4,22.6],[36.8,22.3],[39.8,22.5],[42.8,22.8],[45.8,23.1],[48.8,23.4],[50.8,23.7],[48.8,23.4],[45.8,23.1],[42.8,22.8],[39.8,22.5],[36.8,22.3],[34.4,22.6],[33.5,24.5]]}
+  route:[[33.5,26.5],[33.5,22.5],[36.8,22.3],[39.8,22.5],[42.8,22.8],[45.8,23.1],[48.8,23.4],[50.8,23.7],[48.8,23.4],[45.8,23.1],[42.8,22.8],[39.8,22.5],[36.8,22.3],[34.4,22.6],[33.5,24.5],[33.5,26.5]]}
 ];
 function initPeople(){
   for(const q of CAST){const s=q.seg||0,P={pal:q.pal,route:q.route,spd:q.spd,seg:s,a:q.route[s][0],b:q.route[s][1],anim:0,vx:1,vy:0};
@@ -1035,7 +1049,7 @@ function drawGL(){
   gl.drawArrays(gl.TRIANGLES,0,3)}
 
 /* ---- the things that float on top of the water ---- */
-const SURF={ctx:null,pier:null,boat:null,wheel:null};
+const SURF={ctx:null,pier:null,boat:null,spray:null};
 function initSurf(){SURF.ctx=$('fx2').getContext('2d')}
 function drawSurf(){
   const ctx=SURF.ctx;if(!ctx)return;
@@ -1044,15 +1058,26 @@ function drawSurf(){
   const c=ctx;
   // the jetty reaching over the water
   if(SURF.pier){const o=SURF.pier;c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy)}
-  // the mill wheel turning in the stream
-  if(SURF.wheel){const o=SURF.wheel,fr=o.sp.fr[((T*1.1)|0)%o.sp.fr.length];c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy);c.drawImage(fr,o.x-o.sp.ox,o.y-o.sp.oy)}
+  // the spray where the mill wheel bites the water
+  if(SURF.spray){const o=SURF.spray;
+   for(let q=0;q<5;q++){const ph=(T*1.6+q*.37)%1;
+    c.fillStyle=`rgba(236,248,252,${(1-ph)*.8})`;
+    c.fillRect(Math.round(o.x-8+q*4+Math.sin(T*3+q)*2),Math.round(o.y-4-ph*11),2,2)}}
   // the footbridge over the stream
   if(GL.ok)bridge(c);
   if(SURF.boat){const o=SURF.boat;const bob=Math.round(Math.sin(T*1.1)*1.4);c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy+bob)}
-  // ducks, drifting
-  for(let q=0;q<3;q++){const a=T*(.1+.02*q)+q*2.1,[X0,Y0]=PF(POND[0]+Math.cos(a)*(1.8+.4*q),POND[1]+Math.sin(a*1.2)*1.3),
-    X=Math.round(X0),Y=Math.round(Y0),dr=Math.sin(a)>0?-1:1,bob=Math.round(Math.sin(T*2+q));
+  // ducks, drifting, and startled by every ripple that reaches them
+  for(let q=0;q<3;q++){
+    const a=T*(.1+.02*q)+q*2.1;
+    const[X0,Y0]=PF(POND[0]+Math.cos(a)*(1.8+.4*q),POND[1]+Math.sin(a*1.2)*1.3);
+    let fx=0,fy=0,fr=0;
+    for(const r of rps){const age=T-r.t;if(age>2.8||age<0)continue;
+      const dx=X0-r.x,dy=Y0-r.y,d=Math.hypot(dx,dy);
+      if(d<54){const w=(1-age/2.8)*(1-d/54);fx+=dx/(d+3)*w*56;fy+=dy/(d+3)*w*56;if(w>fr)fr=w}}
+    const X=Math.round(X0+fx),Y=Math.round(Y0+fy),dr=Math.sin(a)>0?-1:1,bob=Math.round(Math.sin(T*2+q));
     c.fillStyle='rgba(225,250,255,.32)';c.fillRect(X-6,Y+1,12,1);c.fillRect(X-4,Y+2,8,1);
+    if(fr>.2){const fl=Math.round(Math.sin(T*18)*2);
+      c.fillStyle='#efe8d6';c.fillRect(X-6,Y-7+bob+fl,4,3);c.fillRect(X+2,Y-7+bob-fl,4,3)}
     disc(c,X,Y-1+bob,4,2,'#ece6d2');disc(c,X,Y+bob,4,1,'#c9c1a8');px(c,X-dr*4,Y-3+bob,'#ece6d2',2,2);px(c,X-1,Y-2+bob,'#a98f62',3,1);
     disc(c,X+dr*3,Y-4+bob,2,2,'#2a7a4a');px(c,X+dr*5,Y-4+bob,'#f0a030',2,1);px(c,X+dr*3,Y-5+bob,'#10201a')}}
 
@@ -1168,11 +1193,12 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;
  // leaves & snow
  for(const[bx,by,k]of LEAVES){const p=(T*.1+hh(k,1))%1,X=bx+p*30+Math.sin(T*1.4+k)*5,Y=by-40+p*70;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle=['#e2862b','#c2491f','#f1b445'][k%3];c.fillRect(X|0,Y|0,2,1);c.fillRect((X|0)+1,(Y|0)+1,1,1)}
  for(const[bx,by,k]of FLAKES){const p=(T*.07+hh(k,2))%1,X=bx+Math.sin(T*.9+k)*6+p*8,Y=by-50+p*80;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(255,255,255,.9)';c.fillRect(X|0,Y|0,1,1);if(k%4==0)c.fillRect((X|0)+1,Y|0,1,1)}}
-function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round(innerWidth/(WS*375)),1,3);sizeGL()}
-function ripple(x,y,s,dl){if(s>2){const[px_,py]=PF(POND[0],POND[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5)startle=Math.min(1,startle+.7)}}
+let SCR=null;
+function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round(innerWidth/(WS*375)),1,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;sizeGL()}
+function ripple(x,y,s,dl){if(!wm)return;if(s>2){const[px_,py]=PF(POND[0],POND[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5)startle=Math.min(1,startle+.7)}}
 function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k),KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6],[40.0,22.6]],[cx,cy]=PF(lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)),n=cur.night,w=cur.warm;GLW=[];
   TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);
- ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
+ if(!GL.ok){ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);}
  for(let i=0;i<80;i++){ctx.fillStyle=`rgba(230,240,255,${n*(.5+.5*Math.sin(T*2+i))})`;ctx.fillRect(hh(i,5)*VW|0,hh(i,6)*VH|0,1,1)}
  for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+160))-80,Y=hh(q,2)*VH,col=`rgba(${lerp(226,70,n)|0},${lerp(238,90,n)|0},${lerp(246,130,n)|0},.09)`;for(let b=0;b<5;b++)disc(ctx,X+b*16,Y+(b%2)*3,24+(b%3)*7,5+(b%2)*2,col)}
  if(cur.rain>.05&&Math.random()<cur.rain*.25){const[px_,py]=PF(POND[0]+(Math.random()-.5)*5,POND[1]+(Math.random()-.5)*4);if(wm[(py|0)*Wd+(px_|0)])rps.push({x:px_,y:py,t:T})}
@@ -1193,13 +1219,23 @@ function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.s
   sprites(l,r,t,b);
   if(GL.ok)drawGL();
   drawSurf();
- // drifting cloud shadows
- {ctx.imageSmoothingEnabled=true;ctx.globalAlpha=(1-n*.85)*(1-cur.storm*.5);const off=(T*5)%768;for(let X=-768+off;X<Wd;X+=768)for(let Y=0;Y<Ht;Y+=384)if(X+768>l&&X<r&&Y+384>t&&Y<b)ctx.drawImage(CLOUD,X,Y,768,384);ctx.globalAlpha=1;ctx.imageSmoothingEnabled=false}
- ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='multiply';const s=1-.35*cur.storm;ctx.fillStyle=`rgb(${lerp(lerp(255,80,n*.9),255,w*.4)*s|0},${lerp(lerp(255,100,n*.9),190,w*.5)*s|0},${lerp(lerp(255,170,n*.85),140,w*.5)*s|0})`;ctx.fillRect(0,0,VW,VH);ctx.globalCompositeOperation='source-over';
+ // drifting cloud shadows, kept off the water
+ {const sc2=SCR.getContext('2d');sc2.setTransform(1,0,0,1,0,0);sc2.clearRect(0,0,VW,VH);
+  sc2.setTransform(Z,0,0,Z,TX,TY);sc2.imageSmoothingEnabled=true;sc2.globalAlpha=(1-n*.85)*(1-cur.storm*.5);
+  const off=(T*5)%768;for(let X=-768+off;X<Wd;X+=768)for(let Y=0;Y<Ht;Y+=384)if(X+768>l&&X<r&&Y+384>t&&Y<b)sc2.drawImage(CLOUD,X,Y,768,384);
+  sc2.globalAlpha=1;sc2.imageSmoothingEnabled=false;sc2.setTransform(1,0,0,1,0,0);
+  ctx.globalCompositeOperation='source-atop';ctx.drawImage(SCR,0,0);ctx.globalCompositeOperation='source-over'}
+ ctx.setTransform(1,0,0,1,0,0);
+ {const st=1-.35*cur.storm,mr=lerp(lerp(255,80,n*.9),255,w*.4)*st,mg=lerp(lerp(255,100,n*.9),190,w*.5)*st,mb=lerp(lerp(255,170,n*.85),140,w*.5)*st;
+  const av=1-(mr+mg+mb)/765;
+  if(av>.01){ctx.globalCompositeOperation='source-atop';
+   ctx.fillStyle=`rgba(${255-mr|0},${255-mg|0},${255-mb|0},${(av*.92).toFixed(3)})`;ctx.fillRect(0,0,VW,VH);
+   ctx.globalCompositeOperation='source-over'}}
  if(n>.15){ctx.setTransform(Z,0,0,Z,TX,TY);ctx.globalCompositeOperation='lighter';for(const[gx,gy,rr]of GLW){const gd=ctx.createRadialGradient(gx,gy,0,gx,gy,rr);gd.addColorStop(0,`rgba(255,185,80,${.62*n})`);gd.addColorStop(1,'rgba(255,185,80,0)');ctx.fillStyle=gd;ctx.fillRect(gx-rr,gy-rr,rr*2,rr*2)}
   for(let q=0;q<150;q++){ctx.fillStyle=`rgba(220,255,120,${n*(.4+.6*Math.max(0,Math.sin(T*2+q*3)))})`;ctx.fillRect(60+hh(q,1)*(Wd-120)+Math.sin(T*.5+q)*6,OY+hh(q,2)*VN*16+Math.cos(T*.4+q*2)*6,2,2)}ctx.globalCompositeOperation='source-over'}
  ctx.setTransform(1,0,0,1,0,0);const rn=Math.floor(cur.rain*130);ctx.fillStyle='rgba(190,220,255,.55)';for(let i=0;i<rn;i++){const sp=70+hh(i,3)*40,yy=(hh(i,2)*VH+T*sp)%VH;ctx.fillRect((((hh(i,1)*VW-yy*.2)%VW)+VW)%VW|0,yy|0,1,3)}
- if(flash>.02){ctx.fillStyle=`rgba(210,225,255,${flash*.5})`;ctx.fillRect(0,0,VW,VH)}}
+ if(flash>.02){ctx.fillStyle=`rgba(210,225,255,${flash*.5})`;ctx.fillRect(0,0,VW,VH)}
+}
 addEventListener('pointermove',e=>{PM.x=e.clientX/innerWidth-.5;PM.y=e.clientY/innerHeight-.5},{passive:true});addEventListener('resize',rz);rz();
 addEventListener('error',e=>{const b=document.getElementById('boot');
  if(b){b.classList.remove('done');b.innerHTML='<span>the village failed to load</span><span style="text-transform:none;max-width:90ch;text-align:center;line-height:1.5">'+(e.error&&e.error.stack?String(e.error.stack).replace(/</g,'&lt;'):e.message)+'</span>'}});
@@ -1226,7 +1262,6 @@ function frame(ms){
    GL.acc=.016;GL.ticks=0}}
  requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
-setTimeout(()=>ripple(innerWidth*.5,innerHeight*.5,2),600);
 </script>
 </body>
 </html>
