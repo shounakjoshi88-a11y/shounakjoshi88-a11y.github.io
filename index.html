@@ -226,7 +226,7 @@ float caus(vec2 uv){vec2 p=mod(uv*6.2831,6.2831)-250.,i=p;float c=1.,k=.005;
  for(int n=0;n<3;n++){float t=T*.5*(1.-3.5/float(n+1));i=p+vec2(cos(t-i.x)+sin(t+i.y),sin(t-i.y)+cos(t+i.x));c+=1./length(vec2(p.x/(sin(i.x+t)/k),p.y/(cos(i.y+t)/k)));}
  c/=3.;c=1.17-pow(c,1.4);return clamp(pow(abs(c),8.),0.,1.);}
 vec4 koi(vec2 q){vec4 o=vec4(0.);float tt=T*(1.+SH*2.5);
- for(int i=0;i<6;i++){float id=float(i);vec2 c=id==5.?vec2(cos(tt*.16)*.42,sin(tt*.2)*.28):vec2(sin(id*1.9)*.28,id*.42);
+ for(int i=0;i<6;i++){float id=float(i);vec2 c=id==5.?vec2(cos(tt*.16)*.46,sin(tt*.2)*.3):vec2(sin(id*1.9)*.5,(mod(id,3.)-1.)*.34+.05);
   float sp=.8+.25*hs(vec2(id,5.));
   vec2 h0=c+vec2(cos(tt*.3*sp+id*2.)*.4,sin(tt*.23*sp+id*1.3)*.16);
   vec2 h1=c+vec2(cos((tt+.4)*.3*sp+id*2.)*.4,sin((tt+.4)*.23*sp+id*1.3)*.16);
@@ -259,22 +259,24 @@ void main(){
  vec3 skyT=mix(vec3(.12,.24,.31),vec3(.015,.03,.06),N),skyB=mix(vec3(.23,.38,.39),vec3(.04,.07,.11),N);
  skyT=mix(skyT,vec3(.62,.26,.14),D*day*.8);skyB=mix(skyB,vec3(.55,.22,.12),D*day*.9);
  skyT=mix(skyT,vec3(.11,.12,.13),ST*.7);skyB=mix(skyB,vec3(.11,.12,.13),ST*.7);
- vec3 sky=mix(skyT,skyB,sy);
+ vec2 p=(tl-vec2(26.5,24.5))/6.;
+ // one cloud shadow drifts over the sky and the water together
+ float csh=smoothstep(.42,.78,fb4((p+vec2(T*.055,T*.022))*1.6))*.26;
+ vec3 sky=mix(skyT,skyB,sy)*(1.-csh);
  float m=smoothstep(.06,-.06,d);
  if(m<=.002){gl_FragColor=vec4(sky,1.);return;}
- vec2 p=(tl-vec2(26.5,24.5))/6.;
  vec3 sk=mix(vec3(.5,.74,.92),vec3(.02,.05,.1),N);sk=mix(sk,vec3(1.,.55,.3),D*day*.7);sk=mix(sk,vec3(.28,.32,.36)*(1.-N*.7),ST);
- float depth=clamp((-d-.08)*1.2,0.,1.);
- float e=.004;
+ float depth=clamp((-d-.05)*1.5,0.,1.);
+ float e=.003;
  float h0=H(p),gx=(H(p+vec2(e,0.))-h0)/e,gy=(H(p+vec2(0.,e))-h0)/e;
  vec3 n=normalize(vec3(-gx*.05,-gy*.05,1.));vec2 fp=p+n.xy*(.4+depth)*.9;
- vec3 fl=mix(vec3(.52,.47,.33),vec3(.05,.19,.25),smoothstep(0.,.82,depth));fl*=.8+.4*nz(fp*40.);
+ vec3 fl=mix(vec3(.62,.58,.42),vec3(.07,.25,.29),smoothstep(0.,.9,depth));fl*=.8+.4*nz(fp*40.);
  fl=mix(fl,vec3(.12,.2,.17)*(.7+.6*nz(fp*60.)),smoothstep(.62,.68,nz(fp*7.+3.))*.8);
  fl=mix(fl,vec3(.1,.35,.15),smoothstep(.55,.8,fb4(fp*12.))*.4*depth);
- fl+=caus(fp*.9)*vec3(.42,.86,.74)*(.22+.78*depth)*(1.-.88*N)*L;
+ fl+=caus(fp*.9)*vec3(.5,.9,.8)*(1.-.5*depth)*(1.-.88*N)*L*.3;
  vec4 k=koi(fp);fl=mix(fl,k.rgb,k.a*.96);
- vec3 wc=clamp(fl,0.,1.6)*mix(vec3(1.),vec3(.35,.78,.86),depth*.7);
- float fr=(.04+.5*pow(1.-n.z,2.5)+.1)*(.35+.65*depth);wc=mix(wc,sky+.12*fb4(p*3.+T*.01)*day,fr);
+ vec3 wc=fl*mix(vec3(1.),vec3(.35,.78,.86),depth*.7);
+ float fr=.05+.5*pow(1.-n.z,2.5)+.1;wc=mix(wc,sky+.12*fb4(p*3.+T*.01)*day,fr);
  wc+=step(.994,hs(floor((p+n.xy*.1)*220.)))*N*(1.-ST)*.8;
  vec3 Hh=normalize(normalize(vec3(-.4,.5,.7))+vec3(0,0,1));
  wc+=pow(max(dot(n,Hh),0.),220.)*mix(vec3(1.,.95,.85),vec3(.7,.8,1.),N)*(1.3-.7*N)*(1.-ST*.7);
@@ -283,7 +285,8 @@ void main(){
  if(r>.7&&depth>.3){float sd2=length(lp-vec2(.05,-.07))-rad;wc*=1.-.35*smoothstep(.03,-.03,sd2);
   if(ld<rad&&abs(sin((an-hs(id)*6.28)*.5))>.07){vec3 pc=mix(vec3(.12,.36,.14),vec3(.3,.55,.2),nz(lp*9.));pc*=.88+.12*sin(an*14.);wc=mix(wc,pc,.97);
    if(r>.93){float pe=.09+.035*cos(an*8.);if(ld<pe)wc=mix(vec3(1.,.62,.78),vec3(1.,.93,.95),smoothstep(0.,pe,ld));}}}
- wc+=smoothstep(.02,0.,abs(d+.014+.006*sin(T*.9+p.x*20.)))*.3*nz(p*50.);
+ wc+=smoothstep(.14,0.,abs(d+.09+.03*sin(T*.9+p.x*20.)))*.3*nz(p*50.);
+ wc*=1.-csh;
  wc+=FL*.5;
  gl_FragColor=vec4(pow(clamp(wc,0.,1.6),vec3(.95)),m);}
 </script>
@@ -1227,8 +1230,8 @@ function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.s
   sprites(l,r,t,b);
   if(GL.ok)drawGL();
   drawSurf();
- // drifting cloud shadows, kept off the water
- {const sc2=SCR.getContext('2d');sc2.setTransform(1,0,0,1,0,0);sc2.clearRect(0,0,VW,VH);
+ // drifting cloud shadows (the shader draws its own when there is one)
+ if(!GL.ok){const sc2=SCR.getContext('2d');sc2.setTransform(1,0,0,1,0,0);sc2.clearRect(0,0,VW,VH);
   sc2.setTransform(Z,0,0,Z,TX,TY);sc2.imageSmoothingEnabled=true;sc2.globalAlpha=(1-n*.85)*(1-cur.storm*.5);
   const off=(T*5)%768;for(let X=-768+off;X<Wd;X+=768)for(let Y=0;Y<Ht;Y+=384)if(X+768>l&&X<r&&Y+384>t&&Y<b)sc2.drawImage(CLOUD,X,Y,768,384);
   sc2.globalAlpha=1;sc2.imageSmoothingEnabled=false;sc2.setTransform(1,0,0,1,0,0);
