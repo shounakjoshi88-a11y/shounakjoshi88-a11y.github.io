@@ -107,6 +107,25 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 #say .who{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#8a6b42;display:block;margin-bottom:.15rem}
 @keyframes bob{50%{transform:translateY(-4px)}}
 
+/* hero + villager bubbles */
+.hero{font-size:clamp(2.4rem,6.4vw,5.4rem);color:var(--cream);text-shadow:3px 3px 0 var(--rust),0 6px 28px rgba(0,0,0,.5);margin:0 0 .8rem}
+.heroSub{max-width:26ch;font-size:clamp(1.05rem,2vw,1.5rem);margin:0 0 .9rem;text-shadow:0 2px 14px rgba(0,0,0,.65)}
+.heroHint{max-width:34ch;font-size:.95rem;margin:0;color:#e6efd9;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+#bub{position:fixed;left:0;top:0;z-index:4;width:min(340px,calc(100vw - 24px));opacity:0;visibility:hidden;will-change:transform,opacity;transition:opacity .15s}
+#bub .bb{background:var(--paper);color:var(--text);padding:.8rem 1rem .9rem;clip-path:var(--notch);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#bub .nm{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#8a6b42;margin-bottom:.25rem}
+#bub .nm b{color:var(--rust)}
+#bub .tx{margin:0;font-size:.97rem;line-height:1.5}
+#bub .off{color:transparent}
+#bub .tgs{font-family:var(--mono);font-size:.72rem;color:#6a563a;margin:.5rem 0 0;line-height:1.5}
+#bub .lk{display:flex;flex-wrap:wrap;gap:.35rem 1rem;margin:.6rem 0 0}
+#bub .lk a{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--rust);text-decoration:underline;text-underline-offset:4px}
+#bub .lk a:hover,#bub .lk a:focus-visible{color:#c4561a}
+#bub .tail{position:absolute;top:calc(100% - 1px);left:calc(50% + var(--tx,0px));width:16px;height:10px;transform:translateX(-50%);background:var(--paper);clip-path:polygon(0 0,100% 0,50% 100%)}
+#bub.pop .bb{animation:pop .35s cubic-bezier(.34,1.56,.5,1)}
+@keyframes pop{from{transform:scale(.85) translateY(8px);opacity:0}}
+@media(prefers-reduced-motion:reduce){#bub.pop .bb{animation:none}}
 /* loading */
 #boot{position:fixed;inset:0;z-index:30;background:#06201f;color:var(--cream);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;font-family:var(--mono);font-size:.9rem;letter-spacing:.1em;text-transform:uppercase}
 #boot .bar{width:190px;height:8px;background:#0d3a37;border:2px solid #2a5f58;padding:2px}
@@ -141,54 +160,23 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 <noscript><div class="sign" style="position:relative;z-index:2;margin:5rem 1rem"><h1 class="pix">Shounak Joshi</h1><p class="sub">I build agentic AI systems and full-stack apps. The interactive pond needs JavaScript, but you can reach me at <a href="mailto:shounakjoshi88@gmail.com" style="color:#ffb35c">shounakjoshi88@gmail.com</a> or on <a href="https://github.com/shounakjoshi88-a11y" style="color:#ffb35c">GitHub</a>.</p></div></noscript>
 
 <main>
-<section id="top"><div class="sign">
-  <h1 class="pix">Hello there, I’m Shounak Joshi</h1>
-  <p class="sub">I build agentic AI systems and real-stack apps that hold up when someone else runs them.</p>
-  <p class="hint">Scroll to walk through the forest village down to its pond. Touch the water to make ripples, and watch the koi.</p></div>
-</section>
-
-<section id="work">
-  <h2 class="pix">What I build</h2>
-  <div class="grid">
-    <div class="proj"><h3><a href="https://github.com/shounakjoshi88-a11y/Flux" target="_blank" rel="noopener">Flux</a></h3><p>Twenty-one tools behind a plan, execute, verify, retry loop. Streaming interleaves results with prose, and vector memory re-injects itself, so one bad extraction can poison every later answer.</p><ul class="tags"><li>Bun</li><li>Express 5</li><li>React 19</li><li>pgvector</li><li>E2B sandbox</li></ul><span class="go2"><a href="https://github.com/shounakjoshi88-a11y/Flux" target="_blank" rel="noopener">source on GitHub ↗</a></span><span class="go2"><a href="https://flux-weld-rho.vercel.app" target="_blank" rel="noopener">live ↗</a></span></div>
-    <div class="proj"><h3><a href="https://github.com/shounakjoshi88-a11y/studydesk" target="_blank" rel="noopener">StudyDesk</a></h3><p>The Android app I use every day. On-device OCR turns a photographed timetable into real classes, surviving dark backgrounds, all four rotations and tiny blurry labels. Noise never becomes a lecture.</p><ul class="tags"><li>React</li><li>Vite</li><li>Capacitor</li><li>OCR</li></ul><span class="go2"><a href="https://github.com/shounakjoshi88-a11y/studydesk" target="_blank" rel="noopener">source on GitHub ↗</a></span></div>
-    <div class="proj"><h3><a href="https://github.com/shounakjoshi88-a11y/stellar-forge" target="_blank" rel="noopener">Stellar Forge</a></h3><p>Event ticketing with a 3D header, where the real work is race-safe seat claims: serialisable transactions, row locking and one source of truth for the live counter.</p><ul class="tags"><li>React</li><li>Three.js</li><li>PostgreSQL</li><li>Real-time</li></ul><span class="go2"><a href="https://github.com/shounakjoshi88-a11y/stellar-forge" target="_blank" rel="noopener">source on GitHub ↗</a></span><span class="go2"><a href="https://stellar-forge-frontend.vercel.app/" target="_blank" rel="noopener">live ↗</a></span></div>
-    <div class="proj"><h3><a href="https://github.com/shounakjoshi88-a11y/de-ai" target="_blank" rel="noopener">de-ai</a></h3><p>A deterministic rewriter that calls no model. A 600-term technical blocklist fences the rule bank, and the pipeline re-scans its output and reverts any swap that adds a new tell.</p><ul class="tags"><li>Python</li><li>Rule bank</li><li>Regression suite</li></ul><span class="go2"><a href="https://github.com/shounakjoshi88-a11y/de-ai" target="_blank" rel="noopener">source on GitHub ↗</a></span></div>
-    <div class="proj"><h3><a href="https://github.com/shounakjoshi88-a11y/meridian" target="_blank" rel="noopener">Meridian</a></h3><p>Clinical triage built only from six lab practicals on real ICD-10-CM data. No ORM, no framework, and every generator bug became a named regression test.</p><ul class="tags"><li>Python</li><li>Flask</li><li>pandas</li><li>ICD-10-CM</li></ul><span class="go2"><a href="https://github.com/shounakjoshi88-a11y/meridian" target="_blank" rel="noopener">source on GitHub ↗</a></span></div>
-  </div>
-</section>
-
-<section id="shelf" class="right">
-  <h2 class="pix">On the shelf</h2>
-  <div class="shelf" id="more"></div>
-</section>
-
-<section id="about" class="right">
-  <div class="about">
-    <h2 class="pix">About</h2>
-    <p>BTech CSE at Ramdeobaba University, Nagpur, second year. Coordinator at Engineering India RBU, a student-led collective across 8 Nagpur colleges. I like agentic systems that plan, execute, verify and retry, real-time apps where the race conditions are the real problem, and graphics written from scratch instead of configured.</p>
-    <div class="chips"><span>TypeScript</span><span>Python</span><span>C</span><span>JavaScript</span><span>Bun</span><span>Express</span><span>React</span><span>Tailwind</span><span>PostgreSQL</span><span>Prisma</span><span>Supabase</span><span>Godot</span><span>Three.js</span><span>GSAP</span><span>Android</span><span>Docker</span><span>Linux</span><span>Git</span></div>
-  </div>
-</section>
-
-<section id="wish">
-  <div class="sign"><h2 class="pix">Now</h2>
-  <p class="sub" style="font-size:1.1rem">Open to internships, to collaboration, and to being told I’m doing something in a stupid way.</p>
-  <div class="links">
-    <a href="https://github.com/shounakjoshi88-a11y" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://x.com/BroIndian39416" target="_blank" rel="noopener">X</a>
-    <a href="https://www.youtube.com/@Badass069" target="_blank" rel="noopener">YouTube</a>
-    <a href="mailto:shounakjoshi88@gmail.com">Email</a>
-  </div></div>
-  <div class="wish">
+<section id="top"><h1 class="hero pix">Shounak Joshi</h1><p class="heroSub">Agentic AI systems and full-stack apps that hold up when someone else runs them.</p><p class="heroHint">Scroll to walk the village. Touch the water to make ripples.</p></section>
+<section id="work" aria-label="Flux"></section>
+<section id="s2" aria-label="StudyDesk"></section>
+<section id="s3" aria-label="Stellar Forge"></section>
+<section id="shelf" aria-label="More work"></section>
+<section id="about" aria-label="About"></section>
+<section id="s6" aria-label="Skills"></section>
+<section id="wish"><div class="wish">
     <h3>Wishing pond</h3>
     <label for="w">Type a wish and toss a coin in. Try rain, storm, night, dusk, day, or koi.</label>
     <input id="w" type="text" autocomplete="off" placeholder="wish...">
     <button class="go" id="toss" type="button">Toss a coin</button>
     <p id="msg" role="status"></p>
-  </div>
-</section>
+  </div></section>
 </main>
+<div id="bub" role="region" aria-label="Villager talking"></div>
+<ul class="sr" id="srl"></ul>
 
 <div id="mizu">
   <button id="mz" type="button" aria-label="Mizu, the koi in the pond. Press for a hint."><svg viewBox="0 0 24 16" aria-hidden="true"><g fill="#e8491d"><rect x="4" y="6" width="10" height="5"/><rect x="2" y="7" width="2" height="3"/><rect x="6" y="4" width="4" height="2"/><rect x="14" y="7" width="3" height="3"/></g><g fill="#fff4e8"><rect x="7" y="6" width="3" height="5"/><rect x="4" y="6" width="2" height="5"/></g><g fill="#10231f"><rect x="12" y="7" width="2" height="2"/></g></svg></button>
@@ -208,7 +196,7 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 
 <script id="fs" type="x-shader/x-fragment">
 precision highp float;
-uniform vec2 R;uniform float T,N,D,RN,ST,FL,SH;uniform vec3 RP[8];uniform vec4 CAM;uniform vec2 ORG;uniform vec4 MAP;
+uniform vec2 R;uniform float T,N,D,RN,ST,FL,SH;uniform vec3 RP[8];uniform vec4 CAM;uniform vec2 ORG;uniform vec4 MAP;uniform vec3 LT[12];uniform float NL;
 float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float nz(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y);}
 float fb(vec2 p){return .55*nz(p)+.28*nz(p*2.03+vec2(1.7,9.2))+.14*nz(p*4.11+vec2(4.3,1.1));}
@@ -249,6 +237,34 @@ vec4 koi(vec2 q){vec4 o=vec4(0.);float tt=T*(1.+SH*2.5);
   b*=.72+.28*(1.-abs(lat));if(a<.1)b=mix(b,vec3(1.,.8,.7),.4);
   o=mix(o,vec4(b,1.),aa);}
  return o;}
+float skyCloud(vec2 cp){return fb4(cp*vec2(1.,1.9)+3.);}
+vec3 skyAt(vec2 uv){
+ float asp=R.x/R.y,day=1.-N;
+ float g=smoothstep(0.,.55,uv.y);
+ vec3 zen=mix(vec3(.09,.30,.66),vec3(.008,.015,.06),N);
+ vec3 hor=mix(vec3(.74,.88,.96),vec3(.07,.10,.22),N);
+ zen=mix(zen,vec3(.20,.13,.40),D*day*.85);hor=mix(hor,vec3(1.,.56,.32),D*day*.9);
+ vec3 c=mix(zen,hor,pow(g,1.25));
+ vec2 q=(uv-vec2(.74,mix(.13,.3,D)))*vec2(asp,1.);float sd=length(q);
+ float sun=smoothstep(.034,.028,sd)+exp(-sd*6.)*.35+exp(-sd*22.)*.5;
+ c+=mix(vec3(1.,.92,.74),vec3(1.,.5,.24),D)*sun*day*(1.-ST*.85);
+ vec2 q2=(uv-vec2(.22,.11))*vec2(asp,1.);float md=length(q2);
+ c+=vec3(.85,.9,1.)*(smoothstep(.03,.026,md)*(.85+.15*nz(q2*60.))+exp(-md*9.)*.18)*N*(1.-ST*.85);
+ vec2 sg=uv*vec2(asp,1.)*64.,si=floor(sg);float sr=hs(si);
+ float stl=step(.965,sr)*smoothstep(.22,0.,length(fract(sg)-.5+(hs(si+7.)-.5)*.5))*(.55+.45*sin(T*(1.5+sr*3.)+sr*40.));
+ c+=vec3(.85,.9,1.)*stl*N*(1.-ST)*smoothstep(.5,.05,uv.y)*1.3;
+ float ay=.16+.06*sin(uv.x*4.+T*.15)+.03*nz(vec2(uv.x*3.,T*.05));
+ float au=exp(-pow((uv.y-ay)*8.,2.))*nz(vec2(uv.x*6.+T*.08,T*.04))*N*(1.-ST)*(1.-D);
+ c+=mix(vec3(.1,.9,.55),vec3(.5,.3,.9),clamp(uv.y*3.,0.,1.))*au*.28;
+ vec2 cp=vec2(uv.x*asp*1.5+T*.012,uv.y*3.4);
+ float cd=skyCloud(cp),cov=mix(.5,.3,ST);
+ float cl=smoothstep(cov,cov+.28,cd)*(1.-.4*g);
+ float lit=clamp((cd-skyCloud(cp+vec2(.05,.08)))*9.+.5,0.,1.);
+ vec3 cc=mix(vec3(.62,.68,.78),vec3(1.),lit);
+ cc=mix(cc,mix(vec3(.9,.5,.42),vec3(1.,.82,.6),lit),D*day);
+ cc=mix(cc,vec3(.1,.13,.22)+vec3(.12)*lit,N*.85);
+ cc=mix(cc,vec3(.3,.33,.38),ST*.8);
+ return mix(c,cc,cl*.85);}
 void main(){
  vec2 scr=vec2(gl_FragCoord.x,R.y-gl_FragCoord.y);
  vec2 p2=vec2(scr.x*MAP.x,scr.y*MAP.y);
@@ -263,7 +279,7 @@ void main(){
  vec2 p=(tl-vec2(26.5,24.5))/6.;
  // one cloud shadow drifts over the sky and the water together
  float csh=smoothstep(.42,.78,fb4((p+vec2(T*.055,T*.022))*1.6))*.26;
- vec3 sky=mix(skyT,skyB,sy)*(1.-csh);
+ vec3 sky=skyAt(vec2(scr.x/R.x,scr.y/R.y))*(1.-csh*.4);
  float m=smoothstep(.06,-.06,d);
  if(m<=.002){gl_FragColor=vec4(sky,1.);return;}
  vec3 sk=mix(vec3(.5,.74,.92),vec3(.02,.05,.1),N);sk=mix(sk,vec3(1.,.55,.3),D*day*.7);sk=mix(sk,vec3(.28,.32,.36)*(1.-N*.7),ST);
@@ -287,7 +303,15 @@ void main(){
   if(ld<rad&&abs(sin((an-hs(id)*6.28)*.5))>.07){vec3 pc=mix(vec3(.12,.36,.14),vec3(.3,.55,.2),nz(lp*9.));pc*=.88+.12*sin(an*14.);wc=mix(wc,pc,.97);
    if(r>.93){float pe=.09+.035*cos(an*8.);if(ld<pe)wc=mix(vec3(1.,.62,.78),vec3(1.,.93,.95),smoothstep(0.,pe,ld));}}}
  wc+=smoothstep(.14,0.,abs(d+.09+.03*sin(T*.9+p.x*20.)))*.3*nz(p*50.);
- wc*=1.-csh;
+  vec3 rf=vec3(0.);
+  for(int i=0;i<12;i++){vec3 l=LT[i];if(l.z<=0.)continue;
+   float dx=(world.x-l.x+n.x*6.+sin(world.y*.45+T*1.5)*1.3)/(2.6+l.z*.07);
+   float dy=world.y-(l.y+l.z*.9);
+   float st=exp(-dx*dx)*smoothstep(-3.,4.,dy)*exp(-max(dy,0.)/(l.z*.8))*(.5+.5*sin(dy*.8-T*2.1+n.x*50.));
+   float pl=exp(-(dx*dx*.35+dy*dy/(l.z*l.z*.3)))*.25;
+   rf+=vec3(1.,.62,.26)*(st+pl);}
+  wc+=rf*NL*.6*(1.-ST*.6)*(.5+.5*smoothstep(0.,.5,depth));
+  wc*=1.-csh;
  wc+=FL*.5;
  gl_FragColor=vec4(pow(clamp(wc,0.,1.6),vec3(.95)),m);}
 </script>
@@ -311,14 +335,18 @@ const MORE=[
  ['one-a-day','One problem a day.','one-a-day'],
  ['garden','A daily engineering rhythm.','garden']
 ];
-$('more').innerHTML=MORE.map(m=>`<div><b><a href="${GH+m[2]}" target="_blank" rel="noopener">${m[0]}</a></b><span>${m[1]}</span><em>github.com/shounakjoshi88-a11y/${m[2]}${m[3]?' &nbsp;·&nbsp; <a href="'+m[3]+'" target="_blank" rel="noopener">live demo ↗</a>':''}</em></div>`).join('');
+
 
 // Mizu, the koi that lives in the pond and talks back.
-const LINES={top:'Psst. Down here. I’m <b>Mizu</b>. I live in the pond at the end of the lane. Scroll when you are ready.',
+const LINES0={top:'Psst. Down here. I’m <b>Mizu</b>. I live in the pond at the end of the lane. Scroll when you are ready.',
  work:'Five things Shounak built that still stand when somebody else runs them. Start with <b>Flux</b> — twenty-one tools and a verifier that says no.',
  shelf:'Smaller ripples. A news wire, a weight-forensics lab, the ACM site. All real code, all in his GitHub.',
  about:'That’s the person behind the commits: second year, a collective across eight colleges, and a soft spot for race conditions.',
  wish:'Last pond. Toss a coin and say <b>rain</b>, <b>storm</b>, <b>night</b> or <b>koi</b>. Or just write to him.'};
+const LINES={top:'Psst. I’m <b>Mizu</b>, from the pond. Scroll down the lane and the villagers will tell you about Shounak.',
+ work:'Follow the lane. Every villager has a story.',s2:'Tap a link in the bubble to see the real code.',s3:'Keep going. The shelf is round the corner.',
+ shelf:'Smaller ripples, all real repositories.',about:'My pond is just ahead. Drag across the water, the koi notice.',s6:'Cross the bridge. One more villager.',
+ wish:'Last pond. Toss a coin and say <b>rain</b>, <b>storm</b>, <b>night</b> or <b>koi</b>.'};
 const TIPS=['Drag across the water. The koi notice.','Try the Night button. I like the fireflies.','The lanterns only glow after dark.','Walk down the lane past the farm. The windmill turns.','Click me and I will jump.'];
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;let typer=null,tipI=0;
 function say(html){clearInterval(typer);const el=$('say');$('mizu').classList.add('hop');setTimeout(()=>$('mizu').classList.remove('hop'),450);
@@ -340,6 +368,29 @@ $('wx').onclick=e=>e.target.dataset.k&&setWx(e.target.dataset.k);
 addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>(e.buttons?10:22)){lx=e.clientX;ly=e.clientY;ripple(lx,ly,e.buttons?1.2:.6)}},{passive:true});
 addEventListener('pointerdown',e=>ripple(e.clientX,e.clientY,1.8));
 
+// The villagers tell the story, one per stop on the lane.
+const CH=[
+ {at:[9.6,5.2],pal:[[104,142,72],[84,70,52],[170,130,70],[226,184,146],[214,184,96]],name:'Teru',role:'the farmer',text:'Ah, a visitor. This whole village is Shounak’s doing. He builds agentic AI systems and full-stack apps that keep working when someone else runs them.',tags:'',links:[]},
+ {at:[16.0,8.6],pal:[[196,72,58],[58,62,92],[92,54,32],[228,182,144],null],name:'Mira',role:'the miller',text:'Flux is his big one. Twenty-one tools behind a plan, execute, verify, retry loop. Its vector memory re-injects itself, so one bad extraction can poison every later answer.',tags:'Bun · Express 5 · React 19 · pgvector · E2B sandbox',links:[['Flux on GitHub ↗',GH+'Flux']]},
+ {at:[15.2,13.4],pal:[[78,118,148],[62,58,66],[214,206,186],[222,178,140],[176,128,74]],name:'Pip',role:'the student',text:'StudyDesk is the Android app he uses every day. On-device OCR turns a photographed timetable into real classes, even blurry or rotated ones. Noise never becomes a lecture.',tags:'React · Vite · Capacitor · OCR',links:[['StudyDesk on GitHub ↗',GH+'studydesk']]},
+ {at:[14.9,16.6],pal:[[222,196,84],[92,86,70],[142,84,40],[236,196,152],[124,88,52]],name:'Oro',role:'the ticket seller',text:'Stellar Forge sells event tickets. The hard part is seat claims that cannot race: serialisable transactions, row locking and one live counter everyone trusts.',tags:'React · Three.js · PostgreSQL · Real-time',links:[['Stellar Forge on GitHub ↗',GH+'stellar-forge']]},
+ {at:[21.55,19.55],pal:[[206,96,72],[74,62,56],[60,48,40],[224,184,148],[92,64,44]],name:'Bea',role:'the shopkeeper',text:'Out back is the shelf. de-ai rewrites text with no model at all. Meridian triages clinical cases from real ICD-10 data. Plenty more where those came from.',tags:'',links:[['de-ai',GH+'de-ai'],['Meridian',GH+'meridian'],['AI Wire ↗','https://ai-news-seven-tan.vercel.app/'],['Weight forensics',GH+'llm-weight-forensics'],['ACM RBU site',GH+'acm-rbu-site'],['Voxelcraft',GH+'voxelcraft'],['PayFlow',GH+'payflow-java'],['Sixty logins',GH+'60-login-page-challenge']]},
+ {at:[19.8,24.5],pal:[[120,104,84],[70,74,88],[238,232,220],[214,166,126],[178,152,112]],name:'Sen',role:'the old fisher',text:'Second year BTech CSE at Ramdeobaba, Nagpur. He also coordinates Engineering India RBU, a student collective across eight colleges. Mind the koi.',tags:'',links:[]},
+ {at:[34.4,22.6],pal:[[142,158,120],[64,66,60],[198,186,150],[220,172,132],null],name:'Kiri',role:'the bridge keeper',text:'He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch instead of configured.',tags:'TypeScript · Python · C · React · PostgreSQL · Godot · Three.js · Docker',links:[]},
+ {at:[39.8,22.5],pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],name:'Juno',role:'the postmaster',text:'Last stop. He is open to internships, to collaboration, and to being told he is doing something in a stupid way. Send a letter.',tags:'',links:[['GitHub','https://github.com/shounakjoshi88-a11y'],['X','https://x.com/BroIndian39416'],['YouTube','https://www.youtube.com/@Badass069'],['Email','mailto:shounakjoshi88@gmail.com']]}
+];
+$('srl').innerHTML=CH.map(c=>`<li>${c.name}, ${c.role}: ${c.text} ${c.tags}</li>`).join('');
+const BUB=$('bub');let curCh=-1,bw=300,bh=200,typ2=null;
+function setCh(k){curCh=k;const c=CH[k],full=c.text;clearInterval(typ2);
+ BUB.innerHTML=`<div class="bb"><div class="nm"><b>${c.name}</b> · ${c.role}</div><p class="tx"><span class="on"></span><span class="off">${full}</span></p>${c.tags?`<div class="tgs">${c.tags}</div>`:''}${c.links.length?`<div class="lk">${c.links.map(l=>`<a href="${l[1]}"${l[1][0]=='h'?' target="_blank" rel="noopener"':''}>${l[0]}</a>`).join('')}</div>`:''}</div><i class="tail"></i>`;
+ const on=BUB.querySelector('.on'),off=BUB.querySelector('.off');
+ if(reduce){on.textContent=full;off.textContent=''}else{let i=0;typ2=setInterval(()=>{i+=2;on.textContent=full.slice(0,i);off.textContent=full.slice(i);if(i>=full.length)clearInterval(typ2)},18)}
+ BUB.classList.remove('pop');void BUB.offsetWidth;BUB.classList.add('pop');bw=BUB.offsetWidth;bh=BUB.offsetHeight}
+function bubbleTick(f){const k=clamp(Math.round(f),0,CH.length-1);if(k!==curCh)setCh(k);
+ const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,x=clamp(sx,12+half,vw-12-half),y=Math.max(sy,bh+70);
+ BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
+ BUB.style.opacity=a;BUB.style.pointerEvents=a>.6?'auto':'none';BUB.style.visibility=a<.02?'hidden':'visible'}
+
 // Wishing pond
 const WISHES=[
  [/storm|thunder|lightning/,()=>{setWx('storm');return'Thunder rolls over the water.'}],
@@ -348,7 +399,7 @@ const WISHES=[
  [/dusk|sunset|evening|golden/,()=>{setTod('dusk');return'The light turns amber.'}],
  [/day|sun|morning|clear|dawn/,()=>{setTod('day');setWx('clear');return'The sky clears.'}],
  [/koi|fish|carp/,()=>{startle=1;return'The koi scatter, then circle back to see who you are.'}],
- [/hire|intern|job|work|collab/,()=>{startle=1;return'The koi have read the code. They approve. The email is in the sign above.'}]
+ [/hire|intern|job|work|collab/,()=>{startle=1;return'The koi have read the code. They approve. The postmaster has the email.'}]
 ];
 const COIN=['The coin sinks. The koi are curious.','The coin glints once, then is gone.','Somewhere under the lily pads, a koi nods.'];
 function wish(){const i=$('w'),v=i.value.toLowerCase(),m=$('msg');
@@ -385,7 +436,7 @@ document.addEventListener('visibilitychange',()=>{if(SND.on&&SND.ctx)document.hi
 
 
 /* ================= SCENE: helpers, palettes, sprite makers ================= */
-const fx2=document.getElementById('fx'),c2=fx2.getContext('2d'),VN=52,OX=VN*16,OY=110,Wd=VN*32+32,Ht=VN*16+210,PM={x:0,y:0};
+const fx2=document.getElementById('fx'),c2=fx2.getContext('2d'),VN=64,OX=VN*16,OY=110,Wd=VN*32+32,Ht=VN*16+210,PM={x:0,y:0};
 let WS=2,VW,VH,Z=1,TX=0,TY=0,stc,wm,wb,wc,wi,objs=[],rps=[],GLW=[],SPR={},CLOUD,FLAKES=[],LEAVES=[];
 const lerp=(a,b,t)=>a+(b-a)*t,clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),sm=(a,b,x)=>{x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x)};
 const hh=(a,b)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
@@ -450,7 +501,7 @@ const ZONE=(a,b)=>{
   if(a>24&&a<41.5&&b>32&&b<43)return 'orchard';
   if(a>20&&a<45&&b>29&&b<47)return 'meadow';
   if(a>22&&a<44&&b>0.4&&b<13)return 'woods';
-  if(a>31&&a<52&&b>19&&b<30)return 'river';
+  if(a>31&&a<VN&&b>19&&b<30)return 'river';
   if(a>15.5&&a<22.5&&b>15&&b<21.5)return 'clearing';
   return 'forest'};
 const RES=[[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
@@ -473,42 +524,57 @@ function cube(c,cx,by,a,h,top,L,R,fL,fR){const ah=a>>1;
  for(let r=-ah;r<ah;r++){const hw=Math.round(a*(1-Math.abs(r+.5)/ah));c.fillStyle=rgb(top);c.fillRect(cx-hw,by-h+r,hw*2,1)}}
 
 // ---- trees ----
-const leafPal=(rg,v)=>LP[rg].map(c=>v=='birch'?mixc(c,[205,228,112],.32):c);
+const CHP=[[96,34,62],[160,66,106],[222,124,164],[246,176,200],[255,222,234]];
+const leafPal=(rg,v)=>v=='cherry'?CHP:LP[rg].map(c=>v=='birch'?mixc(c,[205,228,112],.32):c);
 function drawTrunk(x,ox,oy,len,tw,birch){for(let Y=0;Y<len;Y++)for(let X=-tw;X<=tw;X++){const t=(X+tw)/(2*tw);let col=birch?(t<.4?[236,236,226]:t<.75?[214,214,202]:[172,172,162]):(t<.3?BARK[3]:t<.65?BARK[2]:BARK[1]);
   if(birch){if(hh(X,Y>>1)>.82&&Y%5<2)col=[40,40,42]}else if(hh(X*3,Y>>1)>.78)col=BARK[0];
   px(x,ox+X,oy-Y,rgb(col))}
  for(let k=0;k<4;k++){const w=tw+4-k;px(x,ox-w,oy-k,rgb(birch?[190,190,180]:BARK[1]),1,1);px(x,ox+w,oy-k,rgb(BARK[0]),1,1);px(x,ox-w+1,oy-k,rgb(birch?[214,214,202]:BARK[2]),2*w-1,1)}}
 function oak(rg,R,seed,variant){const key='o'+rg+R+seed+(variant||'');if(SPR[key])return SPR[key];
- const W=Math.ceil(R*3.1)+12,Hh=Math.ceil(R*3.7)+16,ox=W>>1,oy=Hh-6,TH=Math.round(R*.9),ccy=oy-TH-Math.round(R*.5),pal=leafPal(rg,variant),hl=LH[rg];
- const bs=[[0,0,R*.76]],n=6+(seed%2);
- for(let k=0;k<n;k++){const an=k/n*6.283+hh(seed,k)*.7,d=R*(.45+.32*hh(k,seed+1));bs.push([Math.cos(an)*d*1.12,Math.sin(an)*d*.72-R*.05,R*(.34+.22*hh(seed+2,k))])}
- bs.push([0,-R*.58,R*.46],[-R*.34,-R*.42,R*.4],[R*.36,-R*.44,R*.38]);
+ const W=Math.ceil(R*3.3)+16,Hh=Math.ceil(R*3.9)+20,ox=W>>1,oy=Hh-8,TH=Math.round(R*.9),ccy=oy-TH-Math.round(R*.5),pal=leafPal(rg,variant),birch=variant=='birch',cher=variant=='cherry',hl=cher?[255,240,246]:LH[rg];
+ const bs=[[0,0,R*.74]],n=9+(seed%3);
+ for(let k=0;k<n;k++){const an=k/n*6.283+hh(seed,k)*.6,d=R*(.5+.34*hh(k,seed+1));bs.push([Math.cos(an)*d*1.15,Math.sin(an)*d*.72-R*.05,R*(.3+.2*hh(seed+2,k))])}
+ for(let k=0;k<14;k++){const an=hh(k,seed+5)*6.283,d=R*(.8+.28*hh(seed+7,k));bs.push([Math.cos(an)*d*1.1,Math.sin(an)*d*.7-R*.06,R*(.14+.1*hh(k,seed+9))])}
+ bs.push([0,-R*.58,R*.44],[-R*.34,-R*.42,R*.38],[R*.36,-R*.44,R*.36]);
  const c=mk(W,Hh),x=c.getContext('2d');
- drawTrunk(x,ox,oy,TH+Math.round(R*.5),Math.max(2,Math.round(R*.17)),variant=='birch');
- // two visible branches
- if(variant!='birch'){ln(x,ox,oy-TH,ox-Math.round(R*.5),oy-TH-Math.round(R*.45),rgb(BARK[1]));ln(x,ox+1,oy-TH-2,ox+Math.round(R*.5),oy-TH-Math.round(R*.5),rgb(BARK[0]))}
+ drawTrunk(x,ox,oy,TH+Math.round(R*.5),Math.max(2,Math.round(R*.17)),birch);
+ // roots, moss and a branch skeleton that shows through the gaps
+ for(let k=0;k<5;k++){const sd=k%2?1:-1,w=Math.max(2,Math.round(R*.17))+2+k;px(x,ox+sd*w,oy+1-(k>2?1:0),rgb(birch?[190,190,180]:BARK[1]),2,1)}
+ if(!birch)for(let k=0;k<6;k++)px(x,ox-3+Math.floor(hh(k,seed)*7),oy-1-Math.floor(hh(seed,k)*6),rgb(LP.g[1+k%2]));
+ const br=(x0,y0,a,L,dp)=>{if(dp>2||L<3)return;let X=x0,Y=y0;for(let q=0;q<L;q++){X+=Math.cos(a);Y+=Math.sin(a)*.9;px(x,Math.round(X),Math.round(Y),rgb(birch?[196,196,184]:dp?BARK[0]:BARK[1]),dp?1:2,1)}br(X,Y,a-.55-hh(dp,seed)*.3,L*.66,dp+1);br(X,Y,a+.5+hh(seed,dp)*.3,L*.62,dp+1)};
+ br(ox,oy-TH,-2.2,R*.62,0);br(ox,oy-TH-2,-1.0,R*.6,0);br(ox,oy-TH-R*.3,-1.57,R*.5,0);
  const cc=mk(W,Hh),cx=cc.getContext('2d'),id=cx.createImageData(W,Hh),d=id.data,op=new Uint8Array(W*Hh);
- for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){let best=0,bnx=0,bny=0;for(const[bx,by,r]of bs){const nx=(X-ox-bx)/r,ny=(Y-ccy-by)/r,q=nx*nx+ny*ny;if(q<1){const nz=Math.sqrt(1-q);if(nz>best){best=nz;bnx=nx;bny=ny}}}
+ for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){let best=0,bnx=0,bny=0,bi=0;for(let q=0;q<bs.length;q++){const[bx,by,r]=bs[q],nx=(X-ox-bx)/r,ny=(Y-ccy-by)/r,qq=nx*nx+ny*ny;if(qq<1){const nz=Math.sqrt(1-qq);if(nz>best){best=nz;bnx=nx;bny=ny;bi=q}}}
   if(!best||(best<.16&&hh(X,Y+seed)>.5))continue;
-  const dot=-bnx*.5-bny*.62+best*.6;let t=Math.floor((dot+.25)*3.5+(hh((X>>1)+seed,Y>>1)-.5)*1.5);
+  const dot=-bnx*.5-bny*.62+best*.6;let t=Math.floor((dot+.25)*3.5+(hh((X>>1)+seed,Y>>1)-.5)*1.5+(hh(bi,seed)-.5)*.9);
   if(best<.2)t=0;else if(best<.4&&bny>0)t=Math.max(0,t-1);t=clamp(t,0,4);
-  let col=pal[t];if(dot>.42&&hh(X*3+seed,Y*5)>.84)col=hl;else if(t<2&&hh(X*5,Y*3+seed)>.93)col=pal[3];
+  if(t==0&&best>.5&&hh(X*2+seed,Y*3)>.86)continue;
+  if((X+Y*2+bi)%5==0&&t>1&&hh(X,Y)>.5)t--;
+  let col=pal[t];if(dot>.42&&hh(X*3+seed,Y*5)>.8)col=hl;else if(t<2&&hh(X*5,Y*3+seed)>.93)col=pal[3];
+  if(cher&&t>1&&hh(X*7+seed,Y*11)>.88)col=[255,246,250];else if(!cher&&!birch&&rg=='g'&&t>2&&hh(X*9,Y*7+seed)>.985)col=[226,70,56];
   const o=(Y*W+X)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255;op[Y*W+X]=1}
  const dk=pal[0].map(v=>v*.5);
  for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){if(op[Y*W+X])continue;if((X>0&&op[Y*W+X-1])||(X<W-1&&op[Y*W+X+1])||(Y>0&&op[(Y-1)*W+X])||(Y<Hh-1&&op[(Y+1)*W+X])){const o=(Y*W+X)*4;d[o]=dk[0];d[o+1]=dk[1];d[o+2]=dk[2];d[o+3]=255}}
- cx.putImageData(id,0,0);x.drawImage(cc,0,0);return SPR[key]={c,ox,oy,R,sh:[R*.4,R*.12,R*1.15,R*.5]}}
+ cx.putImageData(id,0,0);x.drawImage(cc,0,0);
+ // loose leaves drifting off the crown, and a litter of them on the ground
+ for(let k=0;k<Math.round(R*2.2);k++){const an=hh(k,seed+21)*6.283,rr=R*(.85+.5*hh(seed+4,k)),X=Math.round(ox+Math.cos(an)*rr*1.15),Y=Math.round(ccy+Math.sin(an)*rr*.72);if(X>0&&Y>0&&X<W-1&&Y<Hh-1&&!op[Y*W+X])px(x,X,Y,rgb(pal[2+k%3]),hh(k,seed)>.7?2:1,1)}
+ for(let k=0;k<Math.round(R*(rg=='a'||cher?3:1.2));k++){const X=Math.round(ox+(hh(k,seed+11)-.5)*R*2.3),Y=Math.round(oy+(hh(seed,k+5)-.3)*R*.45);if(X>0&&X<W&&Y<Hh)px(x,X,Y,rgb(rg=='a'||cher?pal[1+k%4]:LP.g[1+k%3]),hh(k,seed)>.6?2:1,1)}
+ return SPR[key]={c,ox,oy,R,sh:[R*.4,R*.12,R*1.15,R*.5]}}
 function pine(rg,R,seed){const key='p'+rg+R+seed;if(SPR[key])return SPR[key];
- const W=R*2+14,Hh=Math.round(R*3.3)+14,ox=W>>1,oy=Hh-5,n=Math.round(R/3.6)+2,pal=LP[rg],c=mk(W,Hh),x=c.getContext('2d');
+ const W=R*2+14,Hh=Math.round(R*3.3)+14,ox=W>>1,oy=Hh-5,n=Math.round(R/2.7)+3,pal=LP[rg],c=mk(W,Hh),x=c.getContext('2d');
  drawTrunk(x,ox,oy,Math.round(R*.7),2,false);
  const cc=mk(W,Hh),cx=cc.getContext('2d'),id=cx.createImageData(W,Hh),d=id.data,op=new Uint8Array(W*Hh),top=oy-Math.round(R*3),step=(Math.round(R*3)-Math.round(R*.55))/n;
  for(let q=n-1;q>=0;q--){const ty=top+q*step*.92,th=step*1.55,hwm=R*(.32+.68*(q+1)/n);
   for(let Y=Math.floor(ty);Y<Math.floor(ty+th);Y++){const f=(Y-ty)/th,hw=f*hwm*(1+.1*Math.sin(Y*.9+seed+q))+.6+(hh(Y,q+seed)-.5)*1.4;
    for(let X=Math.floor(ox-hw);X<=Math.ceil(ox+hw);X++){if(X<0||X>=W||Y<0||Y>=Hh)continue;const s=(X-ox)/(hw+.01);
     let t=Math.floor((-s*.6+(1-f)*.45+.38+(hh(X+seed,Y)-.5)*.5)*3.6);if(f>.86)t=Math.max(0,t-2);else if(f>.7&&hh(X*2,Y*2)>.6)t=Math.max(0,t-1);
-    t=clamp(t,0,4);let col=pal[t];if(rg=='s'&&f<.62&&s<.5&&hh(X*3,Y)>.18)col=[240,248,252];else if(rg=='g'&&t==4&&hh(X*3,Y)>.7)col=LH.g;
+    t=clamp(t,0,4);let col=pal[t];if((X*2+Y)%5==0&&t>0&&t<4&&hh(X,Y+seed+q)>.5)col=pal[t+1];else if((X+Y)%7==0&&t>1&&hh(X+q,Y)>.6)col=pal[t-1];if(rg=='s'&&f<.62&&s<.5&&hh(X*3,Y)>.18)col=[240,248,252];else if(rg=='g'&&t==4&&hh(X*3,Y)>.7)col=LH.g;
     const o=(Y*W+X)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255;op[Y*W+X]=1}}}
  const dk=pal[0].map(v=>v*.5);for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){if(op[Y*W+X])continue;if((X>0&&op[Y*W+X-1])||(X<W-1&&op[Y*W+X+1])||(Y>0&&op[(Y-1)*W+X])||(Y<Hh-1&&op[(Y+1)*W+X])){const o=(Y*W+X)*4;d[o]=dk[0];d[o+1]=dk[1];d[o+2]=dk[2];d[o+3]=255}}
- cx.putImageData(id,0,0);x.drawImage(cc,0,0);return SPR[key]={c,ox,oy,R,sh:[R*.3,R*.1,R*.9,R*.4]}}
+ cx.putImageData(id,0,0);x.drawImage(cc,0,0);
+ for(let k=0;k<Math.round(R/3);k++){const cy=Math.round(oy-R*(.7+2*hh(k,seed+3))),cxp=Math.round(ox+(hh(seed,k+8)-.5)*R*.9*(1-(oy-cy)/(R*3.2)));if(op[cy*W+cxp]&&rg!='s'){px(x,cxp,cy,'#6e4a2a',2,3);px(x,cxp,cy,'#9a6c3c',1,1)}}
+ for(let k=0;k<R;k++){const X=Math.round(ox+(hh(k,seed+13)-.5)*R*1.7),Y=Math.round(oy+(hh(seed,k+2)-.3)*3);if(X>0&&X<W)px(x,X,Y,rg=='s'?'#f2f8fb':k%3?'#5a3e24':'#8a6238',k%4?1:2,1)}
+ return SPR[key]={c,ox,oy,R,sh:[R*.3,R*.1,R*.9,R*.4]}}
 function bush(rg,seed,big){const key='b'+rg+seed+(big?1:0);if(SPR[key])return SPR[key];const r=big?9:6,W=r*3+6,Hh=r*2+10,c=mk(W,Hh),x=c.getContext('2d'),pal=LP[rg];
  bl(x,r+3,Hh-r-2,r,Math.round(r*.7),pal,seed);bl(x,r*2+1,Hh-r-1,Math.round(r*.8),Math.round(r*.6),pal,seed+3);bl(x,r+Math.round(r*.7),Hh-r*1.6|0,Math.round(r*.7),Math.round(r*.55),pal,seed+7);
  for(let q=0;q<(big?9:5);q++){x.fillStyle=['#e8453c','#ffd24a','#ff8fb8','#fff','#a84bd8'][Math.floor(hh(seed,q)*5)];x.fillRect(3+Math.floor(hh(q,seed)*(W-8)),Hh-r*1.5-3+Math.floor(hh(seed,q+9)*r*1.3),2,2)}
@@ -565,9 +631,20 @@ function wellS(){if(SPR.well)return SPR.well;const c=mk(50,56),x=c.getContext('2
  for(let r=0;r<9;r++){const w=18-r*1;px(x,25-w,4+r,rgb(r<4?[150,56,34]:[122,42,28]),w*2,1)}px(x,12,3,rgb([196,84,50]),26,1);
  px(x,24,12,rgb([120,84,50]),2,18);px(x,22,30,rgb([140,96,56]),6,4);px(x,23,30,rgb([180,130,80]),4,1);return SPR.well={c,ox:25,oy:44,sh:[3,1,16,6]}}
 function lamp(){if(SPR.lamp)return SPR.lamp;const c=mk(11,36),x=c.getContext('2d');px(x,4,10,rgb([52,40,30]),3,26);px(x,3,34,rgb([40,30,24]),5,2);px(x,1,3,rgb([36,28,22]),9,9);px(x,2,4,rgb([236,186,84]),7,7);px(x,3,5,rgb([255,226,152]),3,3);px(x,0,2,rgb([36,28,22]),11,2);return SPR.lamp={c,ox:5,oy:35,gl:[[5,8,26]]}}
-function bench(axis){const key='bn'+axis;if(SPR[key])return SPR[key];const c=mk(40,30),x=c.getContext('2d'),dx=axis?-1:1;
- for(let k=0;k<28;k++){const X=axis?34-k:4+k,Y=14+(k>>1);px(x,X,Y,rgb([186,138,84]),1,3);px(x,X,Y+3,rgb([116,80,46]),1,2);px(x,X,Y-8,rgb([150,106,62]),1,2);px(x,X,Y-6,rgb([126,88,50]),1,1)}
- for(const k of[3,24]){const X=axis?34-k:4+k;px(x,X,18+(k>>1),rgb([84,58,34]),2,6)}return SPR[key]={c,ox:axis?34:4,oy:26,sh:[10,4,18,4]}}
+function bench(axis,rev){const key='bn2'+axis+(rev?1:0);if(SPR[key])return SPR[key];const c=mk(46,44),x=c.getContext('2d');
+ const L=axis?[-28,14]:[28,14],D=axis?[6,3]:[-6,3],p0=axis?[36,16]:[10,16];
+ const P=(s,t)=>[p0[0]+s*L[0]+t*D[0],p0[1]+s*L[1]+t*D[1]];
+ const leg=(s,t)=>{const[X,Y]=P(s,t);px(x,Math.round(X)-1,Math.round(Y)+2,rgb([84,58,34]),2,8);px(x,Math.round(X)-1,Math.round(Y)+2,rgb([116,80,46]),1,8)};
+ const back=()=>{const t0=rev?1:0,o=[p0[0]+t0*D[0],p0[1]+t0*D[1]-10];
+  para(x,o,L,[0,7],(s,t)=>t>.42&&t<.58?null:rgb(t<.42?[176,130,80]:[154,110,66]));
+  for(const s of[.03,.97]){const[X,Y]=P(s,t0);px(x,Math.round(X)-1,Math.round(Y)-10,rgb([100,70,42]),2,11)}};
+ leg(.07,rev?0:1);leg(.93,rev?0:1);leg(.07,rev?1:0);leg(.93,rev?1:0);
+ if(!rev)back();
+ para(x,[p0[0],p0[1]+2],L,D,()=>rgb([96,66,40]));
+ para(x,p0,L,D,(s,t)=>{const m=t*3;let k=[190,142,88];if(m%1<.16)k=[120,84,50];if(s<.03||s>.97)k=[216,170,112];return rgb(k)});
+ if(rev)back();
+ for(const s of[.0,1]){const[X,Y]=P(s,.5);px(x,Math.round(X)-1,Math.round(Y)-5,rgb([100,70,42]),2,5);px(x,Math.round(X)-2,Math.round(Y)-6,rgb([190,142,88]),4,1)}
+ const cx_=Math.round(p0[0]+L[0]/2+D[0]/2);return SPR[key]={c,ox:cx_,oy:p0[1]+17,sh:[0,1,15,4]}}
 function cat(){if(SPR.cat)return SPR.cat;const c=mk(16,12),x=c.getContext('2d'),B=[236,150,70],D=[184,100,40];disc(x,7,8,5,3,rgb(B));disc(x,11,6,3,3,rgb(B));px(x,10,2,rgb(B),2,2);px(x,13,2,rgb(B),2,2);px(x,10,6,rgb([30,24,16]));px(x,13,6,rgb([30,24,16]));px(x,4,6,rgb(D),6,1);px(x,2,9,rgb(D),2,2);return SPR.cat={c,ox:8,oy:11}}
 function flowerPot(){if(SPR.pot)return SPR.pot;const c=mk(10,14),x=c.getContext('2d');px(x,2,8,rgb([190,92,52]),6,5);px(x,1,7,rgb([214,112,64]),8,2);for(let k=0;k<5;k++){px(x,1+k*2,4+(k%2)*2,rgb([['#ff8fb8','#ffd24a','#fff','#e8453c','#ff8fb8'][k]]));px(x,2+k*2,6,rgb([60,130,56]))}return SPR.pot={c,ox:5,oy:12}}
 function signpost(){if(SPR.sign)return SPR.sign;const c=mk(30,40),x=c.getContext('2d');px(x,13,6,rgb([100,68,40]),3,32);px(x,14,6,rgb([146,102,60]),1,32);
@@ -654,11 +731,19 @@ function coop(){
   let col=u%3==0?[138,96,54]:[186,138,82];if(hh(u,v>>3)>.8)col=col.map(z=>z*.9);return col.map(z=>z*k)};
  return box({a,wh,H,wall,roof:[[132,48,32],[170,62,38],[206,88,48]],rowH:3,colW:4.5,moss:0,sh:[8,3,22,9],top:20,bot:8,ov:3,
   after:(x,res,cx,cy,a,ah)=>{for(let k=0;k<12;k++){const X=cx+8+k,Y=cy+ah-Math.floor(8*ah/a)+2+(k>>1);px(x,X,Y,rgb([186,138,82]),1,2);px(x,X,Y+2,rgb([102,70,42]),1,1);if(k%3==0)px(x,X,Y-1,rgb([130,90,52]))}}})}
-function pier(){const Lt=2.3,Wt=.6,e1=[Lt*16,Lt*8],e2=[-Wt*16,Wt*8],c=mk(80,56),x=c.getContext('2d'),p0=[14,14];
- para(x,[p0[0],p0[1]+3],e1,e2,()=>rgb([58,38,24]));
- para(x,p0,e1,e2,(s,t)=>{const m=s*Lt*7,q=hh(Math.floor(m),3);let k=q>.6?[190,146,92]:q>.3?[170,126,76]:[150,108,64];if(m%1<.14)k=[98,68,42];if(t<.08)k=[126,88,52];if(t>.92)k=[116,80,48];return rgb(k)});
- for(const s of[0,.5,1])for(const t of[0,1]){const X=Math.round(p0[0]+s*e1[0]+t*e2[0]),Y=Math.round(p0[1]+s*e1[1]+t*e2[1]);px(x,X-1,Y-7,rgb([84,56,36]),3,12);px(x,X-1,Y-8,rgb([164,118,72]),3,1)}
- return{c,ox:14,oy:14}}
+function pier(){const Lt=4.4,Wt=.8,e1=[-Lt*16,Lt*8],e2=[Wt*16,Wt*8],c=mk(104,78),x=c.getContext('2d'),p0=[84,22];
+ const at=(s,t)=>[Math.round(p0[0]+s*e1[0]+t*e2[0]),Math.round(p0[1]+s*e1[1]+t*e2[1])];
+ // piles standing in the water under the deck
+ for(const s of[.06,.36,.66,.96])for(const t of[.05,.95]){const[X,Y]=at(s,t);px(x,X-1,Y+3,rgb([46,32,22]),3,11);px(x,X,Y+3,rgb([76,54,36]),1,11)}
+ // deck: thickness, then planks laid across the walkway
+ para(x,[p0[0],p0[1]+4],e1,e2,()=>rgb([52,34,22]));
+ para(x,[p0[0],p0[1]+2],e1,e2,()=>rgb([86,60,38]));
+ para(x,p0,e1,e2,(s,t)=>{const m=s*Lt*6,q=hh(Math.floor(m),5);let k=q>.6?[198,152,96]:q>.3?[176,130,80]:[154,112,66];if(m%1<.14)k=[98,68,42];if(t<.07)k=[132,94,58];if(t>.93)k=[116,80,48];return rgb(k)});
+ // rail posts and rope along both edges
+ for(const t of[.04,.96]){let prev=null;for(const s of[.02,.34,.66,.98]){const[X,Y]=at(s,t);px(x,X-1,Y-8,rgb([84,56,36]),2,9);px(x,X-1,Y-9,rgb([170,124,76]),2,1);if(prev)ln(x,prev[0],prev[1]-7,X,Y-7,rgb([206,176,126]));prev=[X,Y]}}
+ // a lantern on the tallest post at the far end
+ const[X,Y]=at(.98,.96);px(x,X-1,Y-20,rgb([84,56,36]),2,12);px(x,X-3,Y-22,rgb([36,28,22]),6,1);px(x,X-3,Y-21,rgb([236,186,84]),6,5);px(x,X-2,Y-20,rgb([255,226,152]),4,3);px(x,X-3,Y-16,rgb([36,28,22]),6,1);
+ return{c,ox:84,oy:22,gl:[[X,Y-19,30]]}}
 
 /* ================= SCENE: the expanded village ================= */
 const STONE=[[162,156,146],[130,124,114],[98,94,86],[66,64,60]];
@@ -944,6 +1029,7 @@ function build(){
  for(let i=0;i<VN;i++)for(let j=0;j<VN;j++)for(let s=0;s<3;s++){const fi=i+hh(i*13+s,j)-.5,fj=j+hh(j*7+s,i+3)-.5;if(!okp(fi,fj)||hh(i*3+s,j*5+1)>dens(fi,fj))continue;
   const rg=RG(fi,fj),dc=Math.hypot(fi-14.6,fj-12.6),e=Math.min(fi,fj,VN-1-fi,VN-1-fj),k=hh(i*9,j*4+s),seed=(i*7+j*3+s)%4,zn=ZONE(fi,fj);let sp;
   if(zn=='woods'||rg=='s'||(rg=='g'&&hh(i,j*7)<.26&&dc>5))sp=pine(rg,Math.round((9+Math.floor(k*7)+(e<4?2:0))/2)*2,seed);
+  else if(rg=='g'&&hh(i*4+1,j*3+s)<.07)sp=oak('g',Math.round((10+Math.floor(k*4))/2)*2,seed,'cherry');
   else if(rg=='g'&&hh(i*2,j+s)<.1)sp=oak('g',Math.round((9+Math.floor(k*4))/2)*2,seed,'birch');
   else sp=oak(rg,Math.round((10+Math.floor(k*(e<4?10:7)))/2)*2,seed);
   put(fi,fj,sp,1)}
@@ -970,21 +1056,25 @@ function build(){
  put(34.9,21.4,cottage([[92,84,74],[118,108,96],[148,136,122]]),2,.05);
  put(8.6,4.4,windmill(),2,.05);
  put(19.4,21.8,boathouse(),2,.05);
- put(24.0,22.0,oak('g',6,1),1);put(24.3,21.6,RS(4,2,RK,7),0);
+ put(24.0,22.0,oak('g',8,1,'cherry'),1);put(24.3,21.6,RS(4,2,RK,7),0);
  put(34.4,10.8,shrine(),2,.05);
  put(35.6,40.2,lookout(),2,.05);
  put(14.9,9.6,stall([196,72,52],[240,232,214]),1);put(16.9,10.4,stall([86,120,72],[240,232,214]),1);put(13.4,8.2,stall([72,96,124],[240,232,214]),1);
  put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0]-4,y:PF(35.3,22.9)[1]+14};
  // props
  const PR=[[16.5,10.6,barrel,0],[16.9,10.9,barrel,0],[16.2,10.1,crates,0],[17.2,9.4,hay,0],[17.6,9.0,hay,0],[10.0,12.3,wellS,0],[15.5,13.6,lamp,3],[18.2,11.4,lamp,3],[12.4,13.3,pumpkinS,0],
-  [9.3,10.0,()=>logS(1),0],[11.0,11.5,()=>logS(2),0],[10.0,10.5,campfire,5],[9.6,14.6,hive,0],[10.2,14.8,hive,0],[14.55,16.9,scarecrow,0],[15.8,13.9,signpost,0],[13.0,18.4,laundry,4],[16.55,12.55,cat,0],[17.2,17.9,()=>bench(0),0],[26.6,18.2,pier,0],[14.1,13.2,flowerPot,0],[12.9,13.2,flowerPot,0],[16.0,13.0,flowerPot,0],[18.3,10.2,woodpile,0],
+  [9.3,10.0,()=>logS(1),0],[11.0,11.5,()=>logS(2),0],[10.0,10.5,campfire,5],[9.6,14.6,hive,0],[10.2,14.8,hive,0],[14.55,16.9,scarecrow,0],[15.8,13.9,signpost,0],[13.0,18.4,laundry,4],[16.55,12.55,cat,0],[17.2,17.9,()=>bench(0),0],[26.2,17.7,pier,0],[14.1,13.2,flowerPot,0],[12.9,13.2,flowerPot,0],[16.0,13.0,flowerPot,0],[18.3,10.2,woodpile,0],
   [12.6,8.9,barrel,0],[11.0,8.6,churn,0],[11.6,8.9,churn,0],[13.9,8.9,crates,0],[9.2,6.2,hay,0],[9.9,6.0,hay,0],[7.0,8.4,woodpile,0],[13.6,9.9,()=>bench(0),0],[17.4,10.9,crates,0],[15.0,10.9,flowerPot,0],
   [24.6,20.4,()=>logS(2),0],[25.4,19.4,barrel,0],[21.2,23.0,boat,0],[26.0,19.0,lamp,3],[28.8,19.4,lamp,3],[31.0,27.6,lamp,3],[33.4,22.6,lamp,3],[37.0,22.4,lamp,3],[42.0,22.9,lamp,3],[47.0,23.4,lamp,3],
   [33.9,22.5,barrel,0],[36.0,21.6,crates,0],[32.6,21.4,churn,0],[30.6,20.4,()=>bench(0),0],[34.9,10.1,birdhouse,0],[32.0,12.4,birdhouse,0],[35.2,39.0,()=>bench(0),0],[33.0,38.6,churn,0],
-  [30.2,32.4,barrel,0],[29.0,33.6,hay,0],[31.6,34.4,hay,0],[22.0,26.4,()=>bench(0),0],[24.0,28.6,lamp,3],[28.4,30.2,()=>bench(0),0],[26.8,30.8,lamp,3],[20.0,23.4,()=>logS(1),0]];
- for(const[a,b,f,t]of PR){const o=put(a,b,f(),t);
-  if(a==26.6&&b==18.2){o.surf=1;SURF.pier=o}
-  if(a==21.2&&b==23.0){o.surf=1;SURF.boat=o}}
+  [30.2,32.4,barrel,0],[29.0,33.6,hay,0],[31.6,34.4,hay,0],[22.0,26.4,()=>bench(1),0],[24.0,28.6,lamp,3],[28.4,30.2,()=>bench(0,1),0],[26.8,30.8,lamp,3],[20.0,23.4,()=>logS(1),0]];
+ for(const[a0,b0,f,t]of PR){let a=a0,b=b0;
+  // nothing but the boat and the jetty may stand in the pond: lamps, barrels and logs move up onto the bank
+  if(f!==boat&&f!==pier){const dx=a-POND[0],dy=b-POND[1],L=Math.hypot(dx,dy);
+   if(L<7.1&&WD(a,b)>-.7){let r=7.4;for(let q=0;q<6&&WD(POND[0]+dx/L*r,POND[1]+dy/L*r)>-.8;q++)r+=.2;a=POND[0]+dx/L*r;b=POND[1]+dy/L*r}}
+  const o=put(a,b,f(),t);
+  if(a0==26.2&&b0==17.7){o.surf=1;SURF.pier=o}
+  if(a0==21.2&&b0==23.0){o.surf=1;SURF.boat=o}}
  // animals
  const FLOCK=[[31.0,30.2],[31.8,30.6],[32.6,30.0],[33.2,30.9],[30.4,31.2],[29.6,31.6],[32.0,32.0],[33.6,31.4]];
  for(let k=0;k<FLOCK.length;k++)put(FLOCK[k][0],FLOCK[k][1],sheep(k%2),0);
@@ -1032,6 +1122,9 @@ function initPeople(){
   for(const q of CAST){const s=q.seg||0,P={pal:q.pal,route:q.route,spd:q.spd,seg:s,a:q.route[s][0],b:q.route[s][1],anim:0,vx:1,vy:0,wait:0,cd:0,mv:1,talk:0};
     P.spr={front:[villager(q.pal,0,'front'),villager(q.pal,1,'front')],back:[villager(q.pal,0,'back'),villager(q.pal,1,'back')],side:[villager(q.pal,0,'side'),villager(q.pal,1,'side')]};
     PEOPLE.push({d:P.a+P.b,P})}
+  for(const ch of CH){const P={pal:ch.pal,route:[ch.at,ch.at],spd:0,seg:0,a:ch.at[0],b:ch.at[1],anim:0,vx:.7,vy:.7,wait:1e9,cd:1e9,mv:0,talk:0};
+    P.spr={front:[villager(ch.pal,0,'front'),villager(ch.pal,1,'front')],back:[villager(ch.pal,0,'back'),villager(ch.pal,1,'back')],side:[villager(ch.pal,0,'side'),villager(ch.pal,1,'side')]};
+    PEOPLE.push({d:P.a+P.b,P})}
 }
 function stepPeople(dt){
   for(const it of PEOPLE){const P=it.P,r=P.route;P.cd=Math.max(0,(P.cd||0)-dt);
@@ -1059,7 +1152,7 @@ function drawPerson(ctx,P){
 /* ================= THE POND: v4's water, rendered for real ================= */
 const GL={ok:false,gl:null,U:{},q:.85,rp:new Float32Array(24),acc:.016,ticks:0};
 function initGL(){
-  const c=$('gl'),gl=c.getContext('webgl',{alpha:true,antialias:false,depth:false,stencil:false,powerPreference:'high-performance',premultipliedAlpha:false});
+  const c=$('gl'),gl=c.getContext('webgl',{alpha:true,antialias:false,depth:false,stencil:false,powerPreference:'high-performance',premultipliedAlpha:false,preserveDrawingBuffer:true});
   if(!gl)return false;
   const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);
     if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)){console.error(gl.getShaderInfoLog(o));return null}return o};
@@ -1072,7 +1165,7 @@ function initGL(){
   gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const a=gl.getAttribLocation(p,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
-  ['R','T','N','D','RN','ST','FL','SH','RP','CAM','ORG','MAP'].forEach(k=>GL.U[k]=gl.getUniformLocation(p,k));
+  ['R','T','N','D','RN','ST','FL','SH','RP','CAM','ORG','MAP','LT','NL'].forEach(k=>GL.U[k]=gl.getUniformLocation(p,k));
   GL.gl=gl;GL.ok=true;
   gl.disable(gl.DEPTH_TEST);gl.enable(gl.BLEND);
   gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
@@ -1096,6 +1189,9 @@ function drawGL(){
       rp[i*3]=(fi-26.5)/6;rp[i*3+1]=(fj-24.5)/6;rp[i*3+2]=r.t;}
     else{rp[i*3]=0;rp[i*3+1]=0;rp[i*3+2]=-99}}
   gl.uniform3fv(GL.U.RP,rp);
+  const LT=GL.lt||(GL.lt=new Float32Array(36));LT.fill(0);
+  GLW.map(q=>[q,Math.hypot(((q[0]-OX)/16+(q[1]-OY)/8)/2-POND[0],((q[1]-OY)/8-(q[0]-OX)/16)/2-POND[1])]).filter(q=>q[1]<13).sort((a,b)=>a[1]-b[1]).slice(0,12).forEach(([q],i)=>{LT[i*3]=q[0];LT[i*3+1]=q[1];LT[i*3+2]=q[2]});
+  gl.uniform3fv(GL.U.LT,LT);gl.uniform1f(GL.U.NL,cur.night*(1-cur.rain*.5));
   gl.drawArrays(gl.TRIANGLES,0,3)}
 
 /* ---- the things that float on top of the water ---- */
@@ -1107,7 +1203,7 @@ function drawSurf(){
   ctx.setTransform(Z,0,0,Z,TX,TY);
   const c=ctx;
   // the jetty reaching over the water
-  if(SURF.pier){const o=SURF.pier;c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy)}
+  if(SURF.pier){const o=SURF.pier;c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy);if(o.sp.gl)for(const q of o.sp.gl)GLW.push([o.x-o.sp.ox+q[0],o.y-o.sp.oy+q[1],q[2]])}
   // the spray where the mill wheel bites the water
   if(SURF.spray){const o=SURF.spray;
    for(let q=0;q<5;q++){const ph=(T*1.6+q*.37)%1;
@@ -1253,7 +1349,7 @@ function water(){
       const v=d32[o>>2];
       d32[o>>2]=(255<<24)|(clamp(((v>>16)&255)+f*70,0,255)<<16)|(clamp(((v>>8)&255)+f*80,0,255)<<8)|clamp((v&255)+f*75,0,255)}}
   wc.getContext('2d').putImageData(wi,0,0);c2.drawImage(wc,wb[0],wb[1])}
-function fall(){const c=c2,[x,y]=PF(VN-1,26);for(let u=1;u<15;u++){const yt=y+8-(u>>1);for(let v=-2;v<92;v++){c.globalAlpha=(v<20?1:clamp(1-(v-20)/72,0,1))*.9;c.fillStyle=((v+T*34+u*3)|0)%9<3?'#eefaff':((v+T*34)|0)%5<2?'#a9dcec':'#6fb7d3';c.fillRect(x+u,yt+v,1,1)}}c.globalAlpha=1}
+function fall(){const c=c2,[x,y]=PF(VN-1,POND[1]+(VN-1-31.4)*.075);for(let u=1;u<15;u++){const yt=y+8-(u>>1);for(let v=-2;v<92;v++){c.globalAlpha=(v<20?1:clamp(1-(v-20)/72,0,1))*.9;c.fillStyle=((v+T*34+u*3)|0)%9<3?'#eefaff':((v+T*34)|0)%5<2?'#a9dcec':'#6fb7d3';c.fillRect(x+u,yt+v,1,1)}}c.globalAlpha=1}
 const bridgeLift=(a,b)=>(a<32.4||a>34.6||b<22.5||b>26.5)?0:Math.sin(Math.PI*(b-22.5)/4)*3;
 function bridge(c){c=c||c2;
  c.fillStyle='rgba(6,26,36,.14)';for(let jj=22.7;jj<26.4;jj+=.4){const[x,y]=PF(33.5,jj);c.fillRect(x-10,y+6,21,2)}
@@ -1298,14 +1394,14 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;
  for(const[bx,by,k]of LEAVES){const p=(T*.1+hh(k,1))%1,X=bx+p*30+Math.sin(T*1.4+k)*5,Y=by-40+p*70;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle=['#e2862b','#c2491f','#f1b445'][k%3];c.fillRect(X|0,Y|0,2,1);c.fillRect((X|0)+1,(Y|0)+1,1,1)}
  for(const[bx,by,k]of FLAKES){const p=(T*.07+hh(k,2))%1,X=bx+Math.sin(T*.9+k)*6+p*8,Y=by-50+p*80;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(255,255,255,.9)';c.fillRect(X|0,Y|0,1,1);if(k%4==0)c.fillRect((X|0)+1,Y|0,1,1)}}
 let SCR=null;
-function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round(innerWidth/(WS*375)),1,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;sizeGL()}
+function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round(innerWidth/(WS*375)*.75*4)/4,.75,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;sizeGL()}
 function ripple(x,y,s,dl){if(!wm)return;if(s>2){const[px_,py]=PF(POND[0],POND[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5){startle=Math.min(1,startle+.7);splashAt(wx,wy,12);duckReact(wx,wy)}}}
-function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k),KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6],[40.0,22.6]],[cx,cy]=PF(lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)),n=cur.night,w=cur.warm;GLW=[];
-  TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);
+function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k),KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6],[40.0,22.6]],[cx,cy]=PF(lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)),n=cur.night,w=cur.warm;GLW=[];
+  TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);bubbleTick(f);
  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,VW,VH);
  if(!GL.ok){ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);}
- for(let i=0;i<80;i++){ctx.fillStyle=`rgba(230,240,255,${n*(.5+.5*Math.sin(T*2+i))})`;ctx.fillRect(hh(i,5)*VW|0,hh(i,6)*VH|0,1,1)}
- for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+160))-80,Y=hh(q,2)*VH,col=`rgba(${lerp(226,70,n)|0},${lerp(238,90,n)|0},${lerp(246,130,n)|0},.09)`;for(let b=0;b<5;b++)disc(ctx,X+b*16,Y+(b%2)*3,24+(b%3)*7,5+(b%2)*2,col)}
+if(!GL.ok)for(let i=0;i<80;i++){ctx.fillStyle=`rgba(230,240,255,${n*(.5+.5*Math.sin(T*2+i))})`;ctx.fillRect(hh(i,5)*VW|0,hh(i,6)*VH|0,1,1)}
+if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+160))-80,Y=hh(q,2)*VH,col=`rgba(${lerp(226,70,n)|0},${lerp(238,90,n)|0},${lerp(246,130,n)|0},.09)`;for(let b=0;b<5;b++)disc(ctx,X+b*16,Y+(b%2)*3,24+(b%3)*7,5+(b%2)*2,col)}
  if(cur.rain>.05&&Math.random()<cur.rain*.25){const[px_,py]=PF(POND[0]+(Math.random()-.5)*5,POND[1]+(Math.random()-.5)*4);if(wm[(py|0)*Wd+(px_|0)])rps.push({x:px_,y:py,t:T})}
   const l=-TX/Z-70,r=(VW-TX)/Z+70,t=-TY/Z-110,b=(VH-TY)/Z+70;
   SKYC[0]=lerp(124,18,n)+w*92;SKYC[1]=lerp(178,34,n)+w*36;SKYC[2]=lerp(216,74,n)-w*58;
@@ -1337,11 +1433,20 @@ function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.s
   if(vn>.01){ctx.globalCompositeOperation='source-atop';
    ctx.fillStyle=`rgba(${Math.round(lerp(38,15,vn))},${Math.round(lerp(50,23,vn))},${Math.round(lerp(86,52,vn))},${(vn*.6*st).toFixed(3)})`;ctx.fillRect(0,0,VW,VH);
    ctx.globalCompositeOperation='source-over'}}
- if(n>.15){ctx.setTransform(Z,0,0,Z,TX,TY);ctx.globalCompositeOperation='lighter';for(const[gx,gy,rr0]of GLW){const rr=rr0*.85,gd=ctx.createRadialGradient(gx,gy,0,gx,gy,rr);gd.addColorStop(0,`rgba(255,172,72,${.3*n})`);gd.addColorStop(.45,`rgba(255,164,64,${.1*n})`);gd.addColorStop(1,'rgba(255,164,64,0)');ctx.fillStyle=gd;ctx.fillRect(gx-rr,gy-rr,rr*2,rr*2)}
-  for(let q=0;q<150;q++){ctx.fillStyle=`rgba(206,242,118,${n*(.14+.3*Math.max(0,Math.sin(T*2+q*3)))})`;ctx.fillRect(60+hh(q,1)*(Wd-120)+Math.sin(T*.5+q)*6,OY+hh(q,2)*VN*16+Math.cos(T*.4+q*2)*6,2,2)}ctx.globalCompositeOperation='source-over'}
+ if(n>.15){ctx.setTransform(Z,0,0,Z,TX,TY);ctx.globalCompositeOperation='lighter';for(const[gx,gy,rr0]of GLW){const rr=rr0*.6,gd=ctx.createRadialGradient(gx,gy,0,gx,gy,rr);gd.addColorStop(0,`rgba(255,172,72,${.12*n})`);gd.addColorStop(.45,`rgba(255,164,64,${.035*n})`);gd.addColorStop(1,'rgba(255,164,64,0)');ctx.fillStyle=gd;ctx.fillRect(gx-rr,gy-rr,rr*2,rr*2)}
+  for(let q=0;q<150;q++){ctx.fillStyle=`rgba(206,242,118,${n*(.07+.17*Math.max(0,Math.sin(T*2+q*3)))})`;ctx.fillRect(60+hh(q,1)*(Wd-120)+Math.sin(T*.5+q)*6,OY+hh(q,2)*VN*16+Math.cos(T*.4+q*2)*6,2,2)}ctx.globalCompositeOperation='source-over'}
  ctx.setTransform(1,0,0,1,0,0);const rn=Math.floor(cur.rain*130);ctx.fillStyle='rgba(190,220,255,.55)';for(let i=0;i<rn;i++){const sp=70+hh(i,3)*40,yy=(hh(i,2)*VH+T*sp)%VH;ctx.fillRect((((hh(i,1)*VW-yy*.2)%VW)+VW)%VW|0,yy|0,1,3)}
  if(flash>.02){ctx.fillStyle=`rgba(210,225,255,${flash*.5})`;ctx.fillRect(0,0,VW,VH)}
 }
+
+{const qp=new URLSearchParams(location.search);
+ const sp=qp.get('p');if(sp!=null)window.__p=parseFloat(sp);
+ const sn=qp.get('n');if(sn!=null){const v=parseFloat(sn);cur.night=v;tgt.night=v;cur.warm=0;tgt.warm=0}
+ setTimeout(()=>{const t=document.createElement('canvas');t.width=fx2.width;t.height=fx2.height;
+  const c=t.getContext('2d');c.imageSmoothingEnabled=false;
+  c.fillStyle='#000';c.fillRect(0,0,t.width,t.height);
+  c.drawImage($('gl'),0,0,t.width,t.height);c.drawImage(fx2,0,0);c.drawImage($('fx2'),0,0);
+  const d=document.createElement('div');d.id='shotdata';d.textContent=t.toDataURL('image/png');document.body.appendChild(d);},9000);}
 addEventListener('pointermove',e=>{PM.x=e.clientX/innerWidth-.5;PM.y=e.clientY/innerHeight-.5},{passive:true});addEventListener('resize',rz);rz();
 addEventListener('error',e=>{const b=document.getElementById('boot');
  if(b){b.classList.remove('done');b.innerHTML='<span>the village failed to load</span><span style="text-transform:none;max-width:90ch;text-align:center;line-height:1.5">'+(e.error&&e.error.stack?String(e.error.stack).replace(/</g,'&lt;'):e.message)+'</span>'}});
