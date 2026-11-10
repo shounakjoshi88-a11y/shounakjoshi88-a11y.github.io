@@ -205,7 +205,11 @@ float fb4(vec2 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*nz(p);p=p*2.03+vec2(
 float wd(vec2 p){float d=5.9+(nz(p*1.3)-.5)*.26-length(p-vec2(26.5,24.5));
  d=min(d,length(p-vec2(24.0,22.0))-1.15);
  if(p.x>31.4){float c=24.5+(p.x-31.4)*.075,tail=smoothstep(65.5,63.2,p.x);d=max(d,mix(-9.,(1.45+(nz(vec2(p.x*.8,3.))-.5)*.07-abs(p.y-c))*1.25,tail));}
- return d;}
+ // the sakura isle's pond, and its stream leaving over the far edge
+ float e=3.2+(nz(p*1.3+5.)-.5)*.22-length(p-vec2(88.,27.));
+ if(p.x>90.4){float c2=27.+(p.x-90.4)*.055,t2=smoothstep(107.4,105.5,p.x);
+  e=max(e,mix(-9.,(1.15+(nz(vec2(p.x*.8,7.))-.5)*.06-abs(p.y-c2))*1.25,t2));}
+ return max(d,e);}
 float H(vec2 p){float h=fb(p*5.+vec2(T*.06,T*.04))*.6+fb(p*13.-vec2(T*.09,-T*.05))*.25;
  for(int i=0;i<8;i++){vec3 v=RP[i];float a=T-v.z;if(a>0.&&a<5.){float r=length(p-v.xy),f=r-a*.3,env=exp(-a*.75)/(1.+r*5.),k=f<0.?30.:220.;
   h+=sin(f*62.)*exp(-f*f*k)*env*.30;h+=sin(f*130.+1.3)*exp(-f*f*k*2.)*env*.10;h+=exp(-r*r*500.)*cos(a*26.)*exp(-a*3.5)*.18;}}
@@ -240,6 +244,25 @@ vec4 koi(vec2 q0){vec2 q=q0*.58;vec4 o=vec4(0.);float tt=T*(1.+SH*2.5);
   o=mix(o,vec4(b,1.),aa);}
  return o;}
 float skyCloud(vec2 cp){return fb4(cp*vec2(1.,1.9)+3.);}
+// Below the islands there is no sea. There is a floor of cloud, far down, seen from above:
+// rows compress toward the horizon so the eye reads depth rather than a flat band.
+vec4 cloudSea(vec2 uv){
+ float asp=R.x/R.y,Ns=smoothstep(.30,.94,N),day=1.-Ns;
+ float gy=clamp((uv.y-.40)/.60,0.,1.);
+ float z=1./(1.55+gy*8.5);
+ vec2 cp=vec2((uv.x-.5)*asp*z*10.5, z*6.5+uv.x*2.2);
+ float d1=fb4(cp+vec2(T*.010,T*.003));
+ float d2=fb4(cp*2.6+vec2(3.1,-T*.007));
+ float den=d1*.74+d2*.26;
+ float cov=smoothstep(.33,.55,den)*smoothstep(0.,.22,gy);
+ float lit=clamp((den-.33)*2.9,0.,1.);
+ vec3 cc=mix(vec3(.40,.47,.61),vec3(1.02,1.0,.98),lit);
+ cc=mix(cc,mix(vec3(.30,.23,.34),vec3(1.,.74,.54),lit),D*day*.88);
+ cc=mix(cc,vec3(.05,.06,.12)+vec3(.10)*lit,Ns*.94);
+ cc=mix(cc,vec3(.33,.35,.40),ST*.72);
+ // a bright rim where the sun rakes the nearest tops
+ cc+=vec3(1.,.94,.80)*pow(lit,3.)*.10*day;
+ return vec4(cc,cov);}
 vec3 skyAt(vec2 uv){
  float asp=R.x/R.y,Ns=smoothstep(.30,.94,N),day=1.-Ns,gy=smoothstep(0.,1.,uv.y);
  // three stops instead of two, so the sky has a real gradient rather than a wash
@@ -298,6 +321,8 @@ void main(){
  // one cloud shadow drifts over the sky and the water together
  float csh=smoothstep(.42,.78,fb4((p+vec2(T*.055,T*.022))*1.6))*.26;
  vec3 sky=skyAt(vec2(scr.x/R.x,scr.y/R.y))*(1.-csh*.4);
+ vec4 csea=cloudSea(vec2(scr.x/R.x,scr.y/R.y));
+ sky=mix(sky,csea.rgb,csea.a*.95);
  float m=smoothstep(.06,-.06,d);
  if(m<=.002){gl_FragColor=vec4(sky,1.);return;}
  vec3 sk=mix(vec3(.5,.74,.92),vec3(.02,.05,.1),N);sk=mix(sk,vec3(1.,.55,.3),D*day*.7);sk=mix(sk,vec3(.28,.32,.36)*(1.-N*.7),ST);
@@ -395,7 +420,7 @@ const CH=[
  {at:[21.55,19.55],pal:[[206,96,72],[74,62,56],[60,48,40],[224,184,148],[92,64,44]],name:'Bea',role:'the shopkeeper',text:'Out back is the shelf. de-ai rewrites text with no model at all. Meridian triages clinical cases from real ICD-10 data. Plenty more where those came from.',tags:'',links:[['de-ai',GH+'de-ai'],['Meridian',GH+'meridian'],['AI Wire ↗','https://ai-news-seven-tan.vercel.app/'],['Weight forensics',GH+'llm-weight-forensics'],['ACM RBU site',GH+'acm-rbu-site'],['Voxelcraft',GH+'voxelcraft'],['PayFlow',GH+'payflow-java'],['Sixty logins',GH+'60-login-page-challenge']]},
  {at:[19.8,24.5],pal:[[120,104,84],[70,74,88],[238,232,220],[214,166,126],[178,152,112]],name:'Sen',role:'the old fisher',text:'Second year BTech CSE at Ramdeobaba, Nagpur. He also coordinates Engineering India RBU, a student collective across eight colleges. Mind the koi.',tags:'',links:[]},
  {at:[34.4,22.6],pal:[[142,158,120],[64,66,60],[198,186,150],[220,172,132],null],name:'Kiri',role:'the bridge keeper',text:'He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch instead of configured.',tags:'TypeScript · Python · C · React · PostgreSQL · Godot · Three.js · Docker',links:[]},
- {at:[76.8,22.2],pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],name:'Juno',role:'the postmaster',text:'Last stop, across the rope bridge. He is open to internships, to collaboration, and to being told he is doing something in a stupid way. Send a letter.',tags:'',links:[['GitHub','https://github.com/shounakjoshi88-a11y'],['X','https://x.com/BroIndian39416'],['YouTube','https://www.youtube.com/@Badass069'],['Email','mailto:shounakjoshi88@gmail.com']]}
+ {at:[94.9,29.4],pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],name:'Juno',role:'the postmaster',text:'Last stop, across the rope bridge. He is open to internships, to collaboration, and to being told he is doing something in a stupid way. Send a letter.',tags:'',links:[['GitHub','https://github.com/shounakjoshi88-a11y'],['X','https://x.com/BroIndian39416'],['YouTube','https://www.youtube.com/@Badass069'],['Email','mailto:shounakjoshi88@gmail.com']]}
 ];
 $('srl').innerHTML=CH.map(c=>`<li>${c.name}, ${c.role}: ${c.text} ${c.tags}</li>`).join('');
 const BUB=$('bub');let curCh=-1,bw=300,bh=200,typ2=null;
@@ -454,8 +479,8 @@ document.addEventListener('visibilitychange',()=>{if(SND.on&&SND.ctx)document.hi
 
 
 /* ================= SCENE: helpers, palettes, sprite makers ================= */
-const fx2=document.getElementById('fx'),c2=fx2.getContext('2d'),VN=64,OX=VN*16,OY=110,Wd=VN*32+32,Ht=VN*16+210,PM={x:0,y:0};
-let WS=2,VW,VH,Z=1,TX=0,TY=0,stc,wm,wb,wc,wi,objs=[],rps=[],GLW=[],SPR={},CLOUD,FLAKES=[],LEAVES=[];
+const fx2=document.getElementById('fx'),c2=fx2.getContext('2d'),VN=64,OX=VN*16,OY=110,Wd=2640,Ht=1760,PM={x:0,y:0};
+let WS=2,VW,VH,Z=1,TX=0,TY=0,stc,wm,wb,wc,wi,objs=[],rps=[],GLW=[],SPR={},CLOUD,FLAKES=[],LEAVES=[],PET=[];
 const lerp=(a,b,t)=>a+(b-a)*t,clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),sm=(a,b,x)=>{x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x)};
 const hh=(a,b)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
 const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),f=x-i,g=y-j,u=f*f*(3-2*f),v=g*g*(3-2*g);return lerp(lerp(hh(i,j),hh(i+1,j),u),lerp(hh(i,j+1),hh(i+1,j+1),u),v)};
@@ -470,20 +495,42 @@ const ln=(c,x0,y0,x1,y1,col)=>{c.fillStyle=col;const n=Math.max(Math.abs(x1-x0),
 const disc=(c,cx,cy,rx,ry,col)=>{c.fillStyle=col;for(let d=-ry;d<=ry;d++){const w=Math.round(rx*Math.sqrt(Math.max(0,1-d*d/(ry*ry+.01))));c.fillRect(cx-w,cy+d,w*2+1,1)}};
 const SEG=(x,y,ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,t=clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy),0,1);return Math.hypot(x-ax-t*dx,y-ay-t*dy)};
 
-const GP=PP({g:['#244f26','#2f6230','#3b7a35','#4a9141','#62ad4f'],a:['#5c4a20','#75602a','#8f7430','#a98b38','#c4a447'],s:['#5f7360','#71856a','#85997a','#9aad8c','#b4c4a2']});
-const LP=PP({g:['#14321b','#235027','#35792f','#52a043','#82cb63'],a:['#561f10','#8a3217','#c04e1e','#e17a2b','#f6b544'],s:['#24443d','#356657','#4a8a72','#6fb096','#a6d6bd']});
+const GP=PP({g:['#244f26','#2f6230','#3b7a35','#4a9141','#62ad4f'],a:['#5c4a20','#75602a','#8f7430','#a98b38','#c4a447'],s:['#5f7360','#71856a','#85997a','#9aad8c','#b4c4a2'],c:['#2c5730','#396a38','#487e40','#5b924e','#77aa61']});
+const LP=PP({g:['#14321b','#235027','#35792f','#52a043','#82cb63'],a:['#561f10','#8a3217','#c04e1e','#e17a2b','#f6b544'],s:['#24443d','#356657','#4a8a72','#6fb096','#a6d6bd'],c:['#8a2b4e','#b23a63','#d9568a','#ef8db4','#ffcfe0']});
 const LH={g:[214,214,104],a:[255,226,128],s:[255,255,255]};
 const RK=PP({r:['#363d42','#535c62','#757f85','#98a3a6','#bec8c7']}).r,ST=PP({r:['#8a7f6b','#a39882','#bdb299','#d6ccb3','#ede4cc']}).r;
 const WP=['#0e3a52','#14566c','#1d768a','#3a9ba5','#86d0cb'].map(hx);
 const BARK=[[44,30,18],[70,48,28],[98,68,40],[128,92,56]];
-const RG=(a,b)=>{const r=a-b+(vn(a*.4,b*.4)-.5)*6;return r>8?'a':r<-8?'s':'g'};
+// ---- the two islands ----
+// A rounded square in tile space becomes a rounded diamond on screen, which is exactly the
+// silhouette a floating island wants. p=4 keeps it nearly square but softens the four tips.
+const rd4=(dx,dy,R)=>{const ax=dx/R,ay=dy/R;return Math.sqrt(Math.sqrt(ax*ax*ax*ax+ay*ay*ay*ay))};
+const LANDA=(a,b)=>{
+  const dx=a-31.6,dy=b-31.6;if(dx>38||dx<-38||dy>38||dy<-38)return 0;
+  return rd4(dx,dy,32.8)+(vn(a*.19+7,b*.19+2)-.5)*.21+(vn(a*.62+3,b*.62+9)-.5)*.075<1?1:0};
+// the sakura isle, south-east of the village and well clear of it
+const LANDB=(a,b)=>{
+  const dx=a-93,dy=b-26;if(dx>16||dx<-16||dy>16||dy<-16)return 0;
+  return rd4(dx,dy,14)+(vn(a*.30+41,b*.30+11)-.5)*.14+(vn(a*.9+5,b*.9+23)-.5)*.05<1?1:0};
+const LANDI=(a,b)=>LANDA(a,b)?1:LANDB(a,b)?2:0;
+const RG=(a,b)=>{if(LANDB(a,b))return 'c';
+ // regions, not diagonal stripes: noise gives the edge, the a-b bias keeps autumn east and snow west
+ const r=vn(a*.062+13,b*.062+4)-.5+(vn(a*.21+6,b*.21+2)-.5)*.46+(a-b)*.0044;
+ return r>.135?'a':r<-.135?'s':'g'};
 // Water: one deep pond to the south-east, a stream running east off the map, one small island.
 const POND=[26.5,24.5],PR=5.9,ISL=[24.0,22.0],IR=1.15;
-// The pond: a deep basin, a little islet near the west shore, and a stream running east.
+const POND2=[88,27],PR2=3.2,SB=20.0;          // the sakura isle's pond
+// The village pond: a deep basin, a little islet near the west shore, a stream running east.
+// The sakura isle has its own pond and its own stream, which leaves over the far edge.
 const WD=(a,b)=>{
   let d=PR+(vn(a*1.3,b*1.3)-.5)*.26-Math.hypot(a-POND[0],b-POND[1]);
   d=Math.min(d,Math.hypot(a-ISL[0],b-ISL[1])-IR);
-  if(a>31.4){const c=POND[1]+(a-31.4)*.075;d=Math.max(d,(1.45+(vn(a*.8,3)-.5)*.07-Math.abs(b-c))*1.25)}
+  if(a>31.4&&a<68){const u=a-31.4,m=Math.sin(u*.30)*.46+Math.sin(u*.83+2.1)*.14,c=POND[1]+u*.075+m;d=Math.max(d,(1.30+(vn(a*.8,3)-.5)*.07-Math.abs(b-c))*1.25)}
+  if(a>82&&a<107.4&&b>20&&b<35){
+    let e=PR2+(vn(a*1.3+5,b*1.3+9)-.5)*.22-Math.hypot(a-POND2[0],b-POND2[1]);
+    if(a>90.4){const c2=POND2[1]+(a-90.4)*.055+Math.sin((a-90.4)*.62)*.55+Math.sin((a-90.4)*1.5)*.16,tl=clamp((107.0-a)/.8,0,1);
+      e=Math.max(e,(0.66+(vn(a*.8,7)-.5)*.07-Math.abs(b-c2))*1.25*tl)}
+    d=Math.max(d,e)}
   return d};
 
 // --- the village, in tiles ---
@@ -497,10 +544,44 @@ const PATHS=[
  [[26.5,31.5],[27.8,33.4],[29.6,35.0],[31.8,36.4],[34.0,37.6]],
  [[50.8,23.7],[53.6,23.7],[56.6,23.7],[59.6,23.7],[62.6,23.8]]
 ];
-const pathD=(a,b)=>{let d=9;for(const p of PATHS)for(let k=0;k<p.length-1;k++)d=Math.min(d,SEG(a,b,p[k][0],p[k][1],p[k+1][0],p[k+1][1]));return d};
+const PATHSB=[
+ [[79.6,22.6],[81.0,23.4],[82.6,24.6],[84.2,25.7],[85.8,26.6],[87.2,27.2]],
+ [[87.2,27.2],[88.8,29.6],[90.8,30.6],[93.4,30.5],[95.6,30.2]],
+ [[87.2,27.2],[86.8,25.4],[86.6,23.6],[87.0,21.8]],
+ [[93.4,30.5],[93.7,27.9],[94.0,25.4],[93.8,23.6]]
+];
+const pathB=(a,b)=>{let d=9;for(const p of PATHSB)for(let k=0;k<p.length-1;k++)d=Math.min(d,SEG(a,b,p[k][0],p[k][1],p[k+1][0],p[k+1][1]));return d};
+const pathD=(a,b)=>{let d=pathB(a,b);for(const p of PATHS)for(let k=0;k<p.length-1;k++)d=Math.min(d,SEG(a,b,p[k][0],p[k][1],p[k+1][0],p[k+1][1]));return d};
 const YARDS=[[14.6,12.4,2.5],[19.8,10.4,2.6],[10.0,10.5,1.7],[17.2,13.0,1.9],[11.8,7.6,2.3],[8.6,4.4,2.0],[15.9,9.6,2.2],[24.3,19.3,1.9],[33.0,9.4,1.5],[35.4,37.2,1.5],[34.9,21.4,1.8]];
 // The road network is baked into a coarse field once, then read per pixel.
 let FIELD=null,PGW=0,PGH=0;
+// How high the ground stands, in tiles. Not used to move anything: only to light it. A slope lit
+// from the upper left is what stops a painted island from reading as a printed tabletop.
+const GG=(x,y)=>Math.exp(-(x*x+y*y));
+const HGT=(a,b)=>{
+ let h=(vn(a*.085+3.3,b*.085+1.7)-.5)*1.06+(vn(a*.21,b*.21+11)-.5)*.44+(vn(a*.55,b*.55+5)-.5)*.17;
+ h+=.66*GG((a-17)/15,(b-9)/12)+.48*GG((a-42)/19,(b-41)/15);
+ h-=.30*GG((a-15)/8,(b-14)/7)-.46*GG((a-26.5)/8.5,(b-24.5)/7.5)-.34*GG((a-48)/22,(b-25)/5.5);
+ // the sakura isle: a shoulder above the pond, a hollow where the water sits, a fall to the rim
+ h+=.62*GG((a-97)/11,(b-18.5)/7)+.34*GG((a-83.5)/6.5,(b-33)/6)-.40*GG((a-88)/6.2,(b-27)/5.2);
+ return h};
+let SHADE=null;
+function bakeShade(){
+ const n=PGW*PGH,hg=new Float32Array(n);SHADE=new Float32Array(n);
+ for(let gy=0;gy<PGH;gy++)for(let gx=0;gx<PGW;gx++){
+  const x=gx*8,y=gy*4,fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;
+  hg[gy*PGW+gx]=LANDI(fi,fj)?HGT(fi,fj):0}
+ const K=132;
+ for(let gy=1;gy<PGH-1;gy++)for(let gx=1;gx<PGW-1;gx++){
+  const i=gy*PGW+gx,ha=(hg[i+1]-hg[i-1])*.5,hb=(hg[i+PGW]-hg[i-PGW])*.5;
+  // screen x runs along a-b, screen y along a+b, so the gradient turns with it
+  const gx2=(ha-hb)*K/16,gy2=(ha+hb)*K/8;
+  const nz=1/Math.sqrt(gx2*gx2+gy2*gy2+1);
+  const dot=(-gx2*nz)*-.48+(-gy2*nz)*-.54+nz*.69;
+  SHADE[i]=clamp(1+2.15*(dot-.69)+(hg[i]<-.14?(hg[i]+.14)*.55:0),.46,1.42)}
+ for(let gx=0;gx<PGW;gx++){SHADE[gx]=SHADE[PGW+gx];SHADE[(PGH-1)*PGW+gx]=SHADE[(PGH-2)*PGW+gx]}
+ for(let gy=0;gy<PGH;gy++){SHADE[gy*PGW]=SHADE[gy*PGW+1];SHADE[gy*PGW+PGW-1]=SHADE[gy*PGW+PGW-2]}
+}
 function bakeField(){
   PGW=Math.ceil(Wd/8)+2;PGH=Math.ceil(Ht/4)+2;FIELD=new Float32Array(PGW*PGH);
   for(let gy=0;gy<PGH;gy++)for(let gx=0;gx<PGW;gx++){
@@ -524,7 +605,7 @@ const ZONE=(a,b)=>{
   if(a>15.5&&a<22.5&&b>15&&b<21.5)return 'clearing';
   return 'forest'};
 const RES=[[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
-const okp=(a,b)=>{if(WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<.55)return 0;return 1};
+const okp=(a,b)=>{if(!LANDA(a,b))return 0;if(WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<.55)return 0;return 1};
 
 // ---- shaded sphere (5 tone) ----
 function bl(c,cx,cy,rx,ry,T5,sd){for(let y=-ry;y<=ry;y++)for(let x=-rx;x<=rx;x++){const nx=x/rx,ny=y/ry,q=nx*nx+ny*ny;if(q>1)continue;const nz=Math.sqrt(1-q);let t=clamp(Math.floor((-nx*.5-ny*.6+nz*.62+.25)*3.4+(hh(x+sd,y)-.5)),0,4);if(nz<.25)t=0;c.fillStyle=rgb(T5[t]);c.fillRect(cx+x,cy+y,1,1)}}
@@ -878,6 +959,152 @@ function cart(){
   disc(x,33,29,4,4,rgb([92,64,38]));
   px(x,6,9,rgb([152,118,68]),2,15);
   return{c,ox:23,oy:29,sh:[9,2,19,5]}}
+// ---- the sakura isle: a torii, a teahouse, a pagoda, lanterns, cranes ----
+function stoneLantern(){
+  if(SPR.sl)return SPR.sl;const c=mk(22,38),x=c.getContext('2d'),S=[['#5d6270','#787d88','#9aa0a8','#bcc2c6'],['#3a3f4a','#4b5058','#616770','#7d838a']];
+  disc(x,11,35,7,3,rgb([78,82,90]));disc(x,11,34,7,2,rgb([116,120,126]));disc(x,11,33,6,2,rgb([150,155,158]));
+  px(x,9,24,rgb([120,124,130]),4,9);px(x,9,24,rgb([150,155,158]),1,9);px(x,12,24,rgb([92,96,102]),1,9);
+  disc(x,11,24,6,2,rgb([126,130,136]));disc(x,11,23,5,2,rgb([158,162,166]));
+  px(x,5,15,rgb([108,112,118]),12,8);px(x,6,15,rgb([150,155,158]),3,8);px(x,14,15,rgb([80,84,90]),3,8);
+  px(x,7,17,rgb([255,214,132]),7,5);px(x,8,18,rgb([255,244,204]),4,3);
+  px(x,6,15,rgb([70,74,80]),10,1);px(x,6,22,rgb([70,74,80]),10,1);
+  disc(x,11,14,8,2,rgb([88,92,98]));disc(x,11,13,8,2,rgb([132,136,142]));disc(x,11,12,6,2,rgb([166,170,174]));
+  px(x,10,9,rgb([120,124,130]),3,3);px(x,11,8,rgb([150,155,158]),1,1);
+  return SPR.sl={c,ox:11,oy:36,sh:[2,0,11,4],gl:[[11,18,26]]}}
+
+function torii(){
+  if(SPR.torii)return SPR.torii;const c=mk(66,74),x=c.getContext('2d');
+  const V=[198,76,54],VD=[150,52,40],VL=[228,110,82],BK=[96,56,50];
+  for(const px0 of[11,50]){
+    px(x,px0,20,rgb(VD),6,50);px(x,px0+1,20,rgb(V),4,50);px(x,px0+1,20,rgb(VL),1,50);
+    px(x,px0-1,66,rgb([92,92,96]),8,4);px(x,px0-1,65,rgb([130,130,134]),8,1)}
+  // nuki, the lower tie beam
+  px(x,6,30,rgb(VD),54,5);px(x,6,30,rgb(V),54,2);px(x,7,31,rgb(VL),52,1);
+  // gakuzuka, the little centre strut, and the plaque
+  px(x,30,23,rgb(VD),6,8);px(x,28,24,rgb([42,36,34]),10,6);px(x,29,25,rgb([214,190,132]),8,4);
+  // kasagi: the top beam, curving up at the ends
+  for(let u=0;u<66;u++){const q=Math.abs(u-33)/33,dy=Math.round(q*q*q*7);
+    px(x,u,17-dy,rgb(BK),1,3);px(x,u,20-dy,rgb(VD),1,3);px(x,u,20-dy,rgb(V),1,1)}
+  px(x,2,9,rgb(BK),5,3);px(x,59,9,rgb(BK),5,3);
+  return SPR.torii={c,ox:33,oy:70,sh:[6,1,26,5],gl:[]}}
+
+function teahouse(){
+  if(SPR.th)return SPR.th;const c=mk(84,88),x=c.getContext('2d');
+  const WOOD=[104,68,42],WOODL=[140,96,58],WOODD=[72,46,28],PAPER=[255,236,196],TILE=[64,74,92],TILEL=[92,104,124],TILED=[44,52,68];
+  // stone plinth
+  for(let u=0;u<64;u++){const t=u/64,y=76+Math.round(Math.sin(t*Math.PI)*3);
+    px(x,10+u,y,rgb([128,122,110]),1,4);px(x,10+u,y,rgb([158,152,138]),1,1)}
+  // posts and walls: two visible faces
+  for(let k=0;k<5;k++){const u=14+k*11;px(x,u,44,rgb(WOOD),4,32);px(x,u,44,rgb(WOODL),1,32);px(x,u+3,44,rgb(WOODD),1,32)}
+  // shoji panels
+  for(let r=0;r<2;r++)for(let k=0;k<4;k++){const u=18+k*11,v=47+r*13;
+    px(x,u,v,rgb(PAPER),9,11);px(x,u+4,v,rgb(WOODD),1,11);px(x,u,v+5,rgb(WOODD),9,1);
+    px(x,u,v,rgb([255,250,232]),9,1);px(x,u,v+10,rgb([226,198,150]),9,1)}
+  // the veranda rail
+  px(x,8,70,rgb(WOOD),66,3);px(x,8,70,rgb(WOODL),66,1);
+  for(let k=0;k<10;k++)px(x,10+k*7,73,rgb(WOODD),1,3);
+  // roof: two tiled planes with a deep eave and the corners turning up
+  for(let u=0;u<78;u++){
+    const q=Math.abs(u-39)/39,dy=Math.round(Math.pow(q,2.4)*13);
+    const top=26-dy;
+    for(let v=0;v<20;v++){
+      const edge=v>=19;
+      let col=v<2?TILEL:v<8?TILE:TILED;
+      if((u+Math.floor(v*.7))%4==0)col=TILED;
+      if(v==19)col=[176,182,196];
+      if(edge)col=TILEL;
+      px(x,3+u,top+v,rgb(col),1,1)}
+    px(x,3+u,top-1,rgb([38,44,58]),1,1)}
+  // ridge cap
+  for(let u=0;u<78;u++){const q=Math.abs(u-39)/39,dy=Math.round(Math.pow(q,2.4)*13);px(x,3+u,24-dy,rgb([84,94,112]),1,2);px(x,3+u,24-dy,rgb([132,142,160]),1,1)}
+  // eaves struts and the hanging paper lantern
+  for(const u of[10,68]){px(x,u,32,rgb(WOODD),3,7);px(x,u-1,31,rgb(WOOD),5,2)}
+  px(x,68,36,rgb([60,44,32]),1,4);px(x,65,40,rgb([232,108,74]),7,7);px(x,66,41,rgb([255,168,120]),5,5);px(x,67,42,rgb([255,236,190]),3,3);
+  return SPR.th={c,ox:42,oy:84,sh:[12,4,30,6],gl:[[66,44,22],[26,52,30],[46,52,30]]}}
+
+function pagoda(){
+  if(SPR.pag)return SPR.pag;const c=mk(64,120),x=c.getContext('2d');
+  const RED=[172,70,50],REDD=[116,44,34],REDL=[208,100,76],WALL=[240,230,208],
+        TILE=[58,68,88],TILEL=[100,112,136],TILED=[38,44,60],GOLD=[230,188,98],INK=[86,54,40];
+  const CX=32;
+  // stone plinth, two steps, weathered
+  for(let u=0;u<46;u++){const q=Math.pow(Math.abs(u/45-.5)*2,2.6),yy=106-Math.round(q*2);
+    px(x,CX-23+u,yy,rgb([124,118,106]),1,5);px(x,CX-23+u,yy,rgb([172,166,152]),1,1);
+    if(u%3===0)px(x,CX-23+u,yy+3,rgb([100,94,84]),1,2)}
+  for(let u=0;u<38;u++)px(x,CX-19+u,103,rgb([144,138,124]),1,3);
+  // one roof: a tiled band that lifts at the corners, dark under the eave
+  const roof=(cy,w,tone)=>{
+    const W=w+15,x0=CX-Math.round(W/2);
+    for(let u=0;u<W;u++){
+      const q=Math.abs(u-(W-1)/2)/((W-1)/2),lift=Math.round(Math.pow(q,2.7)*6);
+      const yb=cy-lift,yt=yb-6;
+      for(let v=0;v<6;v++){
+        let col=v===0?TILEL:(v<4?TILE:TILED);
+        if(((u*3+v*2+tone)|0)%6===0)col=TILED;
+        px(x,x0+u,yt+v,rgb(col),1,1)}
+      px(x,x0+u,yt-1,rgb([178,190,210]),1,1);
+      px(x,x0+u,yb+1,rgb([24,30,44]),1,1);
+      if(lift>1)px(x,x0+u,yb+2,rgb([136,148,170]),1,1)}
+    px(x,x0-1,cy-2,rgb(TILEL),2,3);px(x,x0+W-1,cy-2,rgb(TILEL),2,3);
+    px(x,x0-1,cy-4,rgb([198,208,228]),1,1);px(x,x0+W,cy-4,rgb([198,208,228]),1,1);
+  };
+  // one storey: red timber posts, a plaster panel, a lattice door, a balcony rail
+  const body=(cy,w,h)=>{
+    const x0=CX-Math.round(w/2);
+    for(let u=0;u<w;u++){const t=u/Math.max(1,w-1);
+      px(x,x0+u,cy-h,rgb(t<.14?REDD:t>.86?REDL:RED),1,h)}
+    px(x,x0+1,cy-h+2,rgb(WALL),w-2,h-6);
+    for(let v=3;v<h-7;v+=3)px(x,x0+2,cy-h+2+v,rgb([224,212,186]),w-4,1);
+    px(x,CX-2,cy-h+2,rgb(INK),4,h-5);
+    for(let v=1;v<h-5;v+=3)px(x,CX-2,cy-h+2+v,rgb([128,90,64]),4,1);
+    px(x,x0,cy-h,rgb(REDD),2,h);px(x,x0+w-2,cy-h,rgb(REDL),2,h);
+    px(x,x0,cy-1,rgb(REDD),w,1);
+    // the balcony that rings each storey
+    px(x,x0-1,cy-4,rgb([208,198,176]),w+2,3);
+    px(x,x0-1,cy-4,rgb([236,228,208]),w+2,1);
+    for(let u=1;u<w+2;u+=4)px(x,x0-1+u,cy-3,rgb([146,138,120]),1,2);
+  };
+  let y=104;
+  for(const[w,h]of[[26,14],[21,13],[17,12]]){body(y,w,h);roof(y-h,w,h);y=y-h-6}
+  // the spire: a mast, its rings, and a jewel
+  px(x,CX-1,y-1,rgb([74,64,46]),2,26);px(x,CX-1,y-1,rgb(GOLD),1,26);
+  for(let k=0;k<5;k++){const yy=y-4-k*4;px(x,CX-4,yy,rgb(GOLD),9,1);px(x,CX-3,yy+1,rgb([178,140,58]),7,1)}
+  px(x,CX-2,y-28,rgb(GOLD),5,6);px(x,CX-1,y-30,rgb([246,222,160]),3,3);
+  return SPR.pag={c,ox:32,oy:111,sh:[-11,3,26,7],gl:[[32,60,12]]}}
+
+function crane(f){
+  const key='cr'+f;if(SPR[key])return SPR[key];const c=mk(28,34),x=c.getContext('2d');
+  const W=[252,250,244],WS=[214,214,208],BK=[42,40,46],RD=[198,52,48];
+  bl(x,13,24,7,5,[W,W,WS,WS,[176,176,172]],f);
+  px(x,7,21,rgb(BK),4,3);px(x,6,20,rgb([70,66,64]),3,2);
+  // neck and head
+  const nx=17,ny=13;
+  ln(x,17,24,nx,ny,rgb(WS));ln(x,18,24,nx+1,ny,rgb(W));
+  px(x,nx-1,ny-2,rgb(W),5,4);px(x,nx+3,ny-1,rgb(BK),4,2);px(x,nx+1,ny-4,rgb(RD),2,2);
+  px(x,nx+2,ny-3,rgb([26,24,26]),1,1);
+  // legs
+  ln(x,11,28,10,33,rgb([58,56,60]));ln(x,14,28,15,33,rgb([48,46,50]));
+  px(x,9,33,rgb([70,66,64]),3,1);px(x,14,33,rgb([70,66,64]),3,1);
+  const bob=f?1:0;
+  return SPR[key]={c,ox:14,oy:30+bob,sh:[4,2,14,4],fr:null}}
+
+function archBridge(){
+  if(SPR.ab)return SPR.ab;const c=mk(52,38),x=c.getContext('2d');
+  const S=[['#6e6a62','#8c887c','#a8a496','#c6c2b2'],['#565248','#6e6a5e','#8a8678','#a6a292']];
+  for(let u=0;u<48;u++){
+    const t=u/47,arc=Math.round(Math.sin(t*Math.PI)*9);
+    // deck
+    px(x,2+u,26-arc,rgb([176,168,150]),1,3);
+    px(x,2+u,26-arc,rgb([200,194,176]),1,1);
+    // parapet
+    px(x,2+u,20-arc,rgb([150,146,132]),1,2);
+    px(x,2+u,22-arc,rgb([110,106,96]),1,1);
+    // the arch underneath
+    if(u>4&&u<44){const h=Math.round(9-Math.sin(t*Math.PI)*6);for(let v=0;v<h;v++)px(x,2+u,27-arc+v,rgb([116,112,102]),1,1)}
+  }
+  for(let k=0;k<6;k++){const u=4+k*8,t=u/47,arc=Math.round(Math.sin(t*Math.PI)*9);px(x,2+u,16-arc,rgb([134,130,118]),2,6);px(x,2+u,15-arc,rgb([170,166,152]),2,1)}
+  return SPR.ab={c,ox:26,oy:34,sh:[6,2,22,4]}}
+
 function birdhouse(){
   const c=mk(18,24),x=c.getContext('2d');
   px(x,8,3,rgb([122,94,56]),2,21);
@@ -984,12 +1211,15 @@ function snowman(){if(SPR.snowman)return SPR.snowman;const c=mk(24,32),x=c.getCo
  return SPR.snowman={c,ox:12,oy:29,sh:[3,1,13,4]}}
 function put(fi,fj,sp,t,dd){const[X,Y]=PF(fi,fj),o={d:fi+fj+(dd||0),x:Math.round(X),y:Math.round(Y),sp,ph:hh(fi,fj)*6,t:t||0};objs.push(o);if(sp.sh)SH.push([o.x+sp.sh[0],o.y+sp.sh[1],sp.sh[2],sp.sh[3]]);return o}
 function build(){
- bakeField();
+ bakeField();bakeShade();
  stc=mk(Wd,Ht);const c=stc.getContext('2d'),id=c.createImageData(Wd,Ht),d=id.data,SA=[[196,178,128],[178,160,112],[207,190,142]],DI=[[109,90,60],[125,104,69],[142,120,80]];
  wm=new Uint8Array(Wd*Ht);let x0=1e9,y0=1e9,x1=0,y1=0;
   const yard=(a,b)=>{for(const[y0,y1,r]of YARDS)if(Math.hypot(a-y0,b-y1)<r+(vn(a*2,b*2)-.5)*.8)return 1;return 0};
  const dirt=(a,b)=>fieldAt(a,b)<.4+(vn(a*5,b*5)-.5)*.3;
- for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;if(fi<-.5||fj<-.5||fi>=VN-.5||fj>=VN-.5)continue;
+ // the lowest land pixel in each column, per island: the rock hangs from here
+ const BOT=[new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
+ for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){
+  const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2,isl=LANDI(fi,fj);if(!isl)continue;
   const w=WD(fi,fj),o=(y*Wd+x)*4;let k,al=255;
   if(w>0){
      wm[y*Wd+x]=clamp(Math.round(w/3*255),1,255);
@@ -1002,8 +1232,22 @@ function build(){
       if(vn(fi*3.4+4,fj*3.4)>.66&&dep>.22)k=mixc(k,[48,104,62],.5)}
      if(x<x0)x0=x;if(y<y0)y0=y;if(x>x1)x1=x;if(y>y1)y1=y}
   else{const n=vn(fi*2.6,fj*2.6)*.55+vn(fi*8,fj*8)*.25+hh(x,y)*.28;
-   if(w>-.5)k=SA[Math.floor(n*2.7)%3];
-   else if(w>-.95)k=mixc(SA[Math.floor(n*2.7)%3],[94,82,60],.42);
+   if(w>-.30)k=SA[Math.floor(n*2.7)%3];
+   else if(w>-.70)k=mixc(SA[Math.floor(n*2.7)%3],[94,82,60],.42);
+    else if(isl==2){
+     const pd=pathB(fi,fj);
+     if(pd<.46){const qx=Math.floor(fi*7+hh(fi,fj)*2),qy=Math.floor(fj*7),s2=hh(qx,qy);
+      k=mixc([146,142,132],[190,186,174],s2);
+      if(hh(qx+3,qy)>.78)k=mixc(k,[104,108,100],.5);
+      if(hh(qx,qy+5)>.9)k=mixc(k,[118,86,64],.35)}
+     else{const gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
+      // broad meadows instead of one flat green: a hollow tone, a dry tone, moss in the shade
+      const md=vn(fi*.115+21,fj*.115+31)-.5+(vn(fi*.30+3,fj*.30+7)-.5)*.45;
+      k=md>.16?GP.g[gi]:GP.c[gi];
+      if(md<-.22)k=mixc(k,[134,126,82],.28);
+      if(vn(fi*.62+2,fj*.62)>.66)k=mixc(k,[68,112,54],.34);
+      if(vn(fi*1.9+7,fj*1.9)>.80)k=mixc(k,[42,80,42],.26);
+      if(hh(x,y)>.987)k=[246,208,220];else if(hh(y,x)>.994)k=[255,234,242]}}
     else if(dirt(fi,fj)){const pk=Math.floor(n*2.7)%3;k=DI[pk];if(hh(x,y)>.93)k=[154,132,92]}
    else{const rg=RG(fi,fj),zone=ZONE(fi,fj),gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
      if(zone==='field'){const row=Math.floor(fj*2.4),ck=Math.floor(hh(row,Math.floor(fi*3.2))*3);
@@ -1013,14 +1257,102 @@ function build(){
       k=col}
      else if(zone==='river'){k=GP[rg][gi];if(hh(x,y)>.93)k=mixc(k,[174,166,148],.5)}
      else k=GP[rg][gi]}}
-  d[o]=k[0];d[o+1]=k[1];d[o+2]=k[2];d[o+3]=al}c.putImageData(id,0,0);wb=[x0,y0,x1-x0+1,y1-y0+1];wc=mk(wb[2],wb[3]);wi=wc.getContext('2d').createImageData(wb[2],wb[3]);
+  if(al){const sx=x*.125,sy=y*.25,gx0=sx|0,gy0=sy|0,fx=sx-gx0,fy=sy-gy0,j0=gy0*PGW+gx0,j1=j0+PGW;
+   const sh=lerp(lerp(SHADE[j0],SHADE[j0+1],fx),lerp(SHADE[j1],SHADE[j1+1],fx),fy);
+   k=[k[0]*sh,k[1]*sh,k[2]*sh]}
+  d[o]=k[0];d[o+1]=k[1];d[o+2]=k[2];d[o+3]=al;
+  const ii=isl-1;if(y>BOT[ii][x])BOT[ii][x]=y}
+ // ---- the rock each island floats on ----
+ // Straight down from the lowest land pixel of every column: a mossy lip, an undercut, then
+ // warm stratified stone that thickens into a keel and dissolves into the cloud sea below.
+ {const BASE=[404,312];
+  for(let isl=0;isl<2;isl++){
+   const Y=BOT[isl];let xa=1e9,xb=-1;
+   for(let x=0;x<Wd;x++)if(Y[x]>=0){if(x<xa)xa=x;if(x>xb)xb=x}
+   if(xb<0)continue;
+   const xc=(xa+xb)/2,hw=(xb-xa)/2+1,base=BASE[isl];
+   // depth per column first, so the stone can be built on its own silhouette
+   const DP=new Int32Array(Wd);
+   for(let x=xa;x<=xb;x++){
+    if(Y[x]<0){DP[x]=0;continue}
+    const ax=Math.abs((x-xc)/hw);
+    // a keel, not a wall: the stone is inset from the land, so every rim overhangs it
+    const f=clamp((1.05-ax*1.11)/1.05,0,1);
+    // a cluster of boulders, not a cone: three slow lobes and one fine one
+    let lobe=.50+.60*Math.pow(vn(x*.0034+isl*17,isl*3+7),.75)+.30*vn(x*.0105,isl*3+2)+.15*Math.pow(vn(x*.033,isl*9),2.4);
+    let dep=base*Math.pow(f,.94)*lobe;
+    if(hh(x,isl*31+5)>.95)dep+=8+18*hh(x,7+isl);           // the odd boulder, not a spike
+    dep=Math.round(Math.min(dep,Ht-Y[x]-8));
+    DP[x]=dep<3?3:dep}
+   // no column may hang far below its neighbours: a lone strand reads as an icicle, not stone
+   for(let x=xa+1;x<xb;x++){
+    if(Y[x]<0)continue;
+    const dl=Y[x-1]<0?DP[x]:DP[x-1],dr=Y[x+1]<0?DP[x]:DP[x+1],cap=Math.min(dl,dr)+13;
+    if(DP[x]>cap)DP[x]=cap}
+   // ---- the face itself: dark stone, a mossy lip, a few sediment seams ----
+   for(let x=xa;x<=xb;x++){
+    const yb=Y[x];if(yb<0)continue;
+    const dep=DP[x],ax=Math.abs((x-xc)/hw);
+    const sl=clamp(((DP[x+1]||dep)-(DP[x-1]||dep))*.05,-1,1);
+    const sh=clamp(.58+.28*sl-.16*ax,0,1);
+    const top=mixc([66,58,50],[150,136,116],sh),bot=mixc([20,20,25],[52,48,44],sh);
+    for(let v=1;v<=dep;v++){
+     const u=v/dep;
+     let kk=mixc(top,bot,Math.pow(u,.5));
+     const sy=(v+vn(x*.006+isl*11,isl*7)*44)/150,lf=sy-Math.floor(sy);
+     if(lf<.030)kk=mixc(kk,[0,0,0],.44);
+     else if(lf<.055)kk=mixc(kk,[206,192,168],.14);
+     // the wet undercut right below the grass, then a mossy overhang
+     if(v<12)kk=mixc(kk,[4,5,9],.66*(1-v/12));
+     else if(v<19)kk=mixc(kk,[64,100,52],.15*(1-(v-12)/7));
+     const a=1-Math.pow(clamp((u-.66)/.34,0,1),1.25);
+     const oo=((yb+v)*Wd+x)*4;
+     d[oo]=kk[0];d[oo+1]=kk[1];d[oo+2]=kk[2];d[oo+3]=a*255}
+   }
+   // ---- boulders pressed into the face: the shape that actually reads as stone ----
+   {const RK5=[[16,16,19],[36,33,35],[60,56,55],[92,85,79],[132,119,103]];
+    const gx0=Math.floor(xa/18),gx1=Math.ceil(xb/18),gy1=Math.ceil(Ht/16);
+    for(let gy=0;gy<gy1;gy++)for(let gx=gx0;gx<=gx1;gx++){
+     const bx=Math.round(gx*18+(hh(gx,gy*3+isl)-.5)*17),by=Math.round(gy*16+(hh(gx*5+3,gy+isl)-.5)*14);
+     if(bx<xa||bx>xb||by<1||by>=Ht-1)continue;
+     const yb=Y[bx];if(yb<0||by<yb+2||by>yb+DP[bx])continue;
+     const rx=6+Math.floor(Math.pow(hh(gx*7,gy*11+isl),1.5)*28),ry=Math.round(rx*(.52+hh(gx+9,gy+2)*.46));
+     const sd=hh(gx*3+1,gy*7+5),tj=.80+hh(gx*11+2,gy*5+isl)*.36;
+     for(let dy=-ry;dy<=ry;dy++){
+      const YY=by+dy;if(YY<1||YY>=Ht-1)continue;
+      for(let dx=-rx;dx<=rx;dx++){
+       const XX=bx+dx;if(XX<xa||XX>xb)continue;
+       const q=(dx*dx)/(rx*rx+.01)+(dy*dy)/(ry*ry+.01);if(q>=1)continue;
+       const yb2=Y[XX];if(yb2<0||YY<=yb2)continue;          // never above the rim
+       const oo=(YY*Wd+XX)*4;if(d[oo+3]<48)continue;         // only on the stone
+       const nx=dx/rx,ny=dy/ry,nz=Math.sqrt(1-q);
+       let t=Math.floor((-nx*.46-ny*.56+nz*.66+.22)*3.3+(hh(dx+sd,dy)-.5)*.9);
+       t=clamp(t,0,4);
+       if(ny>.76||nz<.15)t=0;
+       const rc=RK5[t];
+       d[oo]=rc[0]*tj;d[oo+1]=rc[1]*tj;d[oo+2]=rc[2]*tj;
+      }}
+    }}
+    // ---- vines over the lip, and the grass spilling over the edge ----
+   for(let x=xa;x<=xb;x++){
+    const yb=Y[x];if(yb<0)continue;
+    const nq=hh(x,isl*17+3);
+    if(nq>.82){const L2=6+Math.floor(Math.pow(hh(x,isl*23+1),1.6)*26),darkv=hh(x,isl*29+2)>.45;
+     for(let v=1;v<=L2;v++){const oo=((yb+v)*Wd+x)*4,fade=clamp(1-v/L2,0,1)*(.9-.3*v/L2);
+      const wob=Math.round(Math.sin(v*.12+x*.3)*1.2);
+      if(darkv){d[oo]=36;d[oo+1]=28;d[oo+2]=18;d[oo+3]=238*fade}
+      else{d[oo]=46;d[oo+1]=78;d[oo+2]=38;d[oo+3]=226*fade}
+      if(v>2&&v%7<2&&x+wob>=0&&x+wob<Wd){const o2=((yb+v)*Wd+x+wob)*4;
+       d[o2]=d[oo]*.7;d[o2+1]=d[oo+1]*.7;d[o2+2]=d[oo+2]*.7;d[o2+3]=d[oo+3]*.7}}}
+    const lipH=1+Math.floor(hh(x,isl*7+2)*4);
+    for(let v=0;v<lipH;v++){const oo=((yb+v)*Wd+x)*4,g=1-v/(lipH+.5);
+     d[oo]=Math.round(d[oo]*(1-g)+46*g);d[oo+1]=Math.round(d[oo+1]*(1-g)+84*g);d[oo+2]=Math.round(d[oo+2]*(1-g)+40*g)}
+   }
+  }}
+ c.putImageData(id,0,0);wb=[x0,y0,x1-x0+1,y1-y0+1];wc=mk(wb[2],wb[3]);wi=wc.getContext('2d').createImageData(wb[2],wb[3]);
  // keep a copy of the pond floor so the water can bend light through it
  FLD=wc.getContext('2d').createImageData(wb[2],wb[3]);FLD.data.set(c.getImageData(wb[0],wb[1],wb[2],wb[3]).data);
- // cliffs
- const cl=(v,G,s)=>{if(v==0)return s?'#3f8a33':'#52a043';if(v<3)return s?'#4d361f':'#5a4126';if(v<6)return s?'#5a4128':'#6d4e2e';const b=hh(Math.floor(G/7),Math.floor(v/6)),t=b<.33?0:b<.66?1:2;if(v%6==0||G%7==0)return s?'#20272b':'#262e33';return(s?['#3d474d','#353e44','#2e373c']:['#59666c','#4e5b61','#44505a'])[t]};
- for(let t=0;t<VN;t++)for(let s=0;s<2;s++){const[px_,py]=s?PF(VN-1,t):PF(t,VN-1);for(let u=0;u<16;u++){const yt=s?py+8-(u>>1):py+(u>>1),X=s?px_+u:px_-16+u,G=t*16+u;for(let v=0;v<40;v++){c.globalAlpha=clamp((40-v)/10,0,1);c.fillStyle=cl(v,G,s);c.fillRect(X,yt+v,1,1)}}}c.globalAlpha=1;
- // hanging vines + moss on the cliff edge
- for(let t=0;t<VN;t++)for(let s=0;s<2;s++)for(let m=0;m<3;m++){if(hh(t*3+m,s+5)<.45)continue;const[px_,py]=s?PF(VN-1,t+hh(m,t)):PF(t+hh(m,t),VN-1),X=Math.round(px_)+(s?Math.round(hh(t,m)*14):-Math.round(hh(t,m)*14)),Y=Math.round(py)+(s?8-(Math.abs(X-px_)>>1):(Math.abs(X-px_)>>1)),L=3+Math.floor(hh(m,t+2)*9);for(let v=0;v<L;v++){c.fillStyle=v%3==0?'#5ab04a':'#3b8a35';c.fillRect(X,Y+v,1,1);if(v>2&&hh(v,X)>.7)c.fillRect(X+1,Y+v,1,1)}}
+ // (the rock undersides are baked straight into the pixel pass above)
 // ---- ground details ----
  const FL=[['#e8453c','#fff6c8'],['#ffd24a','#fff6c8'],['#ffffff','#ffd24a'],['#ff8fb8','#fff6c8'],['#8e7bff','#ffffff'],['#ff9a3c','#fff6c8']],LF=['#c2491f','#e2862b','#f1b445','#8a3217'];
  for(let i=0;i<VN;i++)for(let j=0;j<VN;j++)for(let s=0;s<16;s++){
@@ -1130,121 +1462,41 @@ function build(){
  // stray flower tufts near house walls
  for(let k=0;k<26;k++){const fi=12.8+hh(k,1)*2.9,fj=13.05+hh(k,2)*.5,[X,Y]=PF(fi,fj),fc=FL[k%6];px(c,Math.round(X),Math.round(Y)+1,'#3f9a3d',1,2);px(c,Math.round(X),Math.round(Y),fc[0],2,2);px(c,Math.round(X),Math.round(Y),fc[1],1,1)}
  // snow / leaves seeds
+ for(let k=0;k<90&&PET.length<54;k++){const fi=80+hh(k,31)*26,fj=17+hh(k,37)*18;if(!LANDB(fi,fj))continue;const[X,Y]=PF(fi,fj);PET.push([X,Y,k])}
  for(let k=0;k<700&&(FLAKES.length<38||LEAVES.length<100);k++){const fi=hh(k,11)*VN,fj=hh(k,12)*VN;if(WD(fi,fj)>-1)continue;const r=RG(fi,fj),[X,Y]=PF(fi,fj);if(r=='s'&&FLAKES.length<38)FLAKES.push([X,Y,k]);else if(r=='a'&&LEAVES.length<100)LEAVES.push([X,Y,k])}
+ // ---- the sakura isle ----
+ {const sak=(R,sd)=>oak('c',R,sd,'cherry');
+  put(81.0,23.4,torii(),2,.05);
+  put(84.5,30.2,teahouse(),2,.05);
+  put(99.0,19.8,pagoda(),2,.05);
+  for(const[a,b]of[[82.4,22.2],[83.6,25.0],[85.8,28.0],[90.4,30.2],[96.8,28.8],[98.2,22.0],[86.0,20.4]])put(a,b,stoneLantern(),3);
+  put(93.6,27.9,archBridge(),0);
+  // sakura, ringing the pond and climbing the slope behind it
+  const ST=[[85.0,22.6,10],[88.4,20.6,12],[91.6,21.2,9],[94.6,20.8,11],[97.4,24.2,10],[100.6,25.6,12],
+            [83.2,27.8,9],[82.4,31.6,11],[86.6,33.2,10],[90.2,33.8,12],[94.8,32.8,9],[98.0,31.2,11],
+            [101.8,28.8,10],[103.6,24.2,9],[88.0,29.6,7],[91.4,25.2,8],
+            [96.0,15.2,9],[101.6,15.8,11],[104.8,18.8,10],[92.6,14.9,8],[106.4,23.2,9]];
+  for(let k=0;k<ST.length;k++)put(ST[k][0],ST[k][1],sak(ST[k][2],k%5),1);
+  // reeds and stones at the water's edge, cranes on the bank
+  for(let a=0;a<32;a++){const an=a/32*6.283;let rr=4.4;
+   while(rr>2.6&&WD(POND2[0]+Math.cos(an)*rr,POND2[1]+Math.sin(an)*rr)<=0)rr-=.1;
+   const fi=POND2[0]+Math.cos(an)*(rr+.3),fj=POND2[1]+Math.sin(an)*(rr+.3);
+   if(hh(a,5)>.52)put(fi,fj,reed(a%4),4);
+   if(hh(a,7)>.58)put(POND2[0]+Math.cos(an+.12)*(rr+.12),POND2[1]+Math.sin(an+.12)*(rr+.12),RS(3+Math.floor(hh(a,8)*4),2+Math.floor(hh(a,9)*2),RK,a),0)}
+  put(89.6,30.0,crane(0),0);put(91.6,24.6,crane(1),0);put(86.4,24.0,crane(0),0);
+  put(86.2,29.0,bench(0),0);put(83.0,28.8,churn(),0);put(80.6,24.6,lamp(),3);put(82.0,25.8,crates(),0);
+  // stones, tufts and bushes, so the grass does not read as a lawn
+  for(let k=0;k<80;k++){const a=80+hh(k,41)*26,b=17+hh(k,43)*18;
+   if(!LANDB(a,b)||WD(a,b)>-1.2||pathB(a,b)<.85)continue;
+   const q=hh(k,47);
+   if(q<.32)put(a,b,RS(2+Math.floor(hh(k,53)*4),1+Math.floor(hh(k,59)*3),RK,k),0);
+   else if(q<.64)put(a,b,bush('g',k%6,hh(k,61)>.6),0);
+   else put(a,b,fern('g',k%5),4)}
+ }
 // cast shadows baked last so they darken everything under them
  for(const s of SH)shadowE(c,Math.round(s[0]),Math.round(s[1]),Math.round(s[2]),Math.round(s[3]),.3);
  // soft contact shadows under houses
 
- // ---- the far isle, and the rope bridge that reaches it ----
- {const CA=77.5,CB=24.0,IR2=5.6,BASE=150;
-  const[X0,Y0]=PF(CA,CB),W2=Math.round(IR2*25),H2=Math.round(IR2*13);
-  const LX=Math.round(X0-W2-10),LY=Math.round(Y0-H2-10),IW=W2*2+20,IH=H2*2+20+BASE+34;
-  const isl=mk(IW,IH),ic=isl.getContext('2d'),bot=new Int16Array(IW).fill(-1),bit=new Int16Array(IW).fill(9999);
-  const hgt=(a,b)=>vn(a*.5+11,b*.5+3)*.62+vn(a*1.6+4,b*1.6+8)*.27+vn(a*4.1+2,b*4.1+5)*.11;
-  const wob=a=>vn(Math.cos(a)*2.1+7,Math.sin(a)*2.1+3)-.5;
-  const toL=(a,b)=>{const p=PF(a,b);return[Math.round(p[0]-LX),Math.round(p[1]-LY)]};
-  // -- the snow cap: a height field shaded from the upper left, with a raised lip at the rim --
-  for(let py=0;py<IH;py++)for(let px=0;px<IW;px++){
-   const X=LX+px,Y=LY+py,fi=((X-OX)/16+(Y-OY)/8)/2,fj=((Y-OY)/8-(X-OX)/16)/2;
-   const ang=Math.atan2(fj-CB,fi-CA),R=IR2*(1+wob(ang)*.14),dd=Math.hypot(fi-CA,fj-CB);
-   if(dd>R)continue;
-   const e=R-dd,h0=hgt(fi,fj),hx=hgt(fi+.14,fj)-hgt(fi-.14,fj),hy=hgt(fi,fj+.14)-hgt(fi,fj-.14);
-   const lip=Math.exp(-e*e*2.4);
-   const lit=clamp(.53+(hx+hy)*8.5+lip*.22-.16*(px/(IW*.62))-.10*(py/(IH*.5)),0,1);
-   let col=mixc([170,191,220],[253,255,255],lit);
-   if(h0>.6)col=mixc(col,[252,254,255],.3);
-   if(e<.30)col=mixc(col,[197,215,238],.55*(1-e/.30));
-   if(e<.08)col=mixc(col,[124,147,176],.62);
-   if(hh(X*3,Y*5)>.994)col=[255,255,255];
-   ic.fillStyle=rgb(col);ic.fillRect(px,py,1,1);
-   if(bot[px]<py)bot[px]=py;if(bit[px]>py)bit[px]=py;
-  }
-  // -- the path up from the bridge, then footprints --
-  const TP=[[72.35,24.0],[74.1,23.95],[75.9,23.55],[77.15,23.15]];
-  for(let g=0;g<TP.length-1;g++)for(let k=0;k<30;k++){
-   const u=k/30,aa=lerp(TP[g][0],TP[g+1][0],u),bb=lerp(TP[g][1],TP[g+1][1],u),[X,Y]=toL(aa,bb);
-   for(let dy=-3;dy<=3;dy++)for(let dx=-5;dx<=5;dx++){
-    if(dx*dx/25+dy*dy*1.5/9>1)continue;
-    const lx=X+dx,ly=Y+dy;if(lx<0||ly<0||lx>=IW||ly>=IH||bot[lx]<ly)continue;
-    ic.fillStyle=hh(lx*3,ly*7)>.82?'rgb(188,201,218)':'rgb(220,230,243)';
-    ic.fillRect(lx,ly,1,1)}}
-  for(let k=0;k<44;k++){const t=k/44*(TP.length-1),g=Math.min(TP.length-2,Math.floor(t)),f=t-g;
-   const aa=lerp(TP[g][0],TP[g+1][0],f),bb=lerp(TP[g][1],TP[g+1][1],f),[X,Y]=toL(aa+(k%2?.3:-.3),bb);
-   ic.fillStyle=hh(k,9)>.72?'rgba(150,172,200,.55)':'rgba(196,210,228,.75)';
-   ic.fillRect(X,Y,2,1)}
-  // -- wind ridges (sastrugi) across the snow --
-  for(let k=0;k<220;k++){const a=CA+(hh(k,31)-.5)*9.6,b=CB+(hh(k,32)-.5)*9.6;
-   if(Math.hypot(a-CA,b-CB)>IR2*.94)continue;
-   const[X,Y]=toL(a,b),L2=3+Math.floor(hh(k,33)*8),up=hh(k,34)>.5;
-   for(let q=0;q<L2;q++){const lx=X+q,ly=Y-(up?Math.round(q*.5):0);
-    if(lx<0||ly<0||lx>=IW||ly>=IH||bot[lx]<ly)continue;
-    ic.fillStyle=up?'rgba(255,255,255,.50)':'rgba(174,195,222,.34)';ic.fillRect(lx,ly,1,1)}}
-  // -- the rock it floats on --
-  for(let px=0;px<IW;px++){
-   const yb=bot[px];if(yb<0)continue;
-   const t=(px-IW*.5)/(IW*.5);
-   const taper=Math.pow(clamp(1-t*t,0,1),.5);
-   const bulge=1+.22*Math.exp(-Math.pow((t+.24)*2.7,2))-.13*Math.exp(-Math.pow((t-.58)*3.,2));
-   const dep=Math.round(BASE*taper*bulge*(.86+.16*vn(px*.07,5.1)+.14*vn(px*.42,8.7)));
-   if(dep<1)continue;
-   const side=clamp(.92-t*.72-vn(px*.09,2.2)*.26,0,1);
-   for(let v=1;v<=dep;v++){
-    const u=v/dep,band=Math.floor((v+vn(px*.42,1.7)*7)/9);
-    let k=mixc([38,44,55],[107,114,127],side);
-    k=mixc(k,[22,27,35],Math.pow(u,1.7)*.88);
-    if(band%3==1)k=mixc(k,[255,255,255],.030);else if(band%3==2)k=mixc(k,[0,0,0],.045);
-    k=mixc(k,mixc([26,31,40],[124,132,146],side),.55*vn(px*.055,4.1));
-    if(vn(px*.46,7.3)>.86)k=mixc(k,[0,0,0],.20);
-    if(v<2+Math.round(vn(px*.3,9)*4))k=mixc(k,[196,215,238],.5);
-    else if(v<11)k=mixc(k,[12,16,24],.22);
-    ic.globalAlpha=clamp(1-Math.pow(u,3.6)*1.06,0,1);
-    ic.fillStyle=rgb(k);ic.fillRect(px,yb+v,1,1)}
-   ic.globalAlpha=1;
-   const n=hh(px,17);
-   if(n>.78){const L2=2+Math.floor(Math.pow(hh(px,23),1.6)*16);
-    for(let v=1;v<=L2;v++){ic.fillStyle=v>L2-2?'#eef7ff':'rgba(172,203,232,.92)';ic.fillRect(px,yb+v,1,1)}}
-  }
-  // -- soft shadows for the things that will be drawn on top --
-  const islSh=(a,b,w,hg,tone)=>{const[X,Y]=toL(a,b);
-   for(let dy=-hg;dy<=hg;dy++){const rw=Math.round(w*Math.sqrt(Math.max(0,1-(dy*dy)/(hg*hg+.5))));
-    if(rw<1)continue;ic.fillStyle=tone||'rgba(118,145,180,.20)';ic.fillRect(X-rw,Y+dy+1,rw*2,1)}};
-  islSh(78.5,23.55,16,5,'rgba(112,140,176,.24)');islSh(76.15,27.25,7,3);islSh(79.3,24.55,6,2);
-  islSh(75.05,25.55,4,2);islSh(73.55,24.55,3,2);
-  c.drawImage(isl,LX,LY);
-  // -- the rope bridge --
-  {const A0=63.5,A1=72.5,BB=24.0,N2=210;
-   const bp=t=>{const[X,Y]=PF(lerp(A0,A1,t),BB);return[X,Y+Math.sin(t*Math.PI)*10]};
-   const dw=t=>Math.round(2+7*sm(0,1,Math.min(1,t*8))*sm(0,1,Math.min(1,(1-t)*8)));
-   c.fillStyle='rgba(8,30,46,.16)';
-   for(let i2=0;i2<=N2;i2+=1){const t=i2/N2,[X,Y]=bp(t);c.fillRect(Math.round(X),Math.round(Y)+6+Math.round(Math.sin(t*5)*1),4,2)}
-   for(let i2=0;i2<=N2;i2++){const t=i2/N2,[X,Y]=bp(t),w=dw(t);
-    c.fillStyle=i2%6<4?['#a8763f','#97683a','#b48149'][i2%3]:'#6d4926';
-    for(let k=-w;k<=w;k++)c.fillRect(Math.round(X+k),Math.round(Y-Math.abs(k)*.45),1,2);
-    c.fillStyle='rgba(56,36,18,.55)';c.fillRect(Math.round(X+w),Math.round(Y-w*.45),1,2)}
-   for(const sd of[-1,1]){
-    for(let i2=0;i2<=N2;i2++){const t=i2/N2,[X,Y0]=bp(t),w=dw(t);
-     const Y=Y0-Math.round(w*.45)-12-Math.round(Math.sin(t*Math.PI)*5);
-     c.fillStyle='#d9bb8c';c.fillRect(Math.round(X+sd*w),Y,1,1);
-     if(i2%2==0){c.fillStyle='rgba(168,138,96,.8)';c.fillRect(Math.round(X+sd*w),Y+1,1,1)}
-     if(i2%15==0){c.fillStyle='#4d3120';c.fillRect(Math.round(X+sd*w),Y+1,1,Math.max(1,Y0-Y-1))}}
-   }
-   for(const t of[0,1]){const[X,Y]=bp(t),w=dw(t);
-    for(const sd of[-1,1]){c.fillStyle='#432c19';c.fillRect(Math.round(X+sd*w)-1,Math.round(Y)-16,3,17);
-     c.fillStyle='#6b4a2c';c.fillRect(Math.round(X+sd*w),Math.round(Y)-16,1,16);
-     c.fillStyle='#8a6a44';c.fillRect(Math.round(X+sd*w)-1,Math.round(Y)-18,3,2)}}}
-  // -- everything that stands on the snow is an object, so it sorts, sways and glows --
-  put(81.2,20.9,pine('s',20,3,true),1);put(82.4,23.2,pine('s',15,6,true),1);
-  put(80.2,27.9,pine('s',17,1,true),1);put(76.0,28.4,pine('s',13,5,true),1);
-  put(73.4,27.2,pine('s',14,2,true),1);put(74.4,20.9,pine('s',16,4,true),1);
-  put(72.0,22.4,pine('s',10,7,true),1);
-  put(77.85,26.55,bush('s',2,1),1);
-  put(72.6,25.15,RS(4,2,RK,3),0);put(80.95,25.6,RS(5,3,RK,9),0);put(78.3,21.3,RS(3,2,RK,8),0);
-  put(78.5,23.55,cottage([[50,60,82],[72,84,110],[102,118,148]]),2,.05);
-  put(73.55,24.55,lamp(),0);put(76.4,25.9,lamp(),0);
-  put(75.05,25.55,snowman(),0);
-  put(76.05,28.05,bench(1),0);put(79.35,24.55,woodpile(),0);
-  put(72.95,25.6,signpost(),0);put(79.5,22.5,crates(),0);put(79.0,26.2,barrel(),0);
- }
  bridgeRails();objs.sort((a,b)=>a.d-b.d)}
 // drifting cloud shadows
 function bakeCloud(){const w=128,h=64;CLOUD=mk(w,h);const x=CLOUD.getContext('2d'),id=x.createImageData(w,h),d=id.data,T2=Math.PI*2;
@@ -1503,11 +1755,68 @@ function water(){
       const v=d32[o>>2];
       d32[o>>2]=(255<<24)|(clamp(((v>>16)&255)+f*70,0,255)<<16)|(clamp(((v>>8)&255)+f*80,0,255)<<8)|clamp((v&255)+f*75,0,255)}}
   wc.getContext('2d').putImageData(wi,0,0);c2.drawImage(wc,wb[0],wb[1])}
-function fall(){const c=c2,[x,y]=PF(VN-1,POND[1]+(VN-1-31.4)*.075);for(let u=1;u<15;u++){const yt=y+8-(u>>1);for(let v=-2;v<92;v++){c.globalAlpha=(v<20?1:clamp(1-(v-20)/72,0,1))*.9;c.fillStyle=((v+T*34+u*3)|0)%9<3?'#eefaff':((v+T*34)|0)%5<2?'#a9dcec':'#6fb7d3';c.fillRect(x+u,yt+v,1,1)}}c.globalAlpha=1}
+function fallAt(a0,b0,wd,N){
+ const c=c2,[x,y]=PF(a0,b0);
+ for(let u=1;u<wd;u++){const yt=y+8-(u>>1);
+  const cut=1-Math.abs((u-wd/2)/(wd/2))*0.12;
+  for(let v=-2;v<N*cut;v++){
+   const sp=Math.round(v*.035),a=(v<16?1:clamp(1-(v-16)/(N*cut-16),0,1))*Math.min(1,(N*cut-v)/30)*.92;
+   if(a<=.02)continue;
+   c.globalAlpha=a;
+   c.fillStyle=((v+T*34+u*3)|0)%9<3?'#eefaff':((v+T*34)|0)%5<2?'#a9dcec':'#6fb7d3';
+   c.fillRect(x+u+sp,yt+v,1,1);
+   if(v>40&&((v*7+u*3)|0)%23==0){c.fillStyle='rgba(238,250,255,.55)';c.fillRect(x+u+sp+1,yt+v,1,1)}}}
+ // the lip: white water breaking over the edge, and spray
+ c.globalAlpha=.95;
+ for(let u=-2;u<wd+3;u++)for(let v=-3;v<4;v++){if(u<1||u>wd-2){c.fillStyle='rgba(238,250,255,.75)';c.fillRect(x+u,y+6+v,1,1)}}
+ for(let k=0;k<14;k++){const an=hh(k,3)*6.283,rr=4+hh(k,4)*13;
+  c.fillStyle=`rgba(238,250,255,${.50-hh(k,5)*.4})`;
+  c.fillRect(Math.round(x+wd/2+Math.cos(an)*rr),Math.round(y+10+Math.sin(an)*rr*.7+(Math.sin(T*2+k)*2)),1,1)}
+ c.globalAlpha=1}
+function fall(){
+ fallAt(63.2,26.9,15,250);fallAt(106.1,27.7,9,190);
+ // the mist where each column hits the void
+ const c=c2;
+ for(const[fa,fb,rr,n]of[[63.2,26.9,20,26],[106.1,27.7,14,16]]){
+  const[X,Y]=PF(fa,fb);
+  for(let k=0;k<n;k++){const an=hh(k,9)*6.283,r=rr*(.4+hh(k,10)*.9),yy=Y+150+Math.sin(T*.4+k)*10+hh(k,11)*60;
+   c.globalAlpha=.28-hh(k,12)*.2;c.fillStyle='#eaf6ff';c.fillRect(Math.round(X+rr/2+Math.cos(an)*r),Math.round(yy+Math.sin(an)*r*.55),1+ (k%2),1)}
+ }
+ c.globalAlpha=1}
 const bridgeLift=(a,b)=>{let L=0;
  if(a>=32.4&&a<=34.6&&b>=22.5&&b<=26.5)L=Math.sin(Math.PI*(b-22.5)/4)*3;
- if(a>63.4&&a<72.6&&Math.abs(b-24)<2.4){const t=(a-63.5)/9;if(t>0&&t<1)L=Math.max(L,Math.sin(t*Math.PI)*10)}
+ if(a>64.2&&a<79.5&&Math.abs(b-23.4)<1.5){const t=(a-64.4)/14.8;if(t>0&&t<1)L=Math.min(L,-Math.sin(t*Math.PI)*30)}
  return L};
+// the long rope bridge, sagging out over the void between the two islands
+function ropeBridge(){const c=c2,A0=64.4,A1=79.2,BB=23.4,SAG=30;
+ if(VW<1)return;
+ const pt=(t,db)=>{const[X,Y]=PF(lerp(A0,A1,t),BB+db);return[X,Y+Math.sin(t*Math.PI)*SAG]};
+ // anchor posts, taller than the rail
+ for(const t of[0,1])for(const db of[-.8,.8]){const[X,Y]=pt(t,db),X0=Math.round(X),Y0=Math.round(Y);
+  c.fillStyle='#2e2016';c.fillRect(X0-2,Y0-17,5,19);
+  c.fillStyle='#584027';c.fillRect(X0-1,Y0-17,3,19);
+  c.fillStyle='#7a5a38';c.fillRect(X0-1,Y0-17,1,19);
+  c.fillStyle='#241a12';c.fillRect(X0-3,Y0-18,7,2);
+  c.fillStyle='rgba(180,196,220,.30)';c.fillRect(X0-2,Y0-19,5,1)}
+ // the deck: planks across the span
+ const N=54;
+ for(let i=0;i<=N;i++){const t=i/N;
+  for(let k=-7;k<=7;k++){const[X,Y]=pt(t,k/10);
+   c.fillStyle=i%4==0?'#6a4526':(k>-2&&k<2?'#a97a48':'#8a5a33');
+   c.fillRect(Math.round(X),Math.round(Y),1,2)}
+  if(i%6==0){const[X,Y]=pt(t,.8);c.fillStyle='#4a3220';c.fillRect(Math.round(X),Math.round(Y)-1,2,3)}}
+ // two rails, and their hangers
+ for(const db of[-.8,.8]){
+  let last=null;
+  for(let i=0;i<=96;i++){const t=i/96,[X,Y]=pt(t,db),YY=Y-12-Math.sin(t*Math.PI)*3;
+   if(last)ln(c,last[0],last[1],Math.round(X),Math.round(YY),'#6b5638');
+   last=[Math.round(X),Math.round(YY)]}
+  for(let i=0;i<=9;i++){const t=i/9,[X,Y]=pt(t,db);
+   ln(c,Math.round(X),Math.round(Y-12-Math.sin(t*Math.PI)*3),Math.round(X),Math.round(Y),'#7b6446')}
+ }
+ // slack ropes trailing off the north side
+ for(const t of[.18,.5,.82]){const[X,Y]=pt(t,-.9);
+  for(let v=0;v<9;v++){c.fillStyle=v%3?'#6b5638':'#4d3d26';c.fillRect(Math.round(X+v*.5),Math.round(Y+v),1,1)}}}
 function bridge(c){c=c||c2;
  c.fillStyle='rgba(6,26,36,.14)';for(let jj=22.7;jj<26.4;jj+=.4){const[x,y]=PF(33.5,jj);c.fillRect(x-10,y+6,21,2)}
  for(const jj of[23.2,24.5,25.8]){const[x,y]=PF(33.5,jj),L=Math.round(bridgeLift(33.5,jj));c.fillStyle='#3d2817';c.fillRect(Math.round(x+9),Math.round(y+4-L),2,9);c.fillRect(Math.round(x-12),Math.round(y-6-L),2,8)}
@@ -1549,11 +1858,13 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;
  if(n<.5&&cur.storm<.5)for(let q=0;q<3;q++){const X=((T*9+q*330)%1300)-120,Y=90+q*46+Math.sin(T*.4+q)*8,fl=Math.sin(T*9+q)>0;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(26,30,36,.8)';c.fillRect(X,Y,2,1);c.fillRect(X-2,Y+(fl?-1:1),2,1);c.fillRect(X+2,Y+(fl?-1:1),2,1);c.fillRect(X-3,Y+(fl?-2:2),1,1);c.fillRect(X+4,Y+(fl?-2:2),1,1)}
  // leaves & snow
  for(const[bx,by,k]of LEAVES){const p=(T*.1+hh(k,1))%1,X=bx+p*30+Math.sin(T*1.4+k)*5,Y=by-40+p*70;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle=['#e2862b','#c2491f','#f1b445'][k%3];c.fillRect(X|0,Y|0,2,1);c.fillRect((X|0)+1,(Y|0)+1,1,1)}
- for(const[bx,by,k]of FLAKES){const p=(T*.07+hh(k,2))%1,X=bx+Math.sin(T*.9+k)*6+p*8,Y=by-50+p*80;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(255,255,255,.9)';c.fillRect(X|0,Y|0,1,1);if(k%4==0)c.fillRect((X|0)+1,Y|0,1,1)}}
+ for(const[bx,by,k]of FLAKES){const p=(T*.07+hh(k,2))%1,X=bx+Math.sin(T*.9+k)*6+p*8,Y=by-50+p*80;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(255,255,255,.9)';c.fillRect(X|0,Y|0,1,1);if(k%4==0)c.fillRect((X|0)+1,Y|0,1,1)}
+ for(const[bx,by,k]of PET){const p=(T*.075+hh(k,3))%1,X=bx+Math.sin(T*.7+k)*12+p*20,Y=by-58+p*86;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle=['#ffd9e6','#f6aecb','#fff0f6'][k%3];c.fillRect(X|0,Y|0,2,1);c.fillRect((X|0)+1,(Y|0)+1,1,1);if(k%5==0)c.fillRect((X|0)-1,(Y|0),1,1)}}
 let SCR=null;
 function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round(innerWidth/(WS*700)*.75*4)/4,.75,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;sizeGL()}
 function ripple(x,y,s,dl){if(!wm)return;if(s>2){const[px_,py]=PF(POND[0],POND[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5){startle=Math.min(1,startle+.7);splashAt(wx,wy,12);duckReact(wx,wy)}}}
-const KSP=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6],[44.5,23.4],[74.6,24.0]];
+const KSP=[[8.4,5.8],[12.4,9.4],[15.2,12.9],[16.3,17.4],[21.6,20.4],[26.5,24.5],[31.4,24.2],[39.5,23.6],
+ [49.5,23.4],[59.5,23.4],[71.0,23.4],[81.6,23.7],[86.8,26.6],[91.6,28.6]];
 function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k),fc=p*(KSP.length-1),kc=Math.min(KSP.length-2,Math.floor(fc)),uc=sm(0,1,fc-kc),[cx,cy]=PF(lerp(KSP[kc][0],KSP[kc+1][0],uc),lerp(KSP[kc][1],KSP[kc+1][1],uc)),n=cur.night,w=cur.warm;GLW=[];
   TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);bubbleTick(f);
  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,VW,VH);
@@ -1564,7 +1875,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   const l=-TX/Z-70,r=(VW-TX)/Z+70,t=-TY/Z-110,b=(VH-TY)/Z+70;
   SKYC[0]=lerp(124,18,n)+w*92;SKYC[1]=lerp(178,34,n)+w*36;SKYC[2]=lerp(216,74,n)-w*58;
   WVIS[0]=l;WVIS[1]=r;WVIS[2]=t;WVIS[3]=b;
-  ctx.setTransform(Z,0,0,Z,TX,TY);if(stc)ctx.drawImage(stc,0,0);if(wc&&!GL.ok)water();fall();bridge();life();
+  ctx.setTransform(Z,0,0,Z,TX,TY);if(stc)ctx.drawImage(stc,0,0);if(wc&&!GL.ok)water();fall();bridge();ropeBridge();life();
   let pi=0;
   for(const o of objs){while(pi<PEOPLE.length&&PEOPLE[pi].d<o.d){drawPerson(ctx,PEOPLE[pi].P);pi++}
    if(o.surf)continue;if(o.x<l||o.x>r||o.y<t||o.y>b)continue;if(o.draw){o.draw(ctx);continue}const sp=o.sp,sw=o.t==1?Math.round(Math.sin(T*1.2+o.ph)*(.8+cur.storm*1.5)):o.t==4?Math.round(Math.sin(T*1.5+o.ph)*(.5+cur.storm*1.2)):0;
