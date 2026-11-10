@@ -264,19 +264,14 @@ void main(){
  if(m<=.002){gl_FragColor=vec4(sky,1.);return;}
  vec2 p=(tl-vec2(26.5,24.5))/6.;
  vec3 sk=mix(vec3(.5,.74,.92),vec3(.02,.05,.1),N);sk=mix(sk,vec3(1.,.55,.3),D*day*.7);sk=mix(sk,vec3(.28,.32,.36)*(1.-N*.7),ST);
- float depth=clamp((-d-.10)*1.45,0.,1.);
+ float depth=clamp((-d-.08)*1.2,0.,1.);
  float e=.004;
- float h0=H(p),hx=H(p+vec2(e,0.)),hy=H(p+vec2(0.,e)),hxy=H(p+vec2(e,e));
- float gx=(hx-h0)/e,gy=(hy-h0)/e;
- float lap=(hxy-h0-e*gx-e*gy)/(e*e);
+ float h0=H(p),gx=(H(p+vec2(e,0.))-h0)/e,gy=(H(p+vec2(0.,e))-h0)/e;
  vec3 n=normalize(vec3(-gx*.05,-gy*.05,1.));vec2 fp=p+n.xy*(.4+depth)*.9;
- vec3 fl=mix(vec3(.50,.45,.31),vec3(.02,.14,.19),smoothstep(0.,.8,depth));fl*=.8+.4*nz(fp*40.);
+ vec3 fl=mix(vec3(.52,.47,.33),vec3(.05,.19,.25),smoothstep(0.,.82,depth));fl*=.8+.4*nz(fp*40.);
  fl=mix(fl,vec3(.12,.2,.17)*(.7+.6*nz(fp*60.)),smoothstep(.62,.68,nz(fp*7.+3.))*.8);
  fl=mix(fl,vec3(.1,.35,.15),smoothstep(.55,.8,fb4(fp*12.))*.4*depth);
  fl+=caus(fp*.9)*vec3(.42,.86,.74)*(.22+.78*depth)*(1.-.88*N)*L;
- // light gathers where the surface bends: the caustic web
- float cau2=pow(clamp(-lap*.0022,0.,1.),1.35)*(1.-depth*.55);
- fl+=cau2*vec3(.9,.96,.85)*.55;
  vec4 k=koi(fp);fl=mix(fl,k.rgb,k.a*.96);
  vec3 wc=clamp(fl,0.,1.6)*mix(vec3(1.),vec3(.35,.78,.86),depth*.7);
  float fr=(.04+.5*pow(1.-n.z,2.5)+.1)*(.35+.65*depth);wc=mix(wc,sky+.12*fb4(p*3.+T*.01)*day,fr);
