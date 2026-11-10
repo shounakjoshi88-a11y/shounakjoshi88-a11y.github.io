@@ -482,7 +482,7 @@ document.addEventListener('visibilitychange',()=>{if(SND.on&&SND.ctx)document.hi
 
 /* ================= SCENE: helpers, palettes, sprite makers ================= */
 const fx2=document.getElementById('fx'),c2=fx2.getContext('2d'),VN=64,OX=VN*16,OY=110,Wd=2640,Ht=1760,PM={x:0,y:0};
-let WS=2,VW,VH,Z=1,TX=0,TY=0,stc,wm,wb,wc,wi,objs=[],rps=[],GLW=[],SPR={},CLOUD,FLAKES=[],LEAVES=[],PET=[];
+let WS=2,VW,VH,Z=1,TX=0,TY=0,stc,wm,wb,wc,wi,objs=[],rps=[],GLW=[],GLWP=[],SPR={},CLOUD,FLAKES=[],LEAVES=[],PET=[];
 // the lowest land pixel in every screen column, per island: the rock hangs from it, and the
 // falls start exactly there
 const BOT=[new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
@@ -490,6 +490,14 @@ const lerp=(a,b,t)=>a+(b-a)*t,clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),sm=(a,b,x
 const hh=(a,b)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
 const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),f=x-i,g=y-j,u=f*f*(3-2*f),v=g*g*(3-2*g);return lerp(lerp(hh(i,j),hh(i+1,j),u),lerp(hh(i,j+1),hh(i+1,j+1),u),v)};
 const PF=(i,j)=>[OX+(i-j)*16,OY+(i+j)*8];
+// The shader's noise, ported exactly, so anything drawn outside the GL layer is lit by the
+// same field the pond and the river are lit by.
+const ghs=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s)};
+const gnz=(x,y)=>{const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);
+ return lerp(lerp(ghs(ix,iy),ghs(ix+1,iy),ux),lerp(ghs(ix,iy+1),ghs(ix+1,iy+1),ux),uy)};
+const gfb=(x,y)=>.55*gnz(x,y)+.28*gnz(x*2.03+1.7,y*2.03+9.2)+.14*gnz(x*4.11+4.3,y*4.11+1.1);
+// the pond's own colours, sampled off the rendered water
+const WDEEP=[38,82,97],WMID=[48,102,118],WLIT=[74,140,156],WFOAM=[208,234,240];
 const hx=h=>[1,3,5].map(k=>parseInt(h.slice(k,k+2),16));
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const PP=o=>{const r={};for(const k in o)r[k]=o[k].map(hx);return r};
@@ -620,7 +628,7 @@ const ZONE=(a,b)=>{
   if(a>31&&a<VN&&b>19&&b<30)return 'river';
   if(a>15.5&&a<22.5&&b>15&&b<21.5)return 'clearing';
   return 'forest'};
-const RES=[[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
+const RES=[[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6],[34.6,22.8,3.3]];
 const okp=(a,b)=>{if(!LANDA(a,b))return 0;if(WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<.55)return 0;return 1};
 
 // ---- shaded sphere (5 tone) ----
@@ -650,36 +658,88 @@ function drawTrunk(x,ox,oy,len,tw,birch){for(let Y=0;Y<len;Y++)for(let X=-tw;X<=
   if(birch){if(hh(X,Y>>1)>.82&&Y%5<2)col=[40,40,42]}else if(hh(X*3,Y>>1)>.78)col=BARK[0];
   px(x,ox+X,oy-Y,rgb(col))}
  for(let k=0;k<4;k++){const w=tw+4-k;px(x,ox-w,oy-k,rgb(birch?[190,190,180]:BARK[1]),1,1);px(x,ox+w,oy-k,rgb(BARK[0]),1,1);px(x,ox-w+1,oy-k,rgb(birch?[214,214,202]:BARK[2]),2*w-1,1)}}
-function oak(rg,R,seed,variant){const key='o'+rg+R+seed+(variant||'');if(SPR[key])return SPR[key];
- const W=Math.ceil(R*3.3)+16,Hh=Math.ceil(R*3.9)+20,ox=W>>1,oy=Hh-8,TH=Math.round(R*.9),ccy=oy-TH-Math.round(R*.5),pal=leafPal(rg,variant,seed),birch=variant=='birch',cher=variant=='cherry',mpl=variant=='maple',hl=cher?[255,240,246]:mpl?[255,214,150]:LH[rg];
- const bs=[[0,0,R*.74]],n=9+(seed%3);
- for(let k=0;k<n;k++){const an=k/n*6.283+hh(seed,k)*.6,d=R*(.5+.34*hh(k,seed+1));bs.push([Math.cos(an)*d*1.15,Math.sin(an)*d*.72-R*.05,R*(.3+.2*hh(seed+2,k))])}
- for(let k=0;k<14;k++){const an=hh(k,seed+5)*6.283,d=R*(.8+.28*hh(seed+7,k));bs.push([Math.cos(an)*d*1.1,Math.sin(an)*d*.7-R*.06,R*(.14+.1*hh(k,seed+9))])}
- bs.push([0,-R*.58,R*.44],[-R*.34,-R*.42,R*.38],[R*.36,-R*.44,R*.36]);
+function oak(rg,R,seed,variant){
+ const key='o'+rg+R+seed+(variant||'');if(SPR[key])return SPR[key];
+ const W=Math.ceil(R*3.4)+18,Hh=Math.ceil(R*4.5)+22,ox=W>>1,oy=Hh-8;
+ const pal=leafPal(rg,variant,seed),birch=variant=='birch',cher=variant=='cherry',mpl=variant=='maple',
+  hl=cher?[255,240,246]:mpl?[255,214,150]:LH[rg];
+ // a real trunk, with the crown lifted clear of it
+ const TH=Math.round(R*1.40),ccy=oy-TH-Math.round(R*.72);
  const c=mk(W,Hh),x=c.getContext('2d');
- drawTrunk(x,ox,oy,TH+Math.round(R*.5),Math.max(2,Math.round(R*.17)),birch);
- // roots, moss and a branch skeleton that shows through the gaps
- for(let k=0;k<5;k++){const sd=k%2?1:-1,w=Math.max(2,Math.round(R*.17))+2+k;px(x,ox+sd*w,oy+1-(k>2?1:0),rgb(birch?[190,190,180]:BARK[1]),2,1)}
+ drawTrunk(x,ox,oy,TH+Math.round(R*.55),Math.max(2,Math.round(R*.16)),birch);
+ // roots, and moss where the trunk meets the ground
+ for(let k=0;k<5;k++){const sd=k%2?1:-1,w=Math.max(2,Math.round(R*.16))+2+k;px(x,ox+sd*w,oy+1-(k>2?1:0),rgb(birch?[190,190,190]:BARK[1]),2,1)}
  if(!birch)for(let k=0;k<6;k++)px(x,ox-3+Math.floor(hh(k,seed)*7),oy-1-Math.floor(hh(seed,k)*6),rgb(LP.g[1+k%2]));
- const br=(x0,y0,a,L,dp)=>{if(dp>2||L<3)return;let X=x0,Y=y0;for(let q=0;q<L;q++){X+=Math.cos(a);Y+=Math.sin(a)*.9;px(x,Math.round(X),Math.round(Y),rgb(birch?[196,196,184]:dp?BARK[0]:BARK[1]),dp?1:2,1)}br(X,Y,a-.55-hh(dp,seed)*.3,L*.66,dp+1);br(X,Y,a+.5+hh(seed,dp)*.3,L*.62,dp+1)};
- br(ox,oy-TH,-2.2,R*.62,0);br(ox,oy-TH-2,-1.0,R*.6,0);br(ox,oy-TH-R*.3,-1.57,R*.5,0);
+ // the crown: a mass of clumps, so the silhouette reads as foliage and not as one ball
+ const bs=[[0,0,R*.50]];
+ const n=5+(seed%3);
+ for(let k=0;k<n;k++){const an=k/n*6.283+hh(seed,k)*.7,d=R*(.40+.30*hh(k,seed+1));bs.push([Math.cos(an)*d*1.22,Math.sin(an)*d*.76-R*.06,R*(.28+.19*hh(seed+2,k))])}
+ for(let k=0;k<15;k++){const an=hh(k,seed+5)*6.283,d=R*(.56+.38*hh(k,seed+7));bs.push([Math.cos(an)*d*1.20,Math.sin(an)*d*.70-R*.08,R*(.12+.10*hh(k,seed+9))])}
+ bs.push([0,-R*.60,R*.36],[-R*.36,-R*.44,R*.30],[R*.38,-R*.46,R*.28],[-R*.18,-R*.72,R*.22],[R*.24,-R*.70,R*.24],[R*.02,-R*.86,R*.20]);
  const cc=mk(W,Hh),cx=cc.getContext('2d'),id=cx.createImageData(W,Hh),d=id.data,op=new Uint8Array(W*Hh);
- for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){let best=0,bnx=0,bny=0,bi=0;for(let q=0;q<bs.length;q++){const[bx,by,r]=bs[q],nx=(X-ox-bx)/r,ny=(Y-ccy-by)/r,qq=nx*nx+ny*ny;if(qq<1){const nz=Math.sqrt(1-qq);if(nz>best){best=nz;bnx=nx;bny=ny;bi=q}}}
-  if(!best||(best<.16&&hh(X,Y+seed)>.5))continue;
-  const dot=-bnx*.5-bny*.62+best*.6;let t=Math.floor((dot+.25)*3.5+(hh((X>>1)+seed,Y>>1)-.5)*1.5+(hh(bi,seed)-.5)*.9);
-  if(best<.2)t=0;else if(best<.4&&bny>0)t=Math.max(0,t-1);t=clamp(t,0,4);
-  if(t==0&&best>.5&&hh(X*2+seed,Y*3)>.86)continue;
-  if((X+Y*2+bi)%5==0&&t>1&&hh(X,Y)>.5)t--;
-  let col=pal[t];if(dot>.42&&hh(X*3+seed,Y*5)>.8)col=hl;else if(t<2&&hh(X*5,Y*3+seed)>.93)col=pal[3];
-  if(cher&&t>1&&hh(X*7+seed,Y*11)>.88)col=[255,246,250];else if(!cher&&!birch&&rg=='g'&&t>2&&hh(X*9,Y*7+seed)>.985)col=[226,70,56];
+ for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){
+  let best=0,bnx=0,bny=0,bi=0;
+  for(let q=0;q<bs.length;q++){const[bx,by,r]=bs[q],nx=(X-ox-bx)/r,ny=(Y-ccy-by)/r,qq=nx*nx+ny*ny;if(qq<1){const nz=Math.sqrt(1-qq);if(nz>best){best=nz;bnx=nx;bny=ny;bi=q}}}
+  if(!best)continue;
+  // the rim of the crown breaks into separate leaves
+  if(best<.22&&hh(X+seed,Y*3)>.56)continue;
+  const dot=-bnx*.5-bny*.62+best*.6;
+  // each clump carries its own tone, so the crown reads as masses of leaves
+  let t=Math.floor((dot+.25)*4.3+(hh((X>>1)+seed,Y>>1)-.5)*.42+(hh(bi,seed)-.5)*1.25);
+  // the underside of the crown sits in its own shade
+  t-=Math.max(0,(Y-(ccy+R*.10))/(R*1.7))*1.45;
+  if(best<.22)t=Math.max(0,t-1.1);
+  t=clamp(Math.round(t),0,4);
+  if(t==0&&best>.5&&hh(X*2+seed,Y*3)>.90)continue;
+  let col=pal[t];
+  // the lit edge of the crown catches the light
+  if(dot>.34&&hh(X*3+seed,Y*5)>.80)col=hl;
+  else if(best<.40&&dot>.26&&hh(X*2+seed,Y*4)>.62)col=pal[4];
+  else if(t<2&&hh(X*5,Y*3+seed)>.94)col=pal[3];
+  if(cher&&t>1&&hh(X*7+seed,Y*11)>.88)col=[255,246,250];
+  else if(!cher&&!birch&&!mpl&&rg=='g'&&t>2&&hh(X*9,Y*7+seed)>.985)col=[226,70,56];
   const o=(Y*W+X)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255;op[Y*W+X]=1}
- const dk=pal[0].map(v=>v*.5);
+ const dk=pal[0].map(v=>v*.46);
  for(let Y=0;Y<Hh;Y++)for(let X=0;X<W;X++){if(op[Y*W+X])continue;if((X>0&&op[Y*W+X-1])||(X<W-1&&op[Y*W+X+1])||(Y>0&&op[(Y-1)*W+X])||(Y<Hh-1&&op[(Y+1)*W+X])){const o=(Y*W+X)*4;d[o]=dk[0];d[o+1]=dk[1];d[o+2]=dk[2];d[o+3]=255}}
  cx.putImageData(id,0,0);x.drawImage(cc,0,0);
+ // clumps of leaves, some catching the light and some in shadow
+ const tuft=(sd2,cols,cnt)=>{for(let k=0;k<cnt;k++){
+   const bx=Math.round(ox+(hh(k,sd2)-.5)*R*2.5),by=Math.round(ccy+(hh(k,sd2+3)-.5)*R*1.55);
+   if(bx<2||by<2||bx>=W-2||by>=Hh-2||!op[by*W+bx])continue;
+   for(let q=0;q<4;q++){
+     const lx=bx+Math.round((hh(q,k+sd2+7)-.5)*5),ly=by+Math.round((hh(q,k+sd2+11)-.5)*4);
+     if(lx<1||ly<1||lx>=W-1||ly>=Hh-1||!op[ly*W+lx])continue;
+     px(x,lx,ly,rgb(cols),hh(q,k)>.5?2:1,1)}}};
+ tuft(31,pal[4],Math.round(R*.85));
+ tuft(57,pal[0].map(v=>v*.60),Math.round(R*.55));
+ tuft(73,hl,Math.round(R*(cher?.7:.28)));
+ // the branch skeleton, drawn over the crown so the tree reads as branches and leaves
+ const crownOK=(X,Y)=>Y>ccy+R*.82||((X-ox)/(R*1.30))**2+((Y-ccy)/(R*1.18))**2<1;
+ const br=(x0,y0,a,L,dp)=>{if(dp>3||L<3)return;let X=x0,Y=y0;
+  for(let q=0;q<L;q++){X+=Math.cos(a);Y+=Math.sin(a)*.86;
+   if(crownOK(X,Y)){
+    px(x,Math.round(X),Math.round(Y),rgb(birch?[150,150,146]:dp?[74,52,34]:[104,76,48]),dp?1:2,1);
+    if(dp===0&&q%3===0)px(x,Math.round(X)-1,Math.round(Y)-1,rgb(birch?[196,196,190]:[136,102,66]),1,1)}}
+  br(X,Y,a-.48-hh(dp,seed)*.35,L*.70,dp+1);br(X,Y,a+.44+hh(seed,dp)*.34,L*.66,dp+1)};
+ for(const[an,L]of[[-2.42,R*.80],[-1.02,R*.92],[-1.60,R*.76],[-2.92,R*.56],[-2.05,R*.62]])
+  br(ox,oy-TH,an,L,0);
+ // three heavy limbs, drawn over the leaves so the crown has a skeleton
+ const limb=(x0,y0,a,L)=>{let X=x0,Y=y0;
+  for(let q=0;q<L;q++){X+=Math.cos(a)*1.15;Y+=Math.sin(a)*1.0;
+   const th=q<L*.45?3:2;
+   if(crownOK(X,Y)){
+    px(x,Math.round(X),Math.round(Y),rgb(birch?[146,146,142]:[86,62,40]),th,th);
+    px(x,Math.round(X)-1,Math.round(Y)-1,rgb(birch?[196,196,190]:[130,98,62]),1,1)}}
+  return [X,Y]};
+ for(const[an,L]of[[-2.30,R*.52],[-1.16,R*.60],[-1.72,R*.44]]){
+  const e=limb(ox,oy-TH+2,an,L);
+  limb(e[0],e[1],an+(hh(an*9,seed)>.5?.42:-.42),L*.62)}
  // loose leaves drifting off the crown, and a litter of them on the ground
  for(let k=0;k<Math.round(R*2.2);k++){const an=hh(k,seed+21)*6.283,rr=R*(.85+.5*hh(seed+4,k)),X=Math.round(ox+Math.cos(an)*rr*1.15),Y=Math.round(ccy+Math.sin(an)*rr*.72);if(X>0&&Y>0&&X<W-1&&Y<Hh-1&&!op[Y*W+X])px(x,X,Y,rgb(pal[2+k%3]),hh(k,seed)>.7?2:1,1)}
- for(let k=0;k<Math.round(R*(rg=='a'||cher||mpl?3:1.2));k++){const X=Math.round(ox+(hh(k,seed+11)-.5)*R*2.3),Y=Math.round(oy+(hh(seed,k+5)-.3)*R*.45);if(X>0&&X<W&&Y<Hh)px(x,X,Y,rgb(rg=='a'||cher?pal[1+k%4]:LP.g[1+k%3]),hh(k,seed)>.6?2:1,1)}
+ for(let k=0;k<Math.round(R*(rg=='a'||cher||mpl?3:1.2));k++){const X=Math.round(ox+(hh(k,seed+11)-.5)*R*2.3),Y=Math.round(oy+(hh(seed,k+5)-.3)*R*.45);if(X>0&&Y>0&&X<W&&Y<Hh)px(x,X,Y,rgb(rg=='a'||cher||mpl?pal[1+k%4]:LP.g[1+k%3]),hh(k,seed)>.6?2:1,1)}
  return SPR[key]={c,ox,oy,R,sh:[R*.4,R*.12,R*1.15,R*.5]}}
+
+
 function pine(rg,R,seed,w){const key='p'+rg+R+seed+(w?'w':'');if(SPR[key])return SPR[key];
  const W=R*2+14,Hh=Math.round(R*3.3)+14,ox=W>>1,oy=Hh-5,n=Math.round(R/2.7)+3,pal=w?[[38,54,64],[56,78,88],[80,106,116],[112,142,150],[168,194,198]]:leafPal(rg,null,seed+3),c=mk(W,Hh),x=c.getContext('2d');
  drawTrunk(x,ox,oy,Math.round(R*.7),2,false);
@@ -991,18 +1051,40 @@ function stoneLantern(){
 
 function torii(){
   if(SPR.torii)return SPR.torii;const c=mk(66,74),x=c.getContext('2d');
-  const V=[198,76,54],VD=[150,52,40],VL=[228,110,82],BK=[96,56,50];
-  for(const px0 of[11,50]){
-    px(x,px0,20,rgb(VD),6,50);px(x,px0+1,20,rgb(V),4,50);px(x,px0+1,20,rgb(VL),1,50);
-    px(x,px0-1,66,rgb([92,92,96]),8,4);px(x,px0-1,65,rgb([130,130,134]),8,1)}
-  // nuki, the lower tie beam
-  px(x,6,30,rgb(VD),54,5);px(x,6,30,rgb(V),54,2);px(x,7,31,rgb(VL),52,1);
-  // gakuzuka, the little centre strut, and the plaque
-  px(x,30,23,rgb(VD),6,8);px(x,28,24,rgb([42,36,34]),10,6);px(x,29,25,rgb([214,190,132]),8,4);
-  // kasagi: the top beam, curving up at the ends
+  const V=[196,74,52],VD=[138,42,32],VL=[228,112,84],VT=[248,158,124];
+  // the pillars: a dark side, the body, a lit edge, and a highlight down the front
+  for(const p of[11,50]){
+    px(x,p,20,rgb(VD),1,50);
+    px(x,p+1,20,rgb(V),3,50);
+    px(x,p+4,20,rgb(VL),1,50);
+    px(x,p+5,20,rgb(VT),1,50);
+    px(x,p+6,20,rgb(VD),1,50);
+    // the stone collar it stands in, with its own lit top
+    px(x,p-1,62,rgb([74,74,78]),9,8);
+    px(x,p-1,62,rgb([148,148,152]),9,2);
+    px(x,p-1,61,rgb([196,196,198]),9,1);
+    px(x,p+1,63,rgb([110,110,114]),5,6);
+    // the pillar disappears into the collar
+    px(x,p,60,rgb(VD),7,3)}
+  // nuki, the lower tie beam: a lit top, a vermilion face, and a shadow beneath it
+  px(x,5,29,rgb([240,138,104]),56,2);
+  px(x,5,31,rgb(V),56,3);
+  px(x,5,34,rgb([112,34,26]),56,1);
+  px(x,5,35,rgb([70,22,18]),56,1);
+  // the gakuzuka, the little centre strut, and the plaque that hangs from it
+  px(x,30,22,rgb(VD),6,9);
+  px(x,30,22,rgb(V),3,9);
+  px(x,28,23,rgb([46,38,34]),10,7);
+  px(x,29,24,rgb([214,190,132]),8,5);
+  // kasagi, the top beam: a lit upper surface over a shaded face
   for(let u=0;u<66;u++){const q=Math.abs(u-33)/33,dy=Math.round(q*q*q*7);
-    px(x,u,17-dy,rgb(BK),1,3);px(x,u,20-dy,rgb(VD),1,3);px(x,u,20-dy,rgb(V),1,1)}
-  px(x,2,9,rgb(BK),5,3);px(x,59,9,rgb(BK),5,3);
+    px(x,u,17-dy,rgb([128,68,56]),1,2);
+    px(x,u,19-dy,rgb([236,158,128]),1,1);
+    px(x,u,20-dy,rgb([84,40,34]),1,3);
+    px(x,u,20-dy,rgb(V),1,1);
+    px(x,u,23-dy,rgb([58,26,22]),1,1)}
+  px(x,2,9,rgb([96,58,48]),5,3);px(x,2,9,rgb([150,92,76]),5,1);
+  px(x,59,9,rgb([96,58,48]),5,3);px(x,59,9,rgb([150,92,76]),5,1);
   return SPR.torii={c,ox:33,oy:70,sh:[6,1,26,5],gl:[]}}
 
 function teahouse(){
@@ -1059,9 +1141,12 @@ function pagoda(){
 
   // ---- one storey: red timber, plaster panels, a lattice window, a balcony ----
   const body=(base,w,h)=>{
-    const x0=CX-Math.round(w/2),top=base-h;
+    const x0=CX-Math.round(w/2),top=base-h,sw=Math.round(w*.30);
+    // the return wall on the left is in shade; the front face catches the light
     for(let u=0;u<w;u++){const t=u/Math.max(1,w-1);
-      px(x,x0+u,top,rgb(t<.15?REDD:t>.85?REDL:RED),1,h)}
+      const col=u<sw?[116,44,34]:(u<sw+Math.round(w*.16)?RED:(t>.88?REDL:[190,80,58]));
+      px(x,x0+u,top,rgb(col),1,h)}
+    px(x,x0+sw,top,rgb([76,26,22]),2,h);
     for(let u=5;u<w-5;u+=2)px(x,x0+u,top+5,rgb(WALL),2,h-10);
     px(x,x0,top,rgb(DEEP),3,h);px(x,x0+w-3,top,rgb(REDL),3,h);
     // the architrave and the bracket blocks under it
@@ -1250,8 +1335,9 @@ function tsukubai(){
   for(let v=0;v<8;v++)px(x,18,21+v,rgb([196,228,236]),1,1);
   px(x,14,28,rgb([84,80,72]),15,9);
   px(x,13,27,rgb([136,130,118]),17,2);
-  px(x,15,29,rgb([38,72,80]),13,2);
-  px(x,16,30,rgb([86,134,142]),11,1);
+  px(x,15,29,rgb([38,82,97]),13,2);
+  px(x,16,30,rgb([74,140,156]),11,1);
+  px(x,17,29,rgb([120,178,190]),6,1);
   px(x,13,35,rgb([62,58,50]),17,2);
   px(x,14,36,rgb([44,42,38]),15,1);
   for(let k=0;k<7;k++)px(x,14+Math.floor(hh(k,3)*13),30+Math.floor(hh(k,5)*5),rgb([84,116,62]),2,1);
@@ -1333,7 +1419,7 @@ function millWheel(){
   const blades=(g,ph)=>{for(let i=0;i<12;i++){const an=-ph+i*Math.PI/6,c1=Math.cos(an),s1=Math.sin(an),loaded=c1>-.1&&s1>-.5;
     for(let t=0;t<=1;t+=.08){const o=[cx+D[0]*t,cy+D[1]*t];
       for(let r=R-2.6;r<=R+1.6;r+=.6){const s=S(o,c1*r,s1*r);dot(g,s[0],s[1],r>R+.8?'#e8dcb8':t<.5?'#b8a67c':'#8f7f5c',1,1)}}
-    if(loaded){const s=S([cx+D[0]*.5,cy+D[1]*.5],c1*(R-1),s1*(R-1));dot(g,s[0]-1,s[1]-2,'#4a9ec0',4,2);dot(g,s[0],s[1]-2,'#a8dcec',2,1)}}};
+    if(loaded){const s=S([cx+D[0]*.5,cy+D[1]*.5],c1*(R-1),s1*(R-1));dot(g,s[0]-1,s[1]-2,'#3c7182',4,2);dot(g,s[0],s[1]-2,'#a8d4de',2,1)}}};
   const troughPos=(p,d)=>[M[0]+p+d,M[1]+p*.5-TQ-d*.5];
   // ---- static layer: stanchion, gear post, launder floor + back wall + supports ----
   {const o=[cx+12,cy-6];seg(x,o,-1,-3,-10,-24,'#6a4726',3);seg(x,o,1,-3,10,-24,'#6a4726',3);seg(x,o,-1,-3,-10,-24,'#a87848',1);seg(x,o,1,-3,10,-24,'#a87848',1);dot(x,o[0]-3,o[1]-3,'#3d2817',7,5);dot(x,o[0]-3,o[1]-3,'#59606a',7,1);
@@ -1351,9 +1437,9 @@ function millWheel(){
    blades(g,ph);
    wheelPlane(g,F,ph,false);
    // launder water, front wall, and the falling curtain into the buckets
-   for(let p=-26;p<=0;p++)for(let d=-3;d<=3;d++){const[X,Y]=troughPos(p,d),v=(((p-k)%10)+10)%10;dot(g,X,Y,v<5?'#5db8d8':'#4aa2c6');if(v==0&&d==0)dot(g,X,Y,'#e6f6fb')}
+   for(let p=-26;p<=0;p++)for(let d=-3;d<=3;d++){const[X,Y]=troughPos(p,d),v=(((p-k)%10)+10)%10;dot(g,X,Y,v<5?'#4a8a99':'#27525f');if(v==0&&d==0)dot(g,X,Y,'#d0ecf1')}
    for(let p=-26;p<=0;p++){const[X,Y]=troughPos(p,-4);dot(g,X,Y-1,'#a87848',1,3);dot(g,X,Y-2,'#dcb77a')}
-   for(let d=-3;d<=3;d++){const[X,Y]=troughPos(0,d);for(let j=0;j<6;j++){const v=(j*2+k*2)%6;dot(g,X+1,Y+2+j,v<3?'#8fd0e6':'#4aa2c6')}}
+   for(let d=-3;d<=3;d++){const[X,Y]=troughPos(0,d);for(let j=0;j<6;j++){const v=(j*2+k*2)%6;dot(g,X+1,Y+2+j,v<3?'#a8d4de':'#3c7182')}}
    dot(g,M[0]-1,M[1]-R-1,'#e6f6fb',5,1);
    fr.push(outline(sc))}
   return{c:outline(c),ox:cx,oy:cy+6,fr,frRate:8,sh:[-8,8,28,5]}}
@@ -1652,7 +1738,10 @@ function build(){
  put(34.4,10.8,shrine(),2,.05);
  put(35.6,40.2,lookout(),2,.05);
  put(14.9,9.6,stall([196,72,52],[240,232,214]),1);put(16.9,10.4,stall([86,120,72],[240,232,214]),1);put(13.4,8.2,stall([72,96,124],[240,232,214]),1);
- put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0]-4,y:PF(35.3,22.9)[1]+14};
+ put(33.4,24.8,millWheel(),1);SURF.spray={x:PF(33.4,24.8)[0]-4,y:PF(33.4,24.8)[1]+14};
+ put(33.2,23.4,crates(),0);put(34.6,23.2,barrel(),0);put(34.9,24.0,hay(),0);
+ put(32.9,24.6,logS(1),0);put(34.2,25.0,crates(),0);put(35.0,22.6,fenceSeg(1),0,.04);
+ put(32.6,22.4,fenceSeg(0),0,.04);put(35.4,24.6,stoneLantern(),3);
  // props
  const PR=[[16.5,10.6,barrel,0],[16.9,10.9,barrel,0],[16.2,10.1,crates,0],[17.2,9.4,hay,0],[17.6,9.0,hay,0],[10.0,12.3,wellS,0],[15.5,13.6,lamp,3],[18.2,11.4,lamp,3],[12.4,13.3,pumpkinS,0],
   [9.3,10.0,()=>logS(1),0],[11.0,11.5,()=>logS(2),0],[10.0,10.5,campfire,5],[9.6,14.6,hive,0],[10.2,14.8,hive,0],[14.55,16.9,scarecrow,0],[15.8,13.9,signpost,0],[13.0,18.4,laundry,4],[16.55,12.55,cat,0],[17.2,17.9,()=>bench(0),0],[26.2,17.7,pier,0],[14.1,13.2,flowerPot,0],[12.9,13.2,flowerPot,0],[16.0,13.0,flowerPot,0],[18.3,10.2,woodpile,0],
@@ -1928,7 +2017,7 @@ function drawSurf(){
   // the spray where the mill wheel bites the water
   if(SURF.spray){const o=SURF.spray;
    for(let q=0;q<5;q++){const ph=(T*1.6+q*.37)%1;
-    c.fillStyle=`rgba(236,248,252,${(1-ph)*.8})`;
+    c.fillStyle=`rgba(208,234,240,${(1-ph)*.8})`;
     c.fillRect(Math.round(o.x-8+q*4+Math.sin(T*3+q)*2),Math.round(o.y-4-ph*11),2,2)}}
   if(SURF.boat){const o=SURF.boat;const bob=Math.round(Math.sin(T*1.1)*1.4);c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy+bob)}
   const dt=Math.min(.05,Math.max(0,T-DKT));DKT=T;
@@ -2081,16 +2170,37 @@ function fallAt(a0,b0,wd,N,isl){
   const q=Math.abs((u-wd/2)/(wd/2||1)),bend=Math.round(q*q*5),H=Math.round(N*(1-q*q*.30));
   // every column carries its own threads, so the water falls in strands rather than a dither
   const ph=hh(u,3)*7,ph2=hh(u,5)*11;
-  for(let v=0;v<H;v++){
+  for(let v=0;v<H;v+=3){
    const t=v/H;
    // the water accelerates as it falls, so the threads stretch and drift apart
    const sp=Math.round(t*t*8*Math.sin(T*1.1+u*.7))+Math.round(t*t*5*Math.sign(u-wd/2));
    const a=(v<4?1:clamp(1-(v-4)/(H*.88),0,1))*clamp(1-(t-.80)/.20,0,1)*.95;
    if(a<=.02)continue;
    const w1=((ph+v*.11)|0)%7,w2=((ph2+v*.07+((v*3)|0)%5)|0)%7;
+   // the surface of the fall is lit by the same field that lights the pond
+   const fi2=a0+(u-wd/2)*.06, fj2=b0+v*.075;
+   const tx=(fi2-26.5)/6,ty=(fj2-24.5)/6;
+   const hh2=gfb(tx*5+T*.06,ty*5+T*.04)*.6+gfb(tx*13-T*.09,ty*13+T*.05)*.25;
+   const shim=.78+.46*gnz(tx*38+hh2*2,ty*38-hh2*3);
+   // the deep body of the water, the same teal the pond shows
+   let R=WDEEP[0]*shim*.72,G=WDEEP[1]*shim*.72,B=WDEEP[2]*shim*.72;
+   if(w1<2.3){R=WMID[0]*shim;G=WMID[1]*shim;B=WMID[2]*shim}
+   if(w1<.85){R=WFOAM[0];G=WFOAM[1];B=WFOAM[2]}
+   else if(w2<1.4){R=WLIT[0]*shim;G=WLIT[1]*shim;B=WLIT[2]*shim}
+   // the sky reflected in the falling sheet, strongest along its edges
+   const fr=.10+.42*q*q;
+   R=R*(1-fr)+168*fr;G=G*(1-fr)+198*fr;B=B*(1-fr)+218*fr;
+   // and the lamps along the water, catching in it
+   for(const lp of GLWP){if(lp[2]<=0)continue;
+    const dx=(x+u+sp-lp[0])/(14+lp[2]*.10);
+    if(dx*dx>9)continue;
+    const dy=(y+v-lp[1])/(40+lp[2]*.5);
+    if(dy<-.3)continue;
+    const g2=Math.exp(-dx*dx)*Math.exp(-Math.max(0,dy)*.9)*.85;
+    R+=210*g2;G+=132*g2;B+=70*g2}
    c.globalAlpha=a;
-   c.fillStyle=w1<.85?'#d4ecf1':w1<2.3?'#4d8a99':w2<1.4?'#3c7182':'#2a5a6a';
-   c.fillRect(x+u+sp,top[u]+v+bend,1,1);
+   c.fillStyle=`rgb(${R|0},${G|0},${B|0})`;
+   c.fillRect(x+u+sp,top[u]+v+bend,1,3);
   }
  }
  // the crest, where the water breaks over the edge
@@ -2117,10 +2227,10 @@ function fall(){
 }
 const bridgeLift=(a,b)=>{let L=0;
  if(a>=32.4&&a<=34.6&&b>=22.5&&b<=26.5)L=Math.sin(Math.PI*(b-22.5)/4)*3;
- if(a>64.2&&a<79.5&&Math.abs(b-23.4)<1.5){const t=(a-64.4)/14.8;if(t>0&&t<1)L=Math.min(L,-Math.sin(t*Math.PI)*30)}
+ if(a>64.2&&a<79.5&&Math.abs(b-23.4)<1.5){const t=(a-64.4)/14.8;if(t>0&&t<1)L=Math.min(L,-Math.sin(t*Math.PI)*30+Math.sin(T*1.15+t*1.7)*2.4)}
  return L};
 // the long rope bridge, sagging out over the void between the two islands
-function ropeBridge(){const c=c2,A0=64.4,A1=79.2,BB=23.4,SAG=30;
+function ropeBridge(){const c=c2,A0=64.4,A1=79.2,BB=23.4,SAG=30+Math.sin(T*.9)*2.6;
  if(VW<1)return;
  const pt=(t,db)=>{const[X,Y]=PF(lerp(A0,A1,t),BB+db);return[X,Y+Math.sin(t*Math.PI)*SAG]};
  // anchor posts, taller than the rail
@@ -2186,6 +2296,11 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;
   disc(c,X+dr*3,Y-5+pk,1,1,q%2?'#f4efe4':'#b8693a');px(c,X+dr*3,Y-7+pk,'#d6342a',1,1);px(c,X+dr*4,Y-5+pk,'#f0a030',1,1)}
  // butterflies (daytime)
  if(n<.6)for(let q=0;q<6;q++){const[X0,Y0]=PF(13.6+(q%3)*1.4,14.6+Math.floor(q/3)*2.2),X=Math.round(X0+Math.sin(T*.7+q*2)*40+Math.sin(T*2.3+q)*6),Y=Math.round(Y0-18+Math.cos(T*.9+q*3)*16),w=Math.sin(T*18+q*5)>0?2:1,col=['#ffd24a','#ffffff','#ff8fb8','#8ec8ff','#ff9a3c','#ffffff'][q];c.globalAlpha=1-n;px(c,X-w,Y,col,w,2);px(c,X+1,Y,col,w,2);px(c,X,Y,'#2a2018',1,2);c.globalAlpha=1}
+ // the kettle on the tea stall steams
+ {const[X0,Y0]=PF(85.9,23.9);
+  for(let k=0;k<7;k++){const ph=(T*.5+k*.14)%1,xx=X0+30+Math.sin(T*.7+k)*2.4,yy=Y0-18-ph*22;
+   c.globalAlpha=(1-ph)*.30;c.fillStyle='#eef6f8';c.fillRect(Math.round(xx),Math.round(yy),1,1);c.fillRect(Math.round(xx)+1,Math.round(yy)-1,1,1)}
+  c.globalAlpha=1}
  // butterflies over the sakura isle
  if(n<.6)for(let q=0;q<8;q++){const[X0,Y0]=PF(82+q*2.6,19+Math.floor(q/3)*2.8),
   X=Math.round(X0+Math.sin(T*.7+q*2)*38+Math.sin(T*2.3+q)*6),Y=Math.round(Y0-20+Math.cos(T*.9+q*3)*15),
@@ -2197,8 +2312,10 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;
   const f=.25+.65*Math.max(0,Math.sin(T*2.4+q));
   c.globalAlpha=f;c.fillStyle='#d4ff8a';c.fillRect(X,Y,1,1);
   c.globalAlpha=f*.16;c.fillRect(X-1,Y-1,3,3);c.globalAlpha=1}
- // birds
- if(n<.5&&cur.storm<.5)for(let q=0;q<3;q++){const X=((T*9+q*330)%1300)-120,Y=90+q*46+Math.sin(T*.4+q)*8,fl=Math.sin(T*9+q)>0;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(26,30,36,.8)';c.fillRect(X,Y,2,1);c.fillRect(X-2,Y+(fl?-1:1),2,1);c.fillRect(X+2,Y+(fl?-1:1),2,1);c.fillRect(X-3,Y+(fl?-2:2),1,1);c.fillRect(X+4,Y+(fl?-2:2),1,1)}
+ // birds, flying over the land rather than across the screen
+ if(n<.5&&cur.storm<.5)for(let q=0;q<4;q++){const t=((T*.042+q*.26)%1),fi=6+t*50,fj=7+q*6.5+Math.sin(T*.31+q*1.7)*2.4,
+  [X0,Y0]=PF(fi,fj),X=Math.round(X0+Math.sin(T*2.2+q)*5),Y=Math.round(Y0-30+Math.cos(T*1.9+q)*3),fl=Math.sin(T*9+q)>0;
+  if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(26,30,36,.8)';c.fillRect(X,Y,2,1);c.fillRect(X-2,Y+(fl?-1:1),2,1);c.fillRect(X+2,Y+(fl?-1:1),2,1);c.fillRect(X-3,Y+(fl?-2:2),1,1);c.fillRect(X+4,Y+(fl?-2:2),1,1)}
  // leaves & snow
  for(const[bx,by,k]of LEAVES){const p=(T*.1+hh(k,1))%1,X=bx+p*30+Math.sin(T*1.4+k)*5,Y=by-40+p*70;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle=['#e2862b','#c2491f','#f1b445'][k%3];c.fillRect(X|0,Y|0,2,1);c.fillRect((X|0)+1,(Y|0)+1,1,1)}
  for(const[bx,by,k]of FLAKES){const p=(T*.07+hh(k,2))%1,X=bx+Math.sin(T*.9+k)*6+p*8,Y=by-50+p*80;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(255,255,255,.9)';c.fillRect(X|0,Y|0,1,1);if(k%4==0)c.fillRect((X|0)+1,Y|0,1,1)}
@@ -2208,7 +2325,7 @@ function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width
 function ripple(x,y,s,dl){if(!wm)return;if(s>2){const[px_,py]=PF(POND[0],POND[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5){startle=Math.min(1,startle+.7);splashAt(wx,wy,12);duckReact(wx,wy)}}}
 const KSP=[[8.4,5.8],[12.4,9.4],[15.2,12.9],[16.3,17.4],[21.6,20.4],[26.5,24.5],[31.4,24.2],[39.5,23.6],
  [49.5,23.4],[59.5,23.4],[71.0,23.4],[81.6,23.7],[86.8,26.6],[91.6,28.6]];
-function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k),fc=p*(KSP.length-1),kc=Math.min(KSP.length-2,Math.floor(fc)),uc=sm(0,1,fc-kc),[cx,cy]=PF(lerp(KSP[kc][0],KSP[kc+1][0],uc),lerp(KSP[kc][1],KSP[kc+1][1],uc)),n=cur.night,w=cur.warm;GLW=[];
+function fx(){const ctx=c2,p=clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k),fc=p*(KSP.length-1),kc=Math.min(KSP.length-2,Math.floor(fc)),uc=sm(0,1,fc-kc),[cx,cy]=PF(lerp(KSP[kc][0],KSP[kc+1][0],uc),lerp(KSP[kc][1],KSP[kc+1][1],uc)),n=cur.night,w=cur.warm;GLWP=GLW;GLW=[];
   TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);bubbleTick(f);
  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,VW,VH);
  if(!GL.ok){ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);}
@@ -2221,7 +2338,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   ctx.setTransform(Z,0,0,Z,TX,TY);if(stc)ctx.drawImage(stc,0,0);if(wc&&!GL.ok)water();fall();bridge();ropeBridge();life();
   let pi=0;
   for(const o of objs){while(pi<PEOPLE.length&&PEOPLE[pi].d<o.d){drawPerson(ctx,PEOPLE[pi].P);pi++}
-   if(o.surf)continue;if(o.x<l||o.x>r||o.y<t||o.y>b)continue;if(o.draw){o.draw(ctx);continue}const sp=o.sp,sw=o.t==1?Math.round(Math.sin(T*1.2+o.ph)*(.8+cur.storm*1.5)):o.t==4?Math.round(Math.sin(T*1.5+o.ph)*(.5+cur.storm*1.2)):0;
+   if(o.surf)continue;if(o.x<l||o.x>r||o.y<t||o.y>b)continue;if(o.draw){o.draw(ctx);continue}const sp=o.sp,sw=o.t==1?Math.round((Math.sin(T*1.2+o.ph)*.7+Math.sin(T*.52-o.x*.0055)*1.7)*(.8+cur.storm*1.7)):o.t==4?Math.round(Math.sin(T*1.5+o.ph)*(.5+cur.storm*1.2)):0;
    ctx.drawImage(sp.c,o.x-sp.ox+sw,o.y-sp.oy);
    if(sp.sails){const fr=sp.sails[((T*1.6)|0)%sp.sails.length];ctx.drawImage(fr,o.x-sp.ox+sp.sailAt[0]-26,o.y-sp.oy+sp.sailAt[1]-26)}
    if(sp.fr){const fr=sp.fr[((T*(sp.frRate||1.1))|0)%sp.fr.length];ctx.drawImage(fr,o.x-sp.ox,o.y-sp.oy)}
@@ -2251,7 +2368,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
  if(flash>.02){ctx.fillStyle=`rgba(210,225,255,${flash*.5})`;ctx.fillRect(0,0,VW,VH)}
 }
 
-addEventListener('pointermove',e=>{PM.x=e.clientX/innerWidth-.5;PM.y=e.clientY/innerHeight-.5},{passive:true});addEventListener('resize',rz);rz();
+window.__err=[];window.addEventListener('error',e=>{window.__err.push((e.message||'?')+' @'+(e.lineno||0))});setTimeout(()=>{const d=document.createElement('div');d.id='probe';d.textContent=JSON.stringify({errs:window.__err,objs:objs.length,people:PEOPLE.length,gl:GL.ok,stc:!!stc,Wd:Wd,Ht:Ht,kids:document.body.children.length});document.body.appendChild(d)},8000);addEventListener('pointermove',e=>{PM.x=e.clientX/innerWidth-.5;PM.y=e.clientY/innerHeight-.5},{passive:true});addEventListener('resize',rz);rz();
 addEventListener('error',e=>{const b=document.getElementById('boot');
  if(b){b.classList.remove('done');b.innerHTML='<span>the village failed to load</span><span style="text-transform:none;max-width:90ch;text-align:center;line-height:1.5">'+(e.error&&e.error.stack?String(e.error.stack).replace(/</g,'&lt;'):e.message)+'</span>'}});
 requestAnimationFrame(()=>{initGL();initSurf();build();bakeCloud();initPeople();const b=$('boot');if(b){b.classList.add('done');setTimeout(()=>b.remove(),700)}setTimeout(()=>ripple(innerWidth*.5,innerHeight*.5,2),700)});
