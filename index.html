@@ -483,6 +483,9 @@ document.addEventListener('visibilitychange',()=>{if(SND.on&&SND.ctx)document.hi
 /* ================= SCENE: helpers, palettes, sprite makers ================= */
 const fx2=document.getElementById('fx'),c2=fx2.getContext('2d'),VN=64,OX=VN*16,OY=110,Wd=2640,Ht=1760,PM={x:0,y:0};
 let WS=2,VW,VH,Z=1,TX=0,TY=0,stc,wm,wb,wc,wi,objs=[],rps=[],GLW=[],SPR={},CLOUD,FLAKES=[],LEAVES=[],PET=[];
+// the lowest land pixel in every screen column, per island: the rock hangs from it, and the
+// falls start exactly there
+const BOT=[new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
 const lerp=(a,b,t)=>a+(b-a)*t,clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),sm=(a,b,x)=>{x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x)};
 const hh=(a,b)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296};
 const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),f=x-i,g=y-j,u=f*f*(3-2*f),v=g*g*(3-2*g);return lerp(lerp(hh(i,j),hh(i+1,j),u),lerp(hh(i,j+1),hh(i+1,j+1),u),v)};
@@ -553,14 +556,15 @@ const PATHSB=[
  [[87.2,27.2],[86.8,25.4],[86.6,23.6],[87.0,21.8],[85.6,20.0],[84.4,18.5]],
  [[93.4,30.5],[93.7,27.9],[94.0,25.4],[93.8,23.6],[95.8,23.8],[98.0,23.4]],
  [[81.2,22.4],[82.6,20.4],[84.6,18.4],[87.2,17.4],[90.2,17.4],[93.0,18.2],[95.6,19.2],[97.4,20.0]],
- [[97.4,20.0],[99.0,21.2],[100.6,21.6],[102.4,21.4],[104.2,21.2]],
+ [[97.4,20.0],[99.2,21.2],[101.0,21.4],[102.8,21.3],[104.4,21.1]],
  [[90.2,17.4],[90.8,15.6],[90.6,14.2]],
- [[104.2,21.2],[105.2,20.4],[105.8,19.4]],
+ [[104.4,21.1],[105.2,20.4],[105.8,19.4]],
  [[93.4,30.5],[95.6,31.6],[98.2,32.0],[100.6,31.6]]
 ];
 // a raked gravel court, and three beds of azalea cut into the grass
-const ZEN=[102.6,21.4,3.0,2.0];
+const ZEN=[103.0,21.2,2.4,1.8];
 const BEDSB=[[82.4,26.9,1.8,1.1],[96.4,16.2,1.9,1.05],[100.4,25.4,1.7,1.0],[87.6,32.0,1.6,1.0]];
+const PLAZA=[98.3,21.7,2.5,1.5];
 const inE=(E,a,b)=>{const dx=(a-E[0])/E[2],dy=(b-E[1])/E[3];return dx*dx+dy*dy};
 const pathB=(a,b)=>{let d=9;for(const p of PATHSB)for(let k=0;k<p.length-1;k++)d=Math.min(d,SEG(a,b,p[k][0],p[k][1],p[k+1][0],p[k+1][1]));return d};
 const pathD=(a,b)=>{let d=pathB(a,b);for(const p of PATHS)for(let k=0;k<p.length-1;k++)d=Math.min(d,SEG(a,b,p[k][0],p[k][1],p[k+1][0],p[k+1][1]));return d};
@@ -1036,54 +1040,86 @@ function teahouse(){
   return SPR.th={c,ox:42,oy:84,sh:[12,4,30,6],gl:[[66,44,22],[26,52,30],[46,52,30]]}}
 
 function pagoda(){
-  if(SPR.pag)return SPR.pag;const c=mk(64,120),x=c.getContext('2d');
-  const RED=[172,70,50],REDD=[116,44,34],REDL=[208,100,76],WALL=[240,230,208],
-        TILE=[58,68,88],TILEL=[100,112,136],TILED=[38,44,60],GOLD=[230,188,98],INK=[86,54,40];
-  const CX=32;
-  // stone plinth, two steps, weathered
-  for(let u=0;u<46;u++){const q=Math.pow(Math.abs(u/45-.5)*2,2.6),yy=106-Math.round(q*2);
-    px(x,CX-23+u,yy,rgb([124,118,106]),1,5);px(x,CX-23+u,yy,rgb([172,166,152]),1,1);
-    if(u%3===0)px(x,CX-23+u,yy+3,rgb([100,94,84]),1,2)}
-  for(let u=0;u<38;u++)px(x,CX-19+u,103,rgb([144,138,124]),1,3);
-  // one roof: a tiled band that lifts at the corners, dark under the eave
-  const roof=(cy,w,tone)=>{
-    const W=w+15,x0=CX-Math.round(W/2);
-    for(let u=0;u<W;u++){
-      const q=Math.abs(u-(W-1)/2)/((W-1)/2),lift=Math.round(Math.pow(q,2.7)*6);
-      const yb=cy-lift,yt=yb-6;
-      for(let v=0;v<6;v++){
-        let col=v===0?TILEL:(v<4?TILE:TILED);
-        if(((u*3+v*2+tone)|0)%6===0)col=TILED;
-        px(x,x0+u,yt+v,rgb(col),1,1)}
-      px(x,x0+u,yt-1,rgb([178,190,210]),1,1);
-      px(x,x0+u,yb+1,rgb([24,30,44]),1,1);
-      if(lift>1)px(x,x0+u,yb+2,rgb([136,148,170]),1,1)}
-    px(x,x0-1,cy-2,rgb(TILEL),2,3);px(x,x0+W-1,cy-2,rgb(TILEL),2,3);
-    px(x,x0-1,cy-4,rgb([198,208,228]),1,1);px(x,x0+W,cy-4,rgb([198,208,228]),1,1);
-  };
-  // one storey: red timber posts, a plaster panel, a lattice door, a balcony rail
-  const body=(cy,w,h)=>{
-    const x0=CX-Math.round(w/2);
+  if(SPR.pag)return SPR.pag;
+  const c=mk(104,196),x=c.getContext('2d'),CX=52;
+  const RED=[178,74,54],REDD=[116,44,34],REDL=[216,106,80],DEEP=[88,34,28],
+        WALL=[244,234,212],TIMB=[120,82,54],TIMBD=[76,50,34],
+        TILE=[54,62,80],TILEL=[96,108,130],TILED=[32,38,52],TILEM=[74,84,106],
+        GOLD=[232,190,100],GOLDL=[252,228,168],INK=[58,38,28];
+
+  // ---- the stone terrace, two courses, with steps down the front ----
+  for(let u=0;u<76;u++){const q=Math.pow(Math.abs(u/75-.5)*2,3.2),yy=178-Math.round(q*4);
+    px(x,CX-38+u,yy,rgb([146,136,116]),1,12);px(x,CX-38+u,yy,rgb([216,206,182]),1,1);
+    if(u%6===0)px(x,CX-38+u,yy+6,rgb([116,106,88]),1,4)}
+  for(let u=0;u<66;u++){const q=Math.pow(Math.abs(u/65-.5)*2,3.2),yy=186-Math.round(q*3);
+    px(x,CX-33+u,yy,rgb([164,152,128]),1,8);px(x,CX-33+u,yy,rgb([224,214,190]),1,1)}
+  for(let k=0;k<3;k++)px(x,CX-11+k*2,190+k,rgb([206,196,172]),22-k*4,1);
+  // a carved band of studs along the terrace face
+  for(let u=-30;u<31;u+=5)px(x,CX+u,182,rgb([112,100,80]),2,2);
+
+  // ---- one storey: red timber, plaster panels, a lattice window, a balcony ----
+  const body=(base,w,h)=>{
+    const x0=CX-Math.round(w/2),top=base-h;
     for(let u=0;u<w;u++){const t=u/Math.max(1,w-1);
-      px(x,x0+u,cy-h,rgb(t<.14?REDD:t>.86?REDL:RED),1,h)}
-    px(x,x0+1,cy-h+2,rgb(WALL),w-2,h-6);
-    for(let v=3;v<h-7;v+=3)px(x,x0+2,cy-h+2+v,rgb([224,212,186]),w-4,1);
-    px(x,CX-2,cy-h+2,rgb(INK),4,h-5);
-    for(let v=1;v<h-5;v+=3)px(x,CX-2,cy-h+2+v,rgb([128,90,64]),4,1);
-    px(x,x0,cy-h,rgb(REDD),2,h);px(x,x0+w-2,cy-h,rgb(REDL),2,h);
-    px(x,x0,cy-1,rgb(REDD),w,1);
-    // the balcony that rings each storey
-    px(x,x0-1,cy-4,rgb([208,198,176]),w+2,3);
-    px(x,x0-1,cy-4,rgb([236,228,208]),w+2,1);
-    for(let u=1;u<w+2;u+=4)px(x,x0-1+u,cy-3,rgb([146,138,120]),1,2);
+      px(x,x0+u,top,rgb(t<.15?REDD:t>.85?REDL:RED),1,h)}
+    for(let u=5;u<w-5;u+=2)px(x,x0+u,top+5,rgb(WALL),2,h-10);
+    px(x,x0,top,rgb(DEEP),3,h);px(x,x0+w-3,top,rgb(REDL),3,h);
+    // the architrave and the bracket blocks under it
+    px(x,x0-3,top,rgb(TIMB),w+6,4);px(x,x0-3,top,rgb([160,114,74]),w+6,1);
+    px(x,x0-3,top+4,rgb(TIMBD),w+6,2);
+    for(let u=3;u<w-2;u+=7)px(x,x0+u,top+5,rgb(TIMBD),4,2);
+    // the lattice window, with a lamp behind it
+    px(x,CX-7,top+7,rgb(INK),14,9);
+    for(let u=1;u<13;u+=3)px(x,CX-7+u,top+7,rgb([112,80,54]),1,9);
+    px(x,CX-7,top+10,rgb([112,80,54]),14,1);
+    px(x,CX-3,top+10,rgb([236,198,120]),6,4);
+    // the balcony rail in front of the storey
+    px(x,x0-4,base-7,rgb(TIMBD),w+8,2);px(x,x0-4,base-7,rgb(TIMB),w+8,1);
+    for(let u=1;u<w+6;u+=5)px(x,x0-4+u,base-5,rgb(TIMBD),2,4);
+    px(x,x0-4,base-1,rgb(DEEP),w+8,1);
   };
-  let y=104;
-  for(const[w,h]of[[26,14],[21,13],[17,12]]){body(y,w,h);roof(y-h,w,h);y=y-h-6}
-  // the spire: a mast, its rings, and a jewel
-  px(x,CX-1,y-1,rgb([74,64,46]),2,26);px(x,CX-1,y-1,rgb(GOLD),1,26);
-  for(let k=0;k<5;k++){const yy=y-4-k*4;px(x,CX-4,yy,rgb(GOLD),9,1);px(x,CX-3,yy+1,rgb([178,140,58]),7,1)}
-  px(x,CX-2,y-28,rgb(GOLD),5,6);px(x,CX-1,y-30,rgb([246,222,160]),3,3);
-  return SPR.pag={c,ox:32,oy:111,sh:[-11,3,26,7],gl:[[32,60,12]]}}
+
+  // ---- one roof: tiles, a ridge, an eave with rafter ends, and upturned corners ----
+  const roof=(cy,w,fl)=>{
+    const W=w+24,x0=CX-Math.round(W/2);
+    for(let u=0;u<W;u++){
+      const q=Math.abs(u-(W-1)/2)/((W-1)/2),lift=Math.round(Math.pow(q,3.0)*10);
+      const eave=cy-lift,top=eave-9;
+      for(let v=0;v<10;v++){
+        const yy=top+v;
+        let col=v<2?TILEL:(v<7?(((u+v*2+fl)|0)%5===0?TILEM:TILE):TILED);
+        if(v===9)col=[22,26,38];
+        px(x,x0+u,yy,rgb(col),1,1)}
+      px(x,x0+u,top-1,rgb([192,202,222]),1,1);
+      px(x,x0+u,top-2,rgb([116,128,152]),1,1);
+      px(x,x0+u,eave+1,rgb([18,22,34]),1,1);
+      if(u%3===0)px(x,x0+u,eave+1,rgb([96,88,74]),1,1);
+      if(u%4===1)px(x,x0+u,top+2,rgb([44,52,70]),1,1);
+    }
+    // the corners flick up, and each one carries a bell on a thread
+    for(const sd of[-1,1]){const ux=x0+(sd<0?-1:W);
+      px(x,ux,cy-11,rgb(TILEL),2,3);px(x,ux,cy-6,rgb([38,44,58]),1,2);px(x,ux,cy-4,rgb(GOLD),2,2)}
+    // the ornament on the ridge
+    px(x,CX-3,cy-20,rgb(GOLD),6,5);px(x,CX-2,cy-21,rgb(GOLDL),4,2);
+  };
+
+  // ---- five storeys, each a little smaller than the one below ----
+  let base=178;
+  for(const[w,h]of[[44,22],[38,20],[32,19],[27,17],[22,15]]){body(base,w,h);roof(base-h,w,base);base=base-h-9}
+
+  // ---- the spire: a mast, its nine rings, the jewel, and a hanging bell ----
+  px(x,CX-1,base-1,rgb([84,72,50]),2,30);px(x,CX-1,base-1,rgb(GOLD),1,30);
+  for(let k=0;k<9;k++){const yy=base-4-k*3,w2=11-k;
+    px(x,CX-Math.floor(w2/2),yy,rgb(GOLD),w2,1);px(x,CX-Math.floor(w2/2)+1,yy+1,rgb([186,144,58]),w2-2,1)}
+  px(x,CX-4,base-31,rgb(GOLD),8,8);px(x,CX-3,base-34,rgb(GOLDL),6,4);
+  px(x,CX-1,base-35,rgb([255,246,214]),2,2);
+  px(x,CX+7,base-30,rgb([120,108,88]),1,4);px(x,CX+6,base-26,rgb(GOLD),3,3);
+
+  // ---- the plaque on the lowest storey ----
+  px(x,CX-4,base-19,rgb([92,34,28]),8,13);px(x,CX-3,base-18,rgb([58,30,26]),6,11);
+  for(let k=0;k<3;k++)px(x,CX-2,base-16+k*4,rgb(GOLD),4,3);
+
+  return SPR.pag={c,ox:CX,oy:194,sh:[-38,0,76,9],gl:[[52,164,30],[52,135,22],[52,107,16]]}}
 
 function crane(f){
   const key='cr'+f;if(SPR[key])return SPR[key];const c=mk(28,34),x=c.getContext('2d');
@@ -1190,6 +1226,76 @@ function teaStall(){
   px(x,27,30,rgb([58,58,58]),2,1);px(x,36,30,rgb([58,58,58]),1,3);
   px(x,13,30,rgb([240,234,218]),3,3);px(x,20,30,rgb([240,234,218]),3,3);
   return SPR.ts={c,ox:24,oy:52,sh:[7,1,30,5],gl:[[31,28,15]]}}
+
+// ---- a flight of stone steps ----
+function steps(n){
+  const key='st'+n;if(SPR[key])return SPR[key];
+  const c=mk(14+n*12,14+n*7),x=c.getContext('2d');
+  for(let k=0;k<n;k++){const ox=3+k*12,oy=8+k*6;
+    px(x,ox,oy,rgb([158,152,136]),9,3);
+    px(x,ox,oy,rgb([192,186,168]),9,1);
+    px(x,ox,oy+3,rgb([106,100,90]),9,4);
+    px(x,ox+8,oy+3,rgb([80,76,68]),1,4);
+    if(hh(k,7)>.6)px(x,ox+1,oy+3,rgb([92,120,62]),2,2)}
+  return SPR[key]={c,ox:3,oy:12+n*6,sh:[2,0,n*8,4]}}
+
+// ---- a stone basin with a bamboo spout ----
+function tsukubai(){
+  if(SPR.tsu)return SPR.tsu;const c=mk(40,46),x=c.getContext('2d');
+  px(x,4,2,rgb([126,150,78]),3,27);px(x,3,28,rgb([152,174,94]),3,2);
+  px(x,4,2,rgb([162,186,104]),1,27);
+  px(x,4,9,rgb([112,136,66]),3,2);px(x,4,19,rgb([112,136,66]),3,2);
+  px(x,7,8,rgb([118,142,70]),11,3);px(x,16,10,rgb([102,124,60]),2,11);
+  px(x,17,19,rgb([142,168,86]),3,2);
+  for(let v=0;v<8;v++)px(x,18,21+v,rgb([196,228,236]),1,1);
+  px(x,14,28,rgb([84,80,72]),15,9);
+  px(x,13,27,rgb([136,130,118]),17,2);
+  px(x,15,29,rgb([38,72,80]),13,2);
+  px(x,16,30,rgb([86,134,142]),11,1);
+  px(x,13,35,rgb([62,58,50]),17,2);
+  px(x,14,36,rgb([44,42,38]),15,1);
+  for(let k=0;k<7;k++)px(x,14+Math.floor(hh(k,3)*13),30+Math.floor(hh(k,5)*5),rgb([84,116,62]),2,1);
+  return SPR.tsu={c,ox:21,oy:39,sh:[3,0,17,4],gl:[[18,29,9]]}}
+
+// ---- an open pavilion on four posts ----
+function pavilion(){
+  if(SPR.pav)return SPR.pav;const c=mk(60,60),x=c.getContext('2d');
+  const TILE=[58,66,84],TILEL=[98,110,132],TILED=[34,40,54],WOOD=[112,78,50],WOODL=[148,104,66];
+  // the deck
+  px(x,6,46,rgb([150,142,126]),46,5);px(x,6,46,rgb([182,174,156]),46,1);
+  for(let u=0;u<44;u++)px(x,7+u,49,rgb([114,108,96]),1,2);
+  // four posts, the back pair higher on the screen
+  for(const q of[[8,12,34],[46,12,34],[14,24,26],[40,24,26]]){px(x,q[0],q[1],rgb(WOOD),4,q[2]);px(x,q[0],q[1],rgb(WOODL),1,q[2])}
+  // the rail on the two open sides
+  px(x,8,30,rgb(WOOD),6,2);px(x,40,30,rgb(WOOD),6,2);
+  for(const q of[[8,31],[13,31],[40,31],[45,31]])px(x,q[0],q[1],rgb(WOOD),1,6);
+  // the roof: a tiled slab whose eaves lift at the corners
+  for(let u=0;u<56;u++){const q=Math.abs(u-28)/28,dy=Math.round(Math.pow(q,2.4)*9),top=6-dy,h=21+dy;
+    for(let v=0;v<h;v++){
+      const col=v<2?TILEL:(v<h-6?((v%3===0)?[74,84,106]:TILE):TILED);
+      px(x,2+u,top+v,rgb(col),1,1)}
+    px(x,2+u,top-1,rgb([196,206,226]),1,1);
+    px(x,2+u,top-2,rgb([128,140,164]),1,1);
+    px(x,2+u,top+h,rgb([22,26,38]),1,1);
+    px(x,2+u,top+h+1,rgb([96,88,74]),1,1);
+    if(u%4===1)px(x,2+u,top+5,rgb([44,52,70]),1,1)}
+  // the ridge, and its ornament
+  px(x,25,6,rgb([120,132,156]),7,4);px(x,27,3,rgb([228,188,98]),4,5);px(x,28,2,rgb([252,226,160]),2,2);
+  return SPR.pav={c,ox:30,oy:54,sh:[6,0,42,6]}}
+
+// ---- a mossy boulder ----
+function mossRock(seed){
+  const key='mr'+seed;if(SPR[key])return SPR[key];
+  const c=mk(46,36),x=c.getContext('2d');
+  const rx=14+Math.floor(hh(seed,3)*9),ry=Math.round(rx*(.60+hh(seed,5)*.30));
+  const R5=[[30,30,33],[52,50,50],[78,74,70],[108,101,92],[142,132,116]];
+  bl(x,23,26,rx,ry,R5,seed);
+  for(let y=-ry;y<=ry;y++)for(let xx=-rx;xx<=rx;xx++){
+    const q=(xx*xx)/(rx*rx+.01)+(y*y)/(ry*ry+.01);if(q>=1)continue;
+    const ny=y/ry,nz=Math.sqrt(1-q);
+    if(ny<-.45&&nz>.3&&hh(xx*3+seed,y*2)>.52)px(x,23+xx,26+y,rgb([74,104,56]),1,1);
+    if(hh(xx*5+seed,y*5)>.90)px(x,23+xx,26+y,rgb([138,158,104]),1,1)}
+  return SPR[key]={c,ox:23,oy:27,sh:[-rx*.55,ry*.35,rx*1.1,ry*.85]}}
 
 function birdhouse(){
   const c=mk(18,24),x=c.getContext('2d');
@@ -1302,8 +1408,6 @@ function build(){
  wm=new Uint8Array(Wd*Ht);let x0=1e9,y0=1e9,x1=0,y1=0;
   const yard=(a,b)=>{for(const[y0,y1,r]of YARDS)if(Math.hypot(a-y0,b-y1)<r+(vn(a*2,b*2)-.5)*.8)return 1;return 0};
  const dirt=(a,b)=>fieldAt(a,b)<.4+(vn(a*5,b*5)-.5)*.3;
- // the lowest land pixel in each column, per island: the rock hangs from here
- const BOT=[new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
  for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){
   const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2,isl=LANDI(fi,fj);if(!isl)continue;
   const w=WD(fi,fj),o=(y*Wd+x)*4;let k,al=255;
@@ -1329,6 +1433,17 @@ function build(){
      else{const gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
       // broad meadows instead of one flat green: a hollow tone, a dry tone, moss in the shade
       const md=vn(fi*.115+21,fj*.115+31)-.5+(vn(fi*.30+3,fj*.30+7)-.5)*.45;
+      const pq=inE(PLAZA,fi,fj);
+      if(pq<1.12){
+       // flagstones before the pagoda
+       if(pq>1)k=mixc([102,96,86],[70,66,58],hh(x,y));
+       else{
+        const gx=Math.floor(fi*3.2),gy=Math.floor(fj*3.2);
+        k=mixc([146,140,128],[178,172,158],hh(gx,gy));
+        if(hh(gx,gy)>.84)k=mixc(k,[110,114,108],.42);
+        if(hh(gx+1,gy)>.93)k=mixc(k,[98,88,74],.35);
+        if(hh(x,y)>.965)k=mixc(k,[198,194,180],.6)}}
+      else{
       const zq=inE(ZEN,fi,fj);
       if(zq<1.16){
        // a raked gravel court, kerbed with set stones
@@ -1352,7 +1467,8 @@ function build(){
         if(md<-.22)k=mixc(k,[134,126,82],.28);
         if(vn(fi*.62+2,fj*.62)>.66)k=mixc(k,[68,112,54],.34);
         if(vn(fi*1.9+7,fj*1.9)>.80)k=mixc(k,[42,80,42],.26);
-        if(hh(x,y)>.987)k=[246,208,220];else if(hh(y,x)>.994)k=[255,234,242]}}}}
+        if(hh(x,y)>.987)k=[246,208,220];else if(hh(y,x)>.994)k=[255,234,242]}}}}}
+
     else if(dirt(fi,fj)){const pk=Math.floor(n*2.7)%3;k=DI[pk];if(hh(x,y)>.93)k=[154,132,92]}
    else{const rg=RG(fi,fj),zone=ZONE(fi,fj),gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
      if(zone==='field'){const row=Math.floor(fj*2.4),ck=Math.floor(hh(row,Math.floor(fi*3.2))*3);
@@ -1573,7 +1689,7 @@ function build(){
  {const sak=(R,sd)=>oak('c',R,sd,'cherry'),map=(R,sd)=>oak('c',R,sd,'maple');
   put(81.0,23.4,torii(),2,.05);
   put(84.5,30.2,teahouse(),2,.05);
-  put(99.0,19.8,pagoda(),2,.05);
+  put(98.2,19.4,pagoda(),2,.05);
   for(const[a,b]of[[82.4,22.2],[83.6,25.0],[85.8,28.0],[90.4,30.2],[96.8,28.8],[98.2,22.0],[86.0,20.4]])put(a,b,stoneLantern(),3);
   put(93.6,27.9,archBridge(),0);
 
@@ -1592,9 +1708,9 @@ function build(){
   put(106.2,20.4,bush('g',3,true),4,.05);
 
   // the gravel court: seven stones, set in the raked lines
-  for(const[a,b,s]of[[100.9,20.5,1],[101.7,22.4,2],[102.9,19.9,3],[103.7,21.5,0],[104.7,20.4,1],[102.1,21.9,2],[104.2,22.7,3]])
+  for(const[a,b,s]of[[101.4,20.4,1],[102.2,21.8,2],[103.2,19.9,3],[103.9,21.3,0],[104.8,20.3,1],[101.9,21.6,2],[104.4,22.4,3]])
    put(a,b,standingStone(s),0,.02);
-  put(101.4,21.2,RS(4,2,RK,3),0,.02);put(104.4,19.6,RS(3,2,RK,5),0,.02);
+  put(101.8,20.6,RS(4,2,RK,3),0,.02);put(104.6,19.7,RS(3,2,RK,5),0,.02);
 
   // bamboo behind the gate, where the ground rises
   for(let gx=0;gx<6;gx++)for(let gz=0;gz<3;gz++){
@@ -1616,7 +1732,7 @@ function build(){
             [83.2,27.8,9],[82.4,31.6,11],[86.6,33.2,10],[90.2,33.8,12],[94.8,32.8,9],[98.0,31.2,11],
             [101.8,28.8,10],[103.6,24.2,9],[86.6,30.8,7],[91.4,25.2,8],
             [96.0,15.2,9],[101.6,15.8,11],[104.8,18.8,10],[100.4,18.2,9],[104.4,25.8,9],
-            [92.0,25.6,8],[89.0,31.8,9],[99.0,27.2,8],[85.4,31.2,10],[91.6,31.2,9],
+            [92.0,25.6,8],[89.0,31.8,9],[99.0,27.2,8],[85.4,31.2,10],[91.6,31.2,9],[104.8,23.6,9],
             [81.2,26.0,10],[81.4,29.2,10],[84.6,28.6,9],[87.4,35.0,10],[92.4,36.2,10],
             [96.6,34.6,10],[100.4,33.0,10],[103.4,30.4,9],[104.6,26.4,9],[103.0,26.2,10],
             [105.6,25.0,9],[103.4,16.6,10],[100.0,14.6,9],[96.6,13.6,9],[93.4,14.6,10],
@@ -1640,6 +1756,22 @@ function build(){
   put(95.8,23.9,stoneLantern(),3);put(99.8,21.3,stoneLantern(),3);
   put(93.0,17.9,stoneLantern(),3);put(87.0,17.2,stoneLantern(),3);
   put(85.0,29.6,stoneLantern(),3);put(93.0,31.4,stoneLantern(),3);
+  // a gate standing in the water, and another where the brook runs out
+  put(86.8,24.6,torii(),2,.05);
+  put(99.6,27.4,torii(),2,.05);
+  // steps up from the court to the pagoda, and a pavilion above the brook
+  put(97.9,20.9,steps(4),0,.05);put(98.0,20.3,steps(3),0,.05);
+  put(101.2,23.0,pavilion(),2,.05);
+  put(94.6,20.4,tsukubai(),2,.05);
+  put(100.0,24.4,boat(),0,.05);
+  put(102.2,24.0,mossRock(3),0,.05);put(88.2,31.4,mossRock(5),0,.05);
+  put(83.0,30.6,mossRock(7),0,.05);put(105.4,30.0,mossRock(9),0,.05);
+  put(92.0,36.4,mossRock(11),0,.05);put(96.0,35.8,mossRock(13),0,.05);
+  put(79.8,24.0,mossRock(15),0,.05);put(104.6,15.0,mossRock(17),0,.05);
+  put(89.0,12.6,mossRock(19),0,.05);put(97.0,13.4,mossRock(21),0,.05);
+  put(80.4,20.4,signpost(),0,.05);put(94.2,18.2,fenceSeg(1),0,.04);
+  put(95.4,18.8,fenceSeg(0),0,.04);put(90.6,19.4,fenceSeg(1),0,.04);
+  put(91.4,20.0,fenceSeg(0),0,.04);
   // the islet: a pine, two stones, and reeds in the shallows
   put(89.5,25.4,pine('g',6,3),1,.04);
   put(89.0,25.0,RS(3,2,RK,4),0,.04);put(90.0,25.8,RS(2,2,RK,6),0,.04);
@@ -1671,8 +1803,9 @@ function build(){
    if(!LANDB(a,b)||WD(a,b)>-1.2||pathB(a,b)<.85)continue;
    if(inE(ZEN,a,b)<1.34)continue;
    const q=hh(k,47);
-   if(q<.32)put(a,b,RS(2+Math.floor(hh(k,53)*4),1+Math.floor(hh(k,59)*3),RK,k),0);
-   else if(q<.64)put(a,b,bush('g',k%6,hh(k,61)>.6),0);
+   if(q<.14)put(a,b,mossRock(k),0);
+   else if(q<.36)put(a,b,RS(2+Math.floor(hh(k,53)*4),1+Math.floor(hh(k,59)*3),RK,k),0);
+   else if(q<.66)put(a,b,bush('g',k%6,hh(k,61)>.6),0);
    else put(a,b,fern('g',k%5),4)}
  }
 // cast shadows baked last so they darken everything under them
@@ -1937,34 +2070,51 @@ function water(){
       const v=d32[o>>2];
       d32[o>>2]=(255<<24)|(clamp(((v>>16)&255)+f*70,0,255)<<16)|(clamp(((v>>8)&255)+f*80,0,255)<<8)|clamp((v&255)+f*75,0,255)}}
   wc.getContext('2d').putImageData(wi,0,0);c2.drawImage(wc,wb[0],wb[1])}
-function fallAt(a0,b0,wd,N){
+// A fall: the water leaves the rim, widens as it drops, breaks into threads,
+// and dissolves into spray long before it reaches the cloud sea.
+function fallAt(a0,b0,wd,N,isl){
  const c=c2,[x,y]=PF(a0,b0);
- for(let u=1;u<wd;u++){const yt=y+8-(u>>1);
-  const cut=1-Math.abs((u-wd/2)/(wd/2))*0.12;
-  for(let v=-2;v<N*cut;v++){
-   const sp=Math.round(v*.035),a=(v<16?1:clamp(1-(v-16)/(N*cut-16),0,1))*Math.min(1,(N*cut-v)/30)*.92;
+ const top=new Int32Array(wd);
+ for(let u=0;u<wd;u++){const sx=Math.round(x+u);
+  top[u]=BOT[isl]&&BOT[isl][sx]>=0?BOT[isl][sx]+1:Math.round(y+6-(u>>1))}
+ for(let u=0;u<wd;u++){
+  const q=Math.abs((u-wd/2)/(wd/2||1)),bend=Math.round(q*q*5),H=Math.round(N*(1-q*q*.30));
+  // every column carries its own threads, so the water falls in strands rather than a dither
+  const ph=hh(u,3)*7,ph2=hh(u,5)*11;
+  for(let v=0;v<H;v++){
+   const t=v/H;
+   // the water accelerates as it falls, so the threads stretch and drift apart
+   const sp=Math.round(t*t*8*Math.sin(T*1.1+u*.7))+Math.round(t*t*5*Math.sign(u-wd/2));
+   const a=(v<4?1:clamp(1-(v-4)/(H*.88),0,1))*clamp(1-(t-.80)/.20,0,1)*.95;
    if(a<=.02)continue;
+   const w1=((ph+v*.11)|0)%7,w2=((ph2+v*.07+((v*3)|0)%5)|0)%7;
    c.globalAlpha=a;
-   c.fillStyle=((v+T*34+u*3)|0)%9<3?'#eefaff':((v+T*34)|0)%5<2?'#a9dcec':'#6fb7d3';
-   c.fillRect(x+u+sp,yt+v,1,1);
-   if(v>40&&((v*7+u*3)|0)%23==0){c.fillStyle='rgba(238,250,255,.55)';c.fillRect(x+u+sp+1,yt+v,1,1)}}}
- // the lip: white water breaking over the edge, and spray
- c.globalAlpha=.95;
- for(let u=-2;u<wd+3;u++)for(let v=-3;v<4;v++){if(u<1||u>wd-2){c.fillStyle='rgba(238,250,255,.75)';c.fillRect(x+u,y+6+v,1,1)}}
- for(let k=0;k<14;k++){const an=hh(k,3)*6.283,rr=4+hh(k,4)*13;
-  c.fillStyle=`rgba(238,250,255,${.50-hh(k,5)*.4})`;
-  c.fillRect(Math.round(x+wd/2+Math.cos(an)*rr),Math.round(y+10+Math.sin(an)*rr*.7+(Math.sin(T*2+k)*2)),1,1)}
- c.globalAlpha=1}
+   c.fillStyle=w1<.85?'#d4ecf1':w1<2.3?'#4d8a99':w2<1.4?'#3c7182':'#2a5a6a';
+   c.fillRect(x+u+sp,top[u]+v+bend,1,1);
+  }
+ }
+ // the crest, where the water breaks over the edge
+ c.globalAlpha=.85;
+ for(let u=Math.floor(wd*.30);u<Math.ceil(wd*.70);u++){
+  c.fillStyle=((u+T*18)|0)%4<2?'rgba(226,244,250,.9)':'rgba(160,208,224,.75)';
+  c.fillRect(Math.round(x+u),top[u],1,1)}
+ // the spray it throws as it goes over
+ for(let k=0;k<22;k++){const an=hh(k,3)*6.283,rr=6+hh(k,4)*20,ph=(T*.9+k*.37)%1;
+  c.globalAlpha=(1-ph)*(1-ph)*.30;
+  c.fillStyle=hh(k,9)>.5?'#e6f6fa':'#b6dfe8';
+  c.fillRect(Math.round(x+wd/2+Math.cos(an)*rr*(1+ph*.7)),Math.round(top[wd>>1]+6+ph*64+Math.sin(an)*rr*.45),1,1)}
+ c.globalAlpha=1;
+ return {x:x+wd/2,y:top[wd>>1]+N*.86}}
 function fall(){
- fallAt(63.2,26.9,15,250);fallAt(106.1,27.7,9,190);
+ const A=fallAt(63.2,26.9,26,250,0),B=fallAt(106.1,27.7,15,200,1);
  // the mist where each column hits the void
  const c=c2;
- for(const[fa,fb,rr,n]of[[63.2,26.9,20,26],[106.1,27.7,14,16]]){
-  const[X,Y]=PF(fa,fb);
-  for(let k=0;k<n;k++){const an=hh(k,9)*6.283,r=rr*(.4+hh(k,10)*.9),yy=Y+150+Math.sin(T*.4+k)*10+hh(k,11)*60;
-   c.globalAlpha=.28-hh(k,12)*.2;c.fillStyle='#eaf6ff';c.fillRect(Math.round(X+rr/2+Math.cos(an)*r),Math.round(yy+Math.sin(an)*r*.55),1+ (k%2),1)}
- }
- c.globalAlpha=1}
+ for(const[F,rr,n]of[[A,22,30],[B,15,20]]){
+  for(let k=0;k<n;k++){const an=hh(k,9)*6.283,r=rr*(.35+hh(k,10)*.95),ph=(T*.5+hh(k,15)*1.6)%1;
+   c.globalAlpha=.30-hh(k,12)*.22;c.fillStyle=hh(k,13)>.5?'#e4f3f8':'#bcdfe8';
+   c.fillRect(Math.round(F.x+Math.cos(an)*r*(1+ph*.6)),Math.round(F.y+ph*54+Math.sin(an)*r*.5),1,1)}
+  c.globalAlpha=1}
+}
 const bridgeLift=(a,b)=>{let L=0;
  if(a>=32.4&&a<=34.6&&b>=22.5&&b<=26.5)L=Math.sin(Math.PI*(b-22.5)/4)*3;
  if(a>64.2&&a<79.5&&Math.abs(b-23.4)<1.5){const t=(a-64.4)/14.8;if(t>0&&t<1)L=Math.min(L,-Math.sin(t*Math.PI)*30)}
@@ -2036,6 +2186,17 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;
   disc(c,X+dr*3,Y-5+pk,1,1,q%2?'#f4efe4':'#b8693a');px(c,X+dr*3,Y-7+pk,'#d6342a',1,1);px(c,X+dr*4,Y-5+pk,'#f0a030',1,1)}
  // butterflies (daytime)
  if(n<.6)for(let q=0;q<6;q++){const[X0,Y0]=PF(13.6+(q%3)*1.4,14.6+Math.floor(q/3)*2.2),X=Math.round(X0+Math.sin(T*.7+q*2)*40+Math.sin(T*2.3+q)*6),Y=Math.round(Y0-18+Math.cos(T*.9+q*3)*16),w=Math.sin(T*18+q*5)>0?2:1,col=['#ffd24a','#ffffff','#ff8fb8','#8ec8ff','#ff9a3c','#ffffff'][q];c.globalAlpha=1-n;px(c,X-w,Y,col,w,2);px(c,X+1,Y,col,w,2);px(c,X,Y,'#2a2018',1,2);c.globalAlpha=1}
+ // butterflies over the sakura isle
+ if(n<.6)for(let q=0;q<8;q++){const[X0,Y0]=PF(82+q*2.6,19+Math.floor(q/3)*2.8),
+  X=Math.round(X0+Math.sin(T*.7+q*2)*38+Math.sin(T*2.3+q)*6),Y=Math.round(Y0-20+Math.cos(T*.9+q*3)*15),
+  w=Math.sin(T*18+q*5)>0?2:1,col=['#ffd24a','#ffffff','#ff8fb8','#8ec8ff','#ff9a3c','#fff0c8'][q];
+  c.globalAlpha=1-n;px(c,X-w,Y,col,w,2);px(c,X+1,Y,col,w,2);px(c,X,Y,'#2a2018',1,2);c.globalAlpha=1}
+ // fireflies once the sun goes down
+ if(n>.45)for(let q=0;q<20;q++){const[X0,Y0]=PF(81+hh(q,3)*25,17+hh(q,5)*17),
+  X=Math.round(X0+Math.sin(T*.6+q)*26+Math.sin(T*1.7+q*2)*8),Y=Math.round(Y0-14+Math.cos(T*.8+q*1.3)*20);
+  const f=.25+.65*Math.max(0,Math.sin(T*2.4+q));
+  c.globalAlpha=f;c.fillStyle='#d4ff8a';c.fillRect(X,Y,1,1);
+  c.globalAlpha=f*.16;c.fillRect(X-1,Y-1,3,3);c.globalAlpha=1}
  // birds
  if(n<.5&&cur.storm<.5)for(let q=0;q<3;q++){const X=((T*9+q*330)%1300)-120,Y=90+q*46+Math.sin(T*.4+q)*8,fl=Math.sin(T*9+q)>0;if(X<l||X>r||Y<t||Y>b)continue;c.fillStyle='rgba(26,30,36,.8)';c.fillRect(X,Y,2,1);c.fillRect(X-2,Y+(fl?-1:1),2,1);c.fillRect(X+2,Y+(fl?-1:1),2,1);c.fillRect(X-3,Y+(fl?-2:2),1,1);c.fillRect(X+4,Y+(fl?-2:2),1,1)}
  // leaves & snow
