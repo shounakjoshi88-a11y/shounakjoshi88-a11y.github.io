@@ -157,8 +157,8 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 .sx::after{content:"";position:absolute;left:12px;top:12px;width:6px;height:6px;background:#fff4c2;transform:rotate(45deg);box-shadow:0 0 0 2px rgba(255,224,130,.4);animation:tw 2.6s infinite steps(4)}
 .sx.f::after{background:#9bd08a;animation:none;opacity:.55;width:4px;height:4px;left:13px;top:13px;box-shadow:none}
 @keyframes tw{0%,100%{opacity:.15}50%{opacity:1}}
-#find{position:fixed;left:50%;bottom:76px;z-index:5;transform:translate(-50%,12px);width:min(380px,calc(100vw - 24px));background:var(--paper);color:var(--text);padding:.8rem 1rem;clip-path:var(--notch);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s}
-#find.on{opacity:1;transform:translate(-50%,0)}
+#find{position:fixed;left:50%;top:76px;cursor:pointer;z-index:5;transform:translate(-50%,-10px);width:min(380px,calc(100vw - 24px));background:var(--paper);color:var(--text);padding:.8rem 1rem;clip-path:var(--notch);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s}
+#find.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#say{transition:opacity .6s}#say.gone{opacity:0;pointer-events:none}
 #find b{display:block;font:700 .72rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:.2rem}
 .wl{position:fixed;z-index:5;left:50%;bottom:30%;font:.85rem var(--mono);color:#ffe3a0;text-shadow:0 0 8px #ff9d3c;pointer-events:none;animation:wl 9s ease-out forwards;white-space:nowrap}
 @keyframes wl{to{transform:translateY(-55vh);opacity:0}}
@@ -378,12 +378,12 @@ const LINES0={top:'Psst. Down here. I’m <b>Mizu</b>. I live in the pond at the
  work:'Five things Shounak built that still stand when somebody else runs them. Start with <b>Flux</b> — twenty-one tools and a verifier that says no.',
  shelf:'Smaller ripples. A news wire, a weight-forensics lab, the ACM site. All real code, all in his GitHub.',
  about:'That’s the person behind the commits: second year, a collective across eight colleges, and a soft spot for race conditions.',
- wish:'Across the rope bridge: another isle, another pond. Toss a coin and say <b>rain</b>, <b>storm</b>, <b>night</b> or <b>koi</b>.'};
+ wish:''};
 const LINES={top:'Psst. I’m <b>Mizu</b>, from the pond. Scroll down the lane and the villagers will tell you about Shounak.',
  work:'Follow the lane. Every villager has a story.',s2:'Tap a link in the bubble to see the real code.',s3:'Keep going. The shelf is round the corner.',
  shelf:'Smaller ripples, all real repositories.',about:'My pond is just ahead. Drag across the water, the koi notice.',s6:'Keep walking east. There is a rope bridge ahead.',
- wish:'Last pond, across the sky. Toss a coin and say <b>rain</b>, <b>storm</b>, <b>night</b> or <b>koi</b>.'};
-const TIPS=['Drag across the water. The koi notice.','Try the Night button. I like the fireflies.','The lanterns only glow after dark.','Walk down the lane past the farm. The windmill turns.','Click me and I will jump.'];
+ wish:''};
+const TIPS=['Drag across the water. The koi notice.','Faint glints hide secrets. Try the forest past the mill.','The sky and the seasons change on their own. Stay a while.','Walk down the lane past the farm. The windmill turns.','Click me and I will jump.'];
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;let typer=null,tipI=0;
 function say(html){clearInterval(typer);const el=$('say');$('mizu').classList.add('hop');setTimeout(()=>$('mizu').classList.remove('hop'),450);
   const tmp=document.createElement('div');tmp.innerHTML=html;const txt=tmp.textContent;
@@ -392,6 +392,7 @@ function say(html){clearInterval(typer);const el=$('say');$('mizu').classList.ad
   typer=setInterval(()=>{i+=2;if(i>=txt.length){el.innerHTML='<span class="who">Mizu</span>'+html;clearInterval(typer)}else el.innerHTML='<span class="who">Mizu</span>'+txt.slice(0,i)},26)}
 let MZ=null;
 function splash(){for(let k=0;k<4;k++){const[px_,py]=PF(POND[0]+(Math.random()-.5)*5,POND[1]+(Math.random()-.5)*4);rps.push({x:px_,y:py,t:T+k*.18})}}
+{const _s=say,SAY=$('say'),seen={};say=function(h){if(!h)return;if(Object.values(LINES).includes(h)){if(seen[h])return;seen[h]=1}SAY.classList.remove('gone');_s(h);clearTimeout(say.t);say.t=setTimeout(()=>SAY.classList.add('gone'),h.length>90?9000:6000)}}
 $('mz').onclick=()=>{say(TIPS[tipI++%TIPS.length]);splash()};
 function setGroup(group,k){document.querySelectorAll('#'+group+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k))}
 // The sky starts in the visitor's own local time of day.
@@ -404,7 +405,8 @@ const DAYLEN=200,SEASONS=['Spring','Summer','Autumn','Winter'],SG=['rgba(255,170
 const _d=new Date(),_m=_d.getMonth(),W={h:_d.getHours()+_d.getMinutes()/60,d:0,s:_m>=2&&_m<5?0:_m>=5&&_m<8?1:_m>=8&&_m<11?2:3,wx:'clear',wt:0,ov:null,last:performance.now(),hud:0};
 let ACT='work',SPDM=1,SE=SEN[W.s];
 const SMS=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
-function note(h,t,ms){const f=$('find');f.innerHTML='<b>'+h+'</b>'+t;f.classList.add('on');clearTimeout(note.t);note.t=setTimeout(()=>f.classList.remove('on'),ms||7000)}
+function note(h,t,ms){const f=$('find');f.innerHTML='<b>'+h+'</b>'+t;f.classList.add('on');noteY=scrollY;clearTimeout(note.t);note.t=setTimeout(()=>f.classList.remove('on'),Math.min(ms||6000,7000))}
+let noteY=0;addEventListener('scroll',()=>{if(Math.abs(scrollY-noteY)>160)$('find').classList.remove('on')},{passive:true});$('find').onclick=()=>$('find').classList.remove('on');
 function seasonSet(q){SE=SEN[W.s];$('season').style.backgroundColor=SG[W.s];if(!q)note(SEASONS[W.s],SNOTE[W.s],6000)}
 function skyTick(){const n=performance.now(),dt=Math.min(.25,(n-W.last)/1000);W.last=n;
  W.h+=dt*24/DAYLEN;if(W.h>=24){W.h-=24;if(++W.d%2==0){W.s=(W.s+1)%4;seasonSet()}}
@@ -423,15 +425,13 @@ const SEC=[
  {id:'lookout',at:[35.6,40.2],t:'The lookout',x:'Philosophy, cosmology, and whether today’s models are real AI. The arguments happen up here, mostly with himself.'},
  {id:'falls',at:[62.2,25.6],t:'Where the stream ends',x:'The brook drops into the cloud sea. Old experiments go over the edge to keep running somewhere you cannot see.'},
  {id:'islet',at:[26.5,24.5],t:'The wishing islet',x:'The pond only grants wishes to visitors who heard the villagers out. You have, so far, heard something.'},
- {id:'pagoda',at:[111,15.2],t:'Pagoda of finished things',x:'Five floors for five shipped ideas. The lanterns below are the ones still being built.'},
- {id:'hermit',at:[57.4,21.9],t:'The hut on the slope',x:'A thatched roof, a lit window, and a fawn under the eaves. The notebook on the bench is fifty four experiments that did not work, and the reason he kept every one.'},
- {id:'stones',at:[55.6,24.4],t:'The standing stones',x:'Six stones and a cairn. They mark the places where an idea stopped and was allowed to rest. The cairn is the newest one, so it is the least settled.'},
- {id:'lanterns',at:[92.0,22.0],t:'The unfinished row',x:'The lanterns below the pagoda are the things still being built. The five floors above are the ones that shipped. He keeps both lit, because one is not more real than the other.'}];
+ {id:'hermit',at:[51.0,15.4],t:'The hermit’s house',x:['Day 1. The sky-sea was empty. I had a question and no map, so I stacked a stone on a cloud and called it a village.','Day 54. The mill turns without me now. The ticket counter holds. A thing finished is a thing that can leave.','The boy from the farm kept asking why. Every why became an island. The farm came first: taking things apart to see how they ran.','The koi was the first thing he wrote that surprised him. I named it Mizu. It still answers when someone drops a coin.','My rule: build with what you have, check what you built, and never trust a thing you have not broken once. Jugaad, with tests.','If you found this house, you listened. Leave a wish in the pond, then walk to the sakura isle. The postmaster never closes the door.']},
+ {id:'pagoda',at:[111,15.2],t:'Pagoda of finished things',x:'Five floors for five shipped ideas. The lanterns below are the ones still being built.'}];
 let FOUND=[];try{FOUND=JSON.parse(localStorage.koiFound||'[]')}catch(e){}
 const nf=()=>SEC.filter(s=>s.f).length,updCount=()=>{$('sec').textContent='Secrets '+nf()+'/'+SEC.length};
 function found(s){if(!s.f){s.f=1;s.el.classList.add('f');try{localStorage.koiFound=JSON.stringify(SEC.filter(q=>q.f).map(q=>q.id))}catch(e){}updCount();
   if(nf()==SEC.length)setTimeout(()=>note('Every secret found','The pond has heard you. Make a wish that mentions Shounak.',9000),9500)}
- note(s.t,s.x,9000)}
+ const x=Array.isArray(s.x)?s.x[(s.n=s.n||0)%s.x.length]:s.x;if(Array.isArray(s.x))s.n++;note(s.t+(Array.isArray(s.x)?' · '+(((s.n-1)%s.x.length)+1)+'/'+s.x.length:''),x,9000)}
 SEC.forEach(s=>{const b=document.createElement('button');b.className='sx';b.type='button';b.setAttribute('aria-label','A faint glint: a hidden detail');b.onclick=()=>found(s);document.body.appendChild(b);s.el=b;if(FOUND.includes(s.id)){s.f=1;b.classList.add('f')}});updCount();
 function secretTick(){for(const s of SEC){const[X,Y]=PF(s.at[0],s.at[1]),sx=(TX+X*Z)*WS,sy=(TY+(Y-16)*Z)*WS,on=sx>10&&sx<innerWidth-10&&sy>60&&sy<innerHeight-60;s.el.style.transform='translate('+sx+'px,'+sy+'px)';s.el.style.opacity=on?1:0;s.el.style.pointerEvents=on?'auto':'none'}}
 seasonSet(1);skyTick();Object.assign(cur,tgt)
@@ -449,8 +449,6 @@ const CH=[
  {at:[21.55,19.55],pal:[[206,96,72],[74,62,56],[60,48,40],[224,184,148],[92,64,44]],name:'Bea',role:'the shopkeeper',text:'Out back is the shelf. de-ai rewrites text with no model at all. Meridian triages clinical cases from real ICD-10 data. Plenty more where those came from.',tags:'',links:[['de-ai',GH+'de-ai'],['Meridian',GH+'meridian'],['AI Wire ↗','https://ai-news-seven-tan.vercel.app/'],['Weight forensics',GH+'llm-weight-forensics'],['ACM RBU site',GH+'acm-rbu-site'],['Voxelcraft',GH+'voxelcraft'],['PayFlow',GH+'payflow-java'],['Sixty logins',GH+'60-login-page-challenge']]},
  {at:[19.8,24.5],pal:[[120,104,84],[70,74,88],[238,232,220],[214,166,126],[178,152,112]],name:'Sen',role:'the old fisher',text:'Second year BTech CSE at Ramdeobaba, Nagpur. He also coordinates Engineering India RBU, a student collective across eight colleges. Mind the koi.',tags:'',links:[]},
  {at:[34.4,22.6],pal:[[142,158,120],[64,66,60],[198,186,150],[220,172,132],null],name:'Kiri',role:'the bridge keeper',text:'He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch instead of configured.',tags:'TypeScript · Python · C · React · PostgreSQL · Godot · Three.js · Docker',links:[]},
- {at:[57.4,21.9],pal:[[126,116,96],[74,68,60],[176,166,140],[224,190,152],[188,178,156]],name:'Ryo',role:'the hermit',text:'He keeps a hut past the road where the stream cuts the island. The notebook on the bench is fifty four experiments that did not work, and the reason he kept every one.',tags:'',links:[]},
- {at:[92.0,22.0],pal:[[168,118,74],[58,60,74],[210,196,168],[226,196,158],[120,96,60]],name:'Wren',role:'the lantern keeper',text:'Wren lights the lanterns below the pagoda. Each one is a thing that is not finished yet, and each finished thing goes up a floor instead.',tags:'',links:[]},
  {at:[98.0,24.9],pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],name:'Juno',role:'the postmaster',text:'Last stop. He is open to internships, to collaboration, and to being told he is doing something in a stupid way. Send a letter.',tags:'',links:[['GitHub','https://github.com/shounakjoshi88-a11y'],['X','https://x.com/BroIndian39416'],['YouTube','https://www.youtube.com/@Badass069'],['Email','mailto:shounakjoshi88@gmail.com']]}
 ];
 
@@ -461,10 +459,8 @@ const STORY={
  Oro:{ch:'Chapter 4 · Under pressure',p:['Stellar Forge sells event tickets. Easy, until a thousand people reach for the last seat.','Serialisable transactions, row locking and one live counter everyone trusts. It ships as an Android app too.','He wrote the specs and skill files, directed AI coding agents, and checked every result himself.']},
  Bea:{ch:'Chapter 5 · The shelf',p:['Out back is the shelf: what he builds when a question will not leave him alone.','de-ai rewrites text with no model at all. Meridian triages clinical cases from real ICD-10 data. Payflow is a Java payment gateway.','Raksha and NeRoute came out of hackathons: crowd safety, and logistics for India’s North East.']},
  Sen:{ch:'Chapter 6 · People',p:['He also coordinates Engineering India RBU, a student collective across eight colleges.','Between builds he runs a long experiment: fifty four attempts at P versus NP. Most end in no. He starts the next anyway.','Patience is a skill. He has finished Sekiro five times. Mind the koi.']},
- Ryo:{ch:'Chapter 8 · What fell off the edge',p:['Past the road, where the stream cuts the island, there is a thatched hut with a fawn under it. The man there calls himself Ryo. Nobody here remembers putting him there.','He keeps the notebook of what did not work. Fifty four attempts at P versus NP, most of them ending in no, and the nebula shader pack that stayed on paper because he decided to build something used instead.','Old experiments go over the falls so they can keep running somewhere you cannot see. He is careful to say that is not the same as giving up.']},
- Wren:{ch:'Chapter 9 · Still building',p:['Between the great torii and the pagoda, the lanterns are lit before anyone else is awake. Wren looks after them. Each lantern is a thing that is not finished yet.','SC-900 is done, network security is in progress, JNCIA is next. The finished ones go up the pagoda, floor by floor. The rest stay lit down here on the road.','A thing is finished when somebody else can run it without asking him anything. That is the whole test, and it is why the lanterns come first.']},
  Kiri:{ch:'Chapter 7 · The path ahead',p:['This bridge points toward security. SC-900 is done, network security is in progress, JNCIA is next.','He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch.','Cost conscious by habit: a jugaad mind, a local VM lab, nothing paid when free will do.']},
- Juno:{ch:'Chapter 10 · Letters',p:['Last stop, the sakura isle. The pagoda keeps what he has finished. The lanterns keep what he is still building.','He is open to internships, to collaboration, and to being told he is doing something in a stupid way.','Send a letter. Then wander back to the pond and make a wish.']}};
+ Juno:{ch:'Chapter 8 · Letters',p:['Last stop, the sakura isle. The pagoda keeps what he has finished. The lanterns keep what he is still building.','He is open to internships, to collaboration, and to being told he is doing something in a stupid way.','Send a letter. Then wander back to the pond and make a wish.']}};
 for(const c of CH){const s=STORY[c.name];c.ch=s.ch;c.pages=s.p;c.text=s.p.join(' ')}
 $('srl').innerHTML=CH.map(c=>`<li>${c.name}, ${c.role}: ${c.text} ${c.tags}</li>`).join('');
 const BUB=$('bub');let curCh=-1,bw=300,bh=200,typ2=null;
@@ -478,14 +474,17 @@ function drawPg(){const c=CH[curCh],full=c.pages[pg],last=pg==c.pages.length-1;c
  BUB.classList.remove('pop');void BUB.offsetWidth;BUB.classList.add('pop');bw=BUB.offsetWidth;bh=BUB.offsetHeight}
 function setCh(k){curCh=k;pg=0;drawPg()}
 BUB.addEventListener('click',e=>{if(!e.target.closest('a'))adv()});
+const WISHC=document.querySelector('.wish');
 function bubbleTick(f){skyTick();secretTick();const k=clamp(Math.round(f),0,CH.length-1);if(k!==curCh)setCh(k);
- const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,x=clamp(sx,12+half,vw-12-half),y=Math.max(sy,bh+70);
+ const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,wr=WISHC.getBoundingClientRect(),lo=(vw>=900&&wr.top<innerHeight*.92&&wr.bottom>0)?wr.right+14+half:0,x=clamp(sx,Math.max(12+half,lo),vw-12-half),y=Math.max(sy,bh+70);
  BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
  const on=sx>-20&&sx<vw+20&&sy>0&&sy<innerHeight+200;BUB.style.opacity=on?a:0;BUB.style.pointerEvents=(a>.6)?'auto':'none';BUB.style.visibility=(a<.02||!on)?'hidden':'visible'}
 
 // Wishing pond
 const sayW=k=>{W.ov={k,u:performance.now()+75000}};
+const LEG=['The sky-sea was empty once. A boy with too many questions stacked a stone on a cloud, and the first island began.','The farm came first: taking things apart to see how they run. Every island since is a question that would not leave him alone.','The mill turned his first big idea, Flux, into something that moves without being pushed.','The pond is where wishes go. Mizu the koi was the first thing he wrote that surprised him.','The shelf holds the small obsessions: a text rewriter, a clinic triage tool, a payment flow.','The bridge points to security, the long road. Every road here is a promise to learn the next hard thing.','The windmill grinds an unsolved problem, one experiment a turn. Fifty four turns so far.','The sakura isle is where finished things rest. Its pagoda has an empty top floor on purpose.','The hermit in the forest keeps the ledger of it all, so nothing here is forgotten.','That is the whole legend. The rest is up to the next thing he builds.'];
 const WISHES=[
+ [/hermit|legend|story|history|origin|journal|island/,()=>LEG[Math.min(LEG.length-1,nf())]+(nf()<LEG.length-1?' (Find more glints to hear more.)':'')],
  [/shounak|thank|hire|intern|job|collab|work/,()=>{startle=1;return nf()==SEC.length?'You listened to every villager and found every secret. The pond sends a coin back. The postmaster has the email, and he is expecting you.':'The koi have read the code and approve. The postmaster has the email. The pond says there are more secrets than you have found.'}],
  [/storm|thunder/,()=>{sayW('storm');return'Thunder rolls over the water.'}],
  [/rain|drizzle|monsoon/,()=>{sayW('rain');return'Rain begins to fall. The villagers hurry home.'}],
@@ -501,10 +500,7 @@ const WISHES=[
  [/secur|network|cyber|hack/,()=>'The bridge keeper straightens. Security is the road ahead, and he is walking it one certificate at a time.'],
  [/sekiro|game|boss/,()=>'Five clears. The pond approves of anyone who learns the fight instead of dodging it.'],
  [/p ?vs ?np|nebula|cosmos|philosoph/,()=>'The windmill spins out another experiment. Fifty four down.'],
- [/secret|hidden|glint|clue/,()=>'You have found '+nf()+' of '+SEC.length+'. Faint glints hide near the mill, the shrine, the lookout, the falls, and a thatched hut past the road.'],
-  [/hermit|hut|ryo|thatch|fawn/,()=>'Past the road the smoke still rises from a thatched roof. He keeps the failures too.'],
-  [/lantern|wren|keeper/,()=>'The lanterns below the pagoda are the things still being built. The five floors above are the ones that shipped.'],
-  [/stone|circle|cairn/,()=>'Six stones and a cairn. Each one marks an idea that stopped, and was allowed to rest.'],
+ [/secret|hidden|glint|clue/,()=>'You have found '+nf()+' of '+SEC.length+'. Faint glints hide near the mill, the shrine, the lookout and the falls.'],
  [/koi|fish|carp/,()=>{startle=1;return'The koi scatter, then circle back to see who you are.'}]
 ];
 const COIN=['The coin sinks. The koi are curious.','The coin glints once, then is gone.','Somewhere under the lily pads, a koi nods.'];
@@ -608,7 +604,6 @@ const PATHS=[
  [[33.5,24.5],[34.4,22.6],[36.8,22.3],[39.8,22.5],[42.8,22.8],[45.8,23.1],[48.8,23.4],[51.6,22.4],[54.8,21.4],[58.0,20.5],[61.0,19.8],[63.0,19.5]],
  [[26.5,31.5],[27.8,33.4],[29.6,35.0],[31.8,36.4],[34.0,37.6]],
  [[63.0,19.5],[70,19.5],[78,19.5],[82.4,19.5],[86,19.6],[90,20.2],[93.4,21.6],[96.2,23.6],[98.6,25.4],[102,26.0],[104,26.4]],
- [[56.6,20.4],[57.2,21.4],[57.4,22.2]],
  [[104,36.6],[104.4,39.6],[104.2,43]],
  [[96.2,23.6],[96.8,27.6],[97.6,30.6],[96.0,33.6],[93.6,34.2]],
  [[102,26.0],[105.5,23],[108.4,20.2],[110.3,18.4]]
@@ -641,7 +636,7 @@ const ZONE=(a,b)=>{
   if(a>31&&a<VN&&b>19&&b<30)return 'river';
   if(a>15.5&&a<22.5&&b>15&&b<21.5)return 'clearing';
   return 'forest'};
-const RES=[[57.4,21.9,3.1],[22.4,3.8,2.7],[28.2,3.6,2.7],[23.2,10.8,2.7],[29.6,11.0,2.7],[23.0,15.0,2.7],[30.2,15.2,2.7],[26.5,12.6,3.2],[17.6,26.0,2.7],[9.6,22.4,2.7],[16.8,30.4,2.7],[9.0,28.8,2.7],[11.8,35.2,2.6],[18.6,36.6,2.4],[13.4,31.8,2.4],[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
+const RES=[[51.0,15.6,3.1],[50.3,17.7,1.4],[22.4,3.8,2.7],[28.2,3.6,2.7],[23.2,10.8,2.7],[29.6,11.0,2.7],[23.0,15.0,2.7],[30.2,15.2,2.7],[26.5,12.6,3.2],[17.6,26.0,2.7],[9.6,22.4,2.7],[16.8,30.4,2.7],[9.0,28.8,2.7],[11.8,35.2,2.6],[18.6,36.6,2.4],[13.4,31.8,2.4],[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
 const okp=(a,b)=>{if(!landIn(a,b,1.3)||WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<.55)return 0;return 1};
 
 // ---- shaded sphere (5 tone) ----
@@ -951,50 +946,6 @@ function lookout(){
   for(let k=0;k<8;k++)px(x,cx-3,by-3-k*5,rgb(PLANK[2]),6,1);
   px(x,cx-1,by-6,rgb([120,92,60]),2,4);
   return{c,ox:cx,oy:by,sh:[5,1,16,5],gl:[[cx-14,by-44,18],[cx+14,by-44,18]]}}
-
-// ---- the hermit's hut: stone footing, timber walls, a steep thatch roof ----
-function hermitHouse(){
-  const a=22,wh=15,H=17,W=[104,76,46],W2=[136,102,62],W3=[68,48,30],TL=[58,40,26];
-  const wall=(face,u,v,tot)=>{
-   const k=face==0?1:.78;
-   if(v<3)return [96,90,80].map(q=>q*k);                 // the stone footing
-   if(v>=tot-3)return TIMB.map(q=>q*k*.85);               // the wall plate
-   // the door, on the gable end
-   if(face==1&&u>=4&&u<=11&&v<11){
-    if(u===4||u===11||v===11)return TL.map(q=>q*k);
-    if(u===9&&v<6)return [206,176,108];
-    return (u%3===1?[90,58,32]:[114,76,44]).map(q=>q*k)}
-   // the window, with a lamp behind it
-   if(face===0&&u>=14&&u<=19&&v>=5&&v<=10){
-    if(u===14||u===19||v===5||v===10)return TL.map(q=>q*k);
-    return v===7?[255,230,156]:[232,186,106]}
-   // vertical planks
-   if(u%4===0)return W3.map(q=>q*k);
-   if(u%7===3)return W2.map(q=>q*k);
-   return W.map(q=>q*k)};
-  const r=box({a,wh,H,wall,roof:[[56,44,28],[92,74,46],[130,106,66]],rowH:2.3,colW:3.2,moss:1,
-   chimney:[.66,.46,15],sh:[-13,1,28,5],top:32,bot:14,
-   glow:[{face:0,u:14,v:5,w:6,h:6,r:16}]});
-  return r}
-
-// ---- a ring of standing stones with a cairn in the middle ----
-function stoneCircle(){
-  const c=mk(46,36),x=c.getContext('2d');
-  // six stones in a ring, each one a little different
-  for(let k=0;k<6;k++){const an=k/6*6.283+.4,sx=23+Math.cos(an)*14,sy=29+Math.sin(an)*6,
-   h=6+Math.floor(hh(k,3)*6),w=2+Math.floor(hh(k,7)*2);
-   for(let v=0;v<h;v++){const ww=Math.max(1,Math.round(w*(1-v/h*.3)));
-    px(x,Math.round(sx-ww),Math.round(sy-v),rgb([132,130,122]),ww*2+1,1);
-    px(x,Math.round(sx-ww),Math.round(sy-v),rgb([174,172,162]),1,1);
-    px(x,Math.round(sx+ww-1),Math.round(sy-v),rgb([82,82,78]),1,1);
-    px(x,Math.round(sx-ww+1),Math.round(sy-v),rgb([112,112,106]),ww-1,1)}
-   px(x,Math.round(sx-1),Math.round(sy-h-1),rgb([158,156,146]),2,1)}
-  // the cairn in the middle: flat stones, each smaller than the last
-  for(let k=0;k<4;k++){const w=6-k;
-   disc(x,23,26-k*2,w,1,rgb([140,138,130]));disc(x,23,25-k*2,w-1,1,rgb([178,176,166]))}
-  // moss at the feet
-  for(let k=0;k<12;k++)px(x,9+Math.floor(hh(k,3)*28),29+Math.floor(hh(k,5)*3),rgb([82,112,60]),2,1);
-  return{c,ox:23,oy:30,sh:[-12,0,24,4]}}
 
 // a small shrine gate in the north woods
 function shrine(){
@@ -1374,6 +1325,17 @@ function pagoda(){
  // lit windows
  return SPR.pag={c,ox:o[0],oy:o[1]+34,sh:[-46,-14,92,12],gl:[[o[0],o[1]-40,28],[o[0],o[1]-72,22],[o[0],o[1]-104,17]]}}
 
+function hermit(){if(SPR.her)return SPR.her;
+ const c=mk(80,96),g=c.getContext('2d'),o=[40,76],TL={m:[70,98,60],l:[96,128,76],d:[48,70,44],h:[130,160,100],f:[34,48,32]};
+ const pl=k=>(s,t)=>(Math.floor(s*12)%2?[138,102,66]:[152,114,78]).map(q=>q*k);
+ const wL=(s,t)=>{if(s>.28&&s<.72&&t>.28&&t<.62){const x=(s-.28)/.44,y=(t-.28)/.34;return(Math.abs(x-.5)<.05||Math.abs(y-.5)<.06)?[96,64,40]:[255,214,128]}return pl(1)(s,t)};
+ const wR=(s,t)=>{if(s>.36&&s<.66&&t>.34)return(s>.58&&s<.62&&t>.6&&t<.66)?[240,200,120]:[66,42,26];return pl(.78)(s,t)};
+ ibox(g,o,-12,12,-12,12,0,3,[134,128,112],[108,102,88],[80,76,66]);
+ ibox(g,o,-10,10,-10,10,3,20,[150,112,76],[150,112,76],[112,80,52],null,wL,wR);
+ ibox(g,o,3,7,-8,-4,18,36,[116,112,102],[98,94,86],[72,68,62]);
+ hipRoof(g,o,20,16,5,10,3,TL,3);
+ for(const[x,y]of[[22,60],[26,66],[30,70],[52,64],[56,58],[34,64]])px(g,x,y,rgb([88,132,70]),3,2);
+ return SPR.her={c,ox:40,oy:82,gl:[[o[0]-7,o[1]-10,20]],sh:[-16,2,32,10]}}
 function teahouse(){if(SPR.tea)return SPR.tea;
  const a=40,wh=20,H=18;
  const wall=(face,u,v,tot)=>{const k=face==0?1:.76;
@@ -1497,17 +1459,14 @@ function buildB(c){
    if(kd==2)GLW.push([px_-14,py-30,20])}})}
 }
 // ---- camera: down the village lane, then across the rope bridge to the sakura isle ----
-const KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6],[57.4,21.9]];
-const KB=[[57.4,21.9],[66,19.8],[76,19.5],[86,19.8],[92.0,22.0]];
-const KC=[[92.0,22.0],[95,23.6],[98.4,24.6],[100.4,23.8]];
+const KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6]];
+const KB=[[33.6,24.6],[41,22.0],[51.4,19.0],[60,20.2],[70,19.5],[80,19.6],[88.5,20.8],[100.4,23.8]];
 const crp=(p0,p1,p2,p3,t)=>{const t2=t*t,t3=t2*t;return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3)};
 let CAMT=[8.6,6.4];
 function camAt(f){
-  if(f<=7){const k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k);return[lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)]}
-  const run=(P,u)=>{const s=u*(P.length-1),k=Math.min(P.length-2,Math.floor(s)),t=s-k,Q=i=>P[clamp(i,0,P.length-1)];
-   return[crp(Q(k-1)[0],Q(k)[0],Q(k+1)[0],Q(k+2)[0],t),crp(Q(k-1)[1],Q(k)[1],Q(k+1)[1],Q(k+2)[1],t)]};
-  if(f<=8)return run(KB,sm(0,1,f-7));
-  return run(KC,sm(0,1,f-8))}
+ if(f<=6){const k=Math.min(5,Math.floor(f)),u=sm(0,1,f-k);return[lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)]}
+ const u=sm(0,1,clamp((f-6)/.7,0,1)),s=u*(KB.length-1),k=Math.min(KB.length-2,Math.floor(s)),t=s-k,P=i=>KB[clamp(i,0,KB.length-1)];
+ return[crp(P(k-1)[0],P(k)[0],P(k+1)[0],P(k+2)[0],t),crp(P(k-1)[1],P(k)[1],P(k+1)[1],P(k+2)[1],t)]}
 // ---- the two arched bridges (a plain one over the stream, a red one over the sakura pond) ----
 const APAL=[{plank:['#b07a45','#a56f3c','#bb8650'],edge:'#5e3d21',seam:'#6e4526',post:'#3d2817',rail:'#4d3120',cap:'#c18b56',rope:'#8a5a33',cross:'#4a2f19'},
  {plank:['#b8402e','#a83626','#c44c36'],edge:'#6a1c14',seam:'#7a2218',post:'#5a1812',rail:'#b83a28',cap:'#e8c458',rope:'#d8c090',cross:'#4a1410'}];
@@ -1655,17 +1614,8 @@ function build(){
  put(8.6,4.4,windmill(),2,.05);
  put(19.4,21.8,boathouse(),2,.05);
  put(24.0,22.0,oak('g',8,1,'cherry'),1);put(24.3,21.6,RS(4,2,RK,7),0);
- put(34.4,10.8,shrine(),2,.05);
+ put(34.4,10.8,shrine(),2,.05);put(51.0,15.6,hermit(),2,.05);{const[hx,hy]=PF(51,15.6);objs.push({d:51+15.6+.2,x:hx,y:hy,ph:0,t:0,sp:null,draw:c=>{for(let k=0;k<5;k++){const t=(T*.22+k/5)%1;c.fillStyle='rgba(214,208,196,'+((1-t)*.55).toFixed(2)+')';const s=(2+t*3)|0;c.fillRect((hx+11+Math.sin(T*.8+k*2)*2+t*7)|0,(hy-43-t*24)|0,s,s)}}})}put(52.5,17.0,woodpile(),0);put(49.9,17.4,stoneLantern(),3);put(52.6,14.4,stump(1),0);
  put(35.6,40.2,lookout(),2,.05);
-  // the hermit's clearing, above the road where the stream cuts the island
-  put(57.4,21.9,hermitHouse(),2,.05);
-  put(55.6,24.4,stoneCircle(),0,.05);
-  put(58.9,22.4,woodpile(),0,.05);put(58.6,20.6,barrel(),0,.05);
-  put(55.7,21.0,bench(0),0,.05);put(59.4,21.2,flowerPot(),0,.05);
-  put(56.4,20.4,flowerPot(),0,.05);put(59.9,23.0,crates(),0,.05);
-  put(55.0,22.6,deer(2),0,.05);put(58.0,24.6,cat(),0,.05);
-  put(60.0,20.6,lamp(),3);put(54.6,21.8,logS(1),0,.05);
-  put(58.6,18.9,signpost(),0,.05);
  put(14.9,9.6,stall([196,72,52],[240,232,214]),1);put(16.9,10.4,stall([86,120,72],[240,232,214]),1);put(13.4,8.2,stall([72,96,124],[240,232,214]),1);
  put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0]-26,y:PF(35.3,22.9)[1]+25};
  // props
@@ -1985,7 +1935,6 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;extraLife(c,l,r,t,b,n);
   c.fillStyle='rgba(10,20,10,.3)';c.fillRect(X-4,Y,9,2);px(c,X-1,Y-3+st,'#d9902a',1,4);px(c,X+1,Y-3,'#d9902a',1,4);px(c,X-2,Y,'#c27a1c',2,1);px(c,X,Y,'#c27a1c',2,1);
   disc(c,X,Y-5,4,3,rgb(C[0]));disc(c,X,Y-4,4,2,rgb(C[1]));px(c,X-1,Y-6,rgb(C[2]),3,2);px(c,X-dr*4,Y-9,rgb(C[2]),2,3);px(c,X-dr*5,Y-10,rgb(C[1]),1,3);px(c,X-dr*3,Y-8,rgb(C[0]),1,2);
   const hx=X+dr*4,hy=Y-8+pk*3;px(c,hx-dr*(pk?0:1),hy+(pk?-2:2),rgb(C[0]),2,3);disc(c,hx,hy,2,2,rgb(C[0]));px(c,hx,hy-3,'#d6342a',2,2);px(c,hx+dr*2,hy,'#f0a030',2,1);px(c,hx+dr*2-(dr>0?0:1),hy+1,'#d6342a',1,2);px(c,hx,hy,'#1a1412',1,1)}
-  
  // butterflies (daytime)
  if(n<.6)for(let q=0;q<6;q++){const[X0,Y0]=PF(13.6+(q%3)*1.4,14.6+Math.floor(q/3)*2.2),X=Math.round(X0+Math.sin(T*.7+q*2)*40+Math.sin(T*2.3+q)*6),Y=Math.round(Y0-18+Math.cos(T*.9+q*3)*16),w=Math.sin(T*18+q*5)>0?2:1,col=['#ffd24a','#ffffff','#ff8fb8','#8ec8ff','#ff9a3c','#ffffff'][q];c.globalAlpha=1-n;px(c,X-w,Y,col,w,2);px(c,X+1,Y,col,w,2);px(c,X,Y,'#2a2018',1,2);c.globalAlpha=1}
  // birds: a loose flock drifting across the whole sky, wings beating out of step
@@ -1997,7 +1946,7 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;extraLife(c,l,r,t,b,n);
 let SCR=null;
 function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round((innerWidth<900?1.5:1)/WS*4)/4,.75,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;if(window.__z)Z=window.__z;sizeGL()}
 function ripple(x,y,s,dl){if(!wm)return;if(s>2){const PO=CAMT[0]>70?POND2:POND,[px_,py]=PF(PO[0],PO[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5){startle=Math.min(1,startle+.7);splashAt(wx,wy,12);duckReact(wx,wy)}}}
-function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*(CH.length-1),[ci,cj]=window.__cam||camAt(f),[cx,cy]=PF(ci,cj),n=cur.night,w=cur.warm;CAMT=[ci,cj];GLW=[];
+function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,[ci,cj]=window.__cam||camAt(f),[cx,cy]=PF(ci,cj),n=cur.night,w=cur.warm;CAMT=[ci,cj];GLW=[];
   TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);bubbleTick(f);
  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,VW,VH);
  if(!GL.ok){ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);}
