@@ -423,7 +423,10 @@ const SEC=[
  {id:'lookout',at:[35.6,40.2],t:'The lookout',x:'Philosophy, cosmology, and whether today’s models are real AI. The arguments happen up here, mostly with himself.'},
  {id:'falls',at:[62.2,25.6],t:'Where the stream ends',x:'The brook drops into the cloud sea. Old experiments go over the edge to keep running somewhere you cannot see.'},
  {id:'islet',at:[26.5,24.5],t:'The wishing islet',x:'The pond only grants wishes to visitors who heard the villagers out. You have, so far, heard something.'},
- {id:'pagoda',at:[111,15.2],t:'Pagoda of finished things',x:'Five floors for five shipped ideas. The lanterns below are the ones still being built.'}];
+ {id:'pagoda',at:[111,15.2],t:'Pagoda of finished things',x:'Five floors for five shipped ideas. The lanterns below are the ones still being built.'},
+ {id:'hermit',at:[57.4,21.9],t:'The hut on the slope',x:'A thatched roof, a lit window, and a fawn under the eaves. The notebook on the bench is fifty four experiments that did not work, and the reason he kept every one.'},
+ {id:'stones',at:[55.6,24.4],t:'The standing stones',x:'Six stones and a cairn. They mark the places where an idea stopped and was allowed to rest. The cairn is the newest one, so it is the least settled.'},
+ {id:'lanterns',at:[92.0,22.0],t:'The unfinished row',x:'The lanterns below the pagoda are the things still being built. The five floors above are the ones that shipped. He keeps both lit, because one is not more real than the other.'}];
 let FOUND=[];try{FOUND=JSON.parse(localStorage.koiFound||'[]')}catch(e){}
 const nf=()=>SEC.filter(s=>s.f).length,updCount=()=>{$('sec').textContent='Secrets '+nf()+'/'+SEC.length};
 function found(s){if(!s.f){s.f=1;s.el.classList.add('f');try{localStorage.koiFound=JSON.stringify(SEC.filter(q=>q.f).map(q=>q.id))}catch(e){}updCount();
@@ -446,6 +449,8 @@ const CH=[
  {at:[21.55,19.55],pal:[[206,96,72],[74,62,56],[60,48,40],[224,184,148],[92,64,44]],name:'Bea',role:'the shopkeeper',text:'Out back is the shelf. de-ai rewrites text with no model at all. Meridian triages clinical cases from real ICD-10 data. Plenty more where those came from.',tags:'',links:[['de-ai',GH+'de-ai'],['Meridian',GH+'meridian'],['AI Wire ↗','https://ai-news-seven-tan.vercel.app/'],['Weight forensics',GH+'llm-weight-forensics'],['ACM RBU site',GH+'acm-rbu-site'],['Voxelcraft',GH+'voxelcraft'],['PayFlow',GH+'payflow-java'],['Sixty logins',GH+'60-login-page-challenge']]},
  {at:[19.8,24.5],pal:[[120,104,84],[70,74,88],[238,232,220],[214,166,126],[178,152,112]],name:'Sen',role:'the old fisher',text:'Second year BTech CSE at Ramdeobaba, Nagpur. He also coordinates Engineering India RBU, a student collective across eight colleges. Mind the koi.',tags:'',links:[]},
  {at:[34.4,22.6],pal:[[142,158,120],[64,66,60],[198,186,150],[220,172,132],null],name:'Kiri',role:'the bridge keeper',text:'He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch instead of configured.',tags:'TypeScript · Python · C · React · PostgreSQL · Godot · Three.js · Docker',links:[]},
+ {at:[57.4,21.9],pal:[[126,116,96],[74,68,60],[176,166,140],[224,190,152],[188,178,156]],name:'Ryo',role:'the hermit',text:'He keeps a hut past the road where the stream cuts the island. The notebook on the bench is fifty four experiments that did not work, and the reason he kept every one.',tags:'',links:[]},
+ {at:[92.0,22.0],pal:[[168,118,74],[58,60,74],[210,196,168],[226,196,158],[120,96,60]],name:'Wren',role:'the lantern keeper',text:'Wren lights the lanterns below the pagoda. Each one is a thing that is not finished yet, and each finished thing goes up a floor instead.',tags:'',links:[]},
  {at:[98.0,24.9],pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],name:'Juno',role:'the postmaster',text:'Last stop. He is open to internships, to collaboration, and to being told he is doing something in a stupid way. Send a letter.',tags:'',links:[['GitHub','https://github.com/shounakjoshi88-a11y'],['X','https://x.com/BroIndian39416'],['YouTube','https://www.youtube.com/@Badass069'],['Email','mailto:shounakjoshi88@gmail.com']]}
 ];
 
@@ -456,8 +461,10 @@ const STORY={
  Oro:{ch:'Chapter 4 · Under pressure',p:['Stellar Forge sells event tickets. Easy, until a thousand people reach for the last seat.','Serialisable transactions, row locking and one live counter everyone trusts. It ships as an Android app too.','He wrote the specs and skill files, directed AI coding agents, and checked every result himself.']},
  Bea:{ch:'Chapter 5 · The shelf',p:['Out back is the shelf: what he builds when a question will not leave him alone.','de-ai rewrites text with no model at all. Meridian triages clinical cases from real ICD-10 data. Payflow is a Java payment gateway.','Raksha and NeRoute came out of hackathons: crowd safety, and logistics for India’s North East.']},
  Sen:{ch:'Chapter 6 · People',p:['He also coordinates Engineering India RBU, a student collective across eight colleges.','Between builds he runs a long experiment: fifty four attempts at P versus NP. Most end in no. He starts the next anyway.','Patience is a skill. He has finished Sekiro five times. Mind the koi.']},
+ Ryo:{ch:'Chapter 8 · What fell off the edge',p:['Past the road, where the stream cuts the island, there is a thatched hut with a fawn under it. The man there calls himself Ryo. Nobody here remembers putting him there.','He keeps the notebook of what did not work. Fifty four attempts at P versus NP, most of them ending in no, and the nebula shader pack that stayed on paper because he decided to build something used instead.','Old experiments go over the falls so they can keep running somewhere you cannot see. He is careful to say that is not the same as giving up.']},
+ Wren:{ch:'Chapter 9 · Still building',p:['Between the great torii and the pagoda, the lanterns are lit before anyone else is awake. Wren looks after them. Each lantern is a thing that is not finished yet.','SC-900 is done, network security is in progress, JNCIA is next. The finished ones go up the pagoda, floor by floor. The rest stay lit down here on the road.','A thing is finished when somebody else can run it without asking him anything. That is the whole test, and it is why the lanterns come first.']},
  Kiri:{ch:'Chapter 7 · The path ahead',p:['This bridge points toward security. SC-900 is done, network security is in progress, JNCIA is next.','He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch.','Cost conscious by habit: a jugaad mind, a local VM lab, nothing paid when free will do.']},
- Juno:{ch:'Chapter 8 · Letters',p:['Last stop, the sakura isle. The pagoda keeps what he has finished. The lanterns keep what he is still building.','He is open to internships, to collaboration, and to being told he is doing something in a stupid way.','Send a letter. Then wander back to the pond and make a wish.']}};
+ Juno:{ch:'Chapter 10 · Letters',p:['Last stop, the sakura isle. The pagoda keeps what he has finished. The lanterns keep what he is still building.','He is open to internships, to collaboration, and to being told he is doing something in a stupid way.','Send a letter. Then wander back to the pond and make a wish.']}};
 for(const c of CH){const s=STORY[c.name];c.ch=s.ch;c.pages=s.p;c.text=s.p.join(' ')}
 $('srl').innerHTML=CH.map(c=>`<li>${c.name}, ${c.role}: ${c.text} ${c.tags}</li>`).join('');
 const BUB=$('bub');let curCh=-1,bw=300,bh=200,typ2=null;
@@ -494,7 +501,10 @@ const WISHES=[
  [/secur|network|cyber|hack/,()=>'The bridge keeper straightens. Security is the road ahead, and he is walking it one certificate at a time.'],
  [/sekiro|game|boss/,()=>'Five clears. The pond approves of anyone who learns the fight instead of dodging it.'],
  [/p ?vs ?np|nebula|cosmos|philosoph/,()=>'The windmill spins out another experiment. Fifty four down.'],
- [/secret|hidden|glint|clue/,()=>'You have found '+nf()+' of '+SEC.length+'. Faint glints hide near the mill, the shrine, the lookout and the falls.'],
+ [/secret|hidden|glint|clue/,()=>'You have found '+nf()+' of '+SEC.length+'. Faint glints hide near the mill, the shrine, the lookout, the falls, and a thatched hut past the road.'],
+  [/hermit|hut|ryo|thatch|fawn/,()=>'Past the road the smoke still rises from a thatched roof. He keeps the failures too.'],
+  [/lantern|wren|keeper/,()=>'The lanterns below the pagoda are the things still being built. The five floors above are the ones that shipped.'],
+  [/stone|circle|cairn/,()=>'Six stones and a cairn. Each one marks an idea that stopped, and was allowed to rest.'],
  [/koi|fish|carp/,()=>{startle=1;return'The koi scatter, then circle back to see who you are.'}]
 ];
 const COIN=['The coin sinks. The koi are curious.','The coin glints once, then is gone.','Somewhere under the lily pads, a koi nods.'];
@@ -598,6 +608,7 @@ const PATHS=[
  [[33.5,24.5],[34.4,22.6],[36.8,22.3],[39.8,22.5],[42.8,22.8],[45.8,23.1],[48.8,23.4],[51.6,22.4],[54.8,21.4],[58.0,20.5],[61.0,19.8],[63.0,19.5]],
  [[26.5,31.5],[27.8,33.4],[29.6,35.0],[31.8,36.4],[34.0,37.6]],
  [[63.0,19.5],[70,19.5],[78,19.5],[82.4,19.5],[86,19.6],[90,20.2],[93.4,21.6],[96.2,23.6],[98.6,25.4],[102,26.0],[104,26.4]],
+ [[56.6,20.4],[57.2,21.4],[57.4,22.2]],
  [[104,36.6],[104.4,39.6],[104.2,43]],
  [[96.2,23.6],[96.8,27.6],[97.6,30.6],[96.0,33.6],[93.6,34.2]],
  [[102,26.0],[105.5,23],[108.4,20.2],[110.3,18.4]]
@@ -630,7 +641,7 @@ const ZONE=(a,b)=>{
   if(a>31&&a<VN&&b>19&&b<30)return 'river';
   if(a>15.5&&a<22.5&&b>15&&b<21.5)return 'clearing';
   return 'forest'};
-const RES=[[22.4,3.8,2.7],[28.2,3.6,2.7],[23.2,10.8,2.7],[29.6,11.0,2.7],[23.0,15.0,2.7],[30.2,15.2,2.7],[26.5,12.6,3.2],[17.6,26.0,2.7],[9.6,22.4,2.7],[16.8,30.4,2.7],[9.0,28.8,2.7],[11.8,35.2,2.6],[18.6,36.6,2.4],[13.4,31.8,2.4],[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
+const RES=[[57.4,21.9,3.1],[22.4,3.8,2.7],[28.2,3.6,2.7],[23.2,10.8,2.7],[29.6,11.0,2.7],[23.0,15.0,2.7],[30.2,15.2,2.7],[26.5,12.6,3.2],[17.6,26.0,2.7],[9.6,22.4,2.7],[16.8,30.4,2.7],[9.0,28.8,2.7],[11.8,35.2,2.6],[18.6,36.6,2.4],[13.4,31.8,2.4],[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
 const okp=(a,b)=>{if(!landIn(a,b,1.3)||WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<.55)return 0;return 1};
 
 // ---- shaded sphere (5 tone) ----
@@ -940,6 +951,50 @@ function lookout(){
   for(let k=0;k<8;k++)px(x,cx-3,by-3-k*5,rgb(PLANK[2]),6,1);
   px(x,cx-1,by-6,rgb([120,92,60]),2,4);
   return{c,ox:cx,oy:by,sh:[5,1,16,5],gl:[[cx-14,by-44,18],[cx+14,by-44,18]]}}
+
+// ---- the hermit's hut: stone footing, timber walls, a steep thatch roof ----
+function hermitHouse(){
+  const a=22,wh=15,H=17,W=[104,76,46],W2=[136,102,62],W3=[68,48,30],TL=[58,40,26];
+  const wall=(face,u,v,tot)=>{
+   const k=face==0?1:.78;
+   if(v<3)return [96,90,80].map(q=>q*k);                 // the stone footing
+   if(v>=tot-3)return TIMB.map(q=>q*k*.85);               // the wall plate
+   // the door, on the gable end
+   if(face==1&&u>=4&&u<=11&&v<11){
+    if(u===4||u===11||v===11)return TL.map(q=>q*k);
+    if(u===9&&v<6)return [206,176,108];
+    return (u%3===1?[90,58,32]:[114,76,44]).map(q=>q*k)}
+   // the window, with a lamp behind it
+   if(face===0&&u>=14&&u<=19&&v>=5&&v<=10){
+    if(u===14||u===19||v===5||v===10)return TL.map(q=>q*k);
+    return v===7?[255,230,156]:[232,186,106]}
+   // vertical planks
+   if(u%4===0)return W3.map(q=>q*k);
+   if(u%7===3)return W2.map(q=>q*k);
+   return W.map(q=>q*k)};
+  const r=box({a,wh,H,wall,roof:[[56,44,28],[92,74,46],[130,106,66]],rowH:2.3,colW:3.2,moss:1,
+   chimney:[.66,.46,15],sh:[-13,1,28,5],top:32,bot:14,
+   glow:[{face:0,u:14,v:5,w:6,h:6,r:16}]});
+  return r}
+
+// ---- a ring of standing stones with a cairn in the middle ----
+function stoneCircle(){
+  const c=mk(46,36),x=c.getContext('2d');
+  // six stones in a ring, each one a little different
+  for(let k=0;k<6;k++){const an=k/6*6.283+.4,sx=23+Math.cos(an)*14,sy=29+Math.sin(an)*6,
+   h=6+Math.floor(hh(k,3)*6),w=2+Math.floor(hh(k,7)*2);
+   for(let v=0;v<h;v++){const ww=Math.max(1,Math.round(w*(1-v/h*.3)));
+    px(x,Math.round(sx-ww),Math.round(sy-v),rgb([132,130,122]),ww*2+1,1);
+    px(x,Math.round(sx-ww),Math.round(sy-v),rgb([174,172,162]),1,1);
+    px(x,Math.round(sx+ww-1),Math.round(sy-v),rgb([82,82,78]),1,1);
+    px(x,Math.round(sx-ww+1),Math.round(sy-v),rgb([112,112,106]),ww-1,1)}
+   px(x,Math.round(sx-1),Math.round(sy-h-1),rgb([158,156,146]),2,1)}
+  // the cairn in the middle: flat stones, each smaller than the last
+  for(let k=0;k<4;k++){const w=6-k;
+   disc(x,23,26-k*2,w,1,rgb([140,138,130]));disc(x,23,25-k*2,w-1,1,rgb([178,176,166]))}
+  // moss at the feet
+  for(let k=0;k<12;k++)px(x,9+Math.floor(hh(k,3)*28),29+Math.floor(hh(k,5)*3),rgb([82,112,60]),2,1);
+  return{c,ox:23,oy:30,sh:[-12,0,24,4]}}
 
 // a small shrine gate in the north woods
 function shrine(){
@@ -1442,14 +1497,17 @@ function buildB(c){
    if(kd==2)GLW.push([px_-14,py-30,20])}})}
 }
 // ---- camera: down the village lane, then across the rope bridge to the sakura isle ----
-const KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6]];
-const KB=[[33.6,24.6],[41,22.9],[52,22.2],[60,20.2],[70,19.5],[80,19.6],[88.5,20.8],[100.4,23.8]];
+const KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[33.6,24.6],[57.4,21.9]];
+const KB=[[57.4,21.9],[66,19.8],[76,19.5],[86,19.8],[92.0,22.0]];
+const KC=[[92.0,22.0],[95,23.6],[98.4,24.6],[100.4,23.8]];
 const crp=(p0,p1,p2,p3,t)=>{const t2=t*t,t3=t2*t;return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3)};
 let CAMT=[8.6,6.4];
 function camAt(f){
- if(f<=6){const k=Math.min(5,Math.floor(f)),u=sm(0,1,f-k);return[lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)]}
- const u=sm(0,1,clamp((f-6)/.7,0,1)),s=u*(KB.length-1),k=Math.min(KB.length-2,Math.floor(s)),t=s-k,P=i=>KB[clamp(i,0,KB.length-1)];
- return[crp(P(k-1)[0],P(k)[0],P(k+1)[0],P(k+2)[0],t),crp(P(k-1)[1],P(k)[1],P(k+1)[1],P(k+2)[1],t)]}
+  if(f<=7){const k=Math.min(6,Math.floor(f)),u=sm(0,1,f-k);return[lerp(KS[k][0],KS[k+1][0],u),lerp(KS[k][1],KS[k+1][1],u)]}
+  const run=(P,u)=>{const s=u*(P.length-1),k=Math.min(P.length-2,Math.floor(s)),t=s-k,Q=i=>P[clamp(i,0,P.length-1)];
+   return[crp(Q(k-1)[0],Q(k)[0],Q(k+1)[0],Q(k+2)[0],t),crp(Q(k-1)[1],Q(k)[1],Q(k+1)[1],Q(k+2)[1],t)]};
+  if(f<=8)return run(KB,sm(0,1,f-7));
+  return run(KC,sm(0,1,f-8))}
 // ---- the two arched bridges (a plain one over the stream, a red one over the sakura pond) ----
 const APAL=[{plank:['#b07a45','#a56f3c','#bb8650'],edge:'#5e3d21',seam:'#6e4526',post:'#3d2817',rail:'#4d3120',cap:'#c18b56',rope:'#8a5a33',cross:'#4a2f19'},
  {plank:['#b8402e','#a83626','#c44c36'],edge:'#6a1c14',seam:'#7a2218',post:'#5a1812',rail:'#b83a28',cap:'#e8c458',rope:'#d8c090',cross:'#4a1410'}];
@@ -1599,6 +1657,15 @@ function build(){
  put(24.0,22.0,oak('g',8,1,'cherry'),1);put(24.3,21.6,RS(4,2,RK,7),0);
  put(34.4,10.8,shrine(),2,.05);
  put(35.6,40.2,lookout(),2,.05);
+  // the hermit's clearing, above the road where the stream cuts the island
+  put(57.4,21.9,hermitHouse(),2,.05);
+  put(55.6,24.4,stoneCircle(),0,.05);
+  put(58.9,22.4,woodpile(),0,.05);put(58.6,20.6,barrel(),0,.05);
+  put(55.7,21.0,bench(0),0,.05);put(59.4,21.2,flowerPot(),0,.05);
+  put(56.4,20.4,flowerPot(),0,.05);put(59.9,23.0,crates(),0,.05);
+  put(55.0,22.6,deer(2),0,.05);put(58.0,24.6,cat(),0,.05);
+  put(60.0,20.6,lamp(),3);put(54.6,21.8,logS(1),0,.05);
+  put(58.6,18.9,signpost(),0,.05);
  put(14.9,9.6,stall([196,72,52],[240,232,214]),1);put(16.9,10.4,stall([86,120,72],[240,232,214]),1);put(13.4,8.2,stall([72,96,124],[240,232,214]),1);
  put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0]-26,y:PF(35.3,22.9)[1]+25};
  // props
@@ -1918,6 +1985,7 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;extraLife(c,l,r,t,b,n);
   c.fillStyle='rgba(10,20,10,.3)';c.fillRect(X-4,Y,9,2);px(c,X-1,Y-3+st,'#d9902a',1,4);px(c,X+1,Y-3,'#d9902a',1,4);px(c,X-2,Y,'#c27a1c',2,1);px(c,X,Y,'#c27a1c',2,1);
   disc(c,X,Y-5,4,3,rgb(C[0]));disc(c,X,Y-4,4,2,rgb(C[1]));px(c,X-1,Y-6,rgb(C[2]),3,2);px(c,X-dr*4,Y-9,rgb(C[2]),2,3);px(c,X-dr*5,Y-10,rgb(C[1]),1,3);px(c,X-dr*3,Y-8,rgb(C[0]),1,2);
   const hx=X+dr*4,hy=Y-8+pk*3;px(c,hx-dr*(pk?0:1),hy+(pk?-2:2),rgb(C[0]),2,3);disc(c,hx,hy,2,2,rgb(C[0]));px(c,hx,hy-3,'#d6342a',2,2);px(c,hx+dr*2,hy,'#f0a030',2,1);px(c,hx+dr*2-(dr>0?0:1),hy+1,'#d6342a',1,2);px(c,hx,hy,'#1a1412',1,1)}
+  
  // butterflies (daytime)
  if(n<.6)for(let q=0;q<6;q++){const[X0,Y0]=PF(13.6+(q%3)*1.4,14.6+Math.floor(q/3)*2.2),X=Math.round(X0+Math.sin(T*.7+q*2)*40+Math.sin(T*2.3+q)*6),Y=Math.round(Y0-18+Math.cos(T*.9+q*3)*16),w=Math.sin(T*18+q*5)>0?2:1,col=['#ffd24a','#ffffff','#ff8fb8','#8ec8ff','#ff9a3c','#ffffff'][q];c.globalAlpha=1-n;px(c,X-w,Y,col,w,2);px(c,X+1,Y,col,w,2);px(c,X,Y,'#2a2018',1,2);c.globalAlpha=1}
  // birds: a loose flock drifting across the whole sky, wings beating out of step
@@ -1929,7 +1997,7 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;extraLife(c,l,r,t,b,n);
 let SCR=null;
 function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round((innerWidth<900?1.5:1)/WS*4)/4,.75,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;if(window.__z)Z=window.__z;sizeGL()}
 function ripple(x,y,s,dl){if(!wm)return;if(s>2){const PO=CAMT[0]>70?POND2:POND,[px_,py]=PF(PO[0],PO[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5){startle=Math.min(1,startle+.7);splashAt(wx,wy,12);duckReact(wx,wy)}}}
-function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*7,[ci,cj]=window.__cam||camAt(f),[cx,cy]=PF(ci,cj),n=cur.night,w=cur.warm;CAMT=[ci,cj];GLW=[];
+function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*(CH.length-1),[ci,cj]=window.__cam||camAt(f),[cx,cy]=PF(ci,cj),n=cur.night,w=cur.warm;CAMT=[ci,cj];GLW=[];
   TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/7)):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);bubbleTick(f);
  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,VW,VH);
  if(!GL.ok){ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);}
