@@ -136,6 +136,23 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 
 @media(max-width:700px){
  nav{gap:1rem;padding:.45rem .9rem;font-size:.85rem}
+ /* the story is a caption, so it is short, quiet and never in the way */
+ #bub{width:calc(100vw - 20px)}
+ #bub .bb{padding:.55rem .7rem .6rem}
+ #bub .nm{font-size:.64rem;letter-spacing:.09em;margin-bottom:.15rem}
+ #bub .tx{font-size:.86rem;line-height:1.4}
+ #bub .tgs{font-size:.66rem;margin-top:.35rem}
+ #bub .lk{gap:.25rem .7rem;margin-top:.4rem}
+ #bub .lk a{font-size:.72rem}
+ #bub .nx{font-size:.66rem;margin-top:.35rem}
+ #bub .tail{width:11px;height:7px}
+ /* the wish form stops eating the screen */
+ .wish{padding:.95rem 1.05rem}
+ .wish h3{font-size:1.05rem;margin-bottom:.25rem}
+ .wish label{font-size:.82rem;line-height:1.45}
+ .wish input{padding:.6rem .75rem;margin:.5rem 0;font-size:.95rem}
+ .wish button.go{padding:.55rem;font-size:.92rem}
+ #say{max-width:min(70vw,290px)}
  section{padding:13vh 4vw calc(12vh + 44px)}
  .sign,.about{padding:1.2rem 1.3rem}
  .grid{padding:1.3rem 1.3rem .4rem}
@@ -477,9 +494,23 @@ function setCh(k){curCh=k;pg=0;drawPg()}
 BUB.addEventListener('click',e=>{if(!e.target.closest('a'))adv()});
 const WISHC=document.querySelector('.wish');
 function bubbleTick(f){skyTick();secretTick();const k=clamp(Math.round(f),0,CH.length-1);if(k!==curCh)setCh(k);
- const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,wr=WISHC.getBoundingClientRect(),lo=(vw>=900&&wr.top<innerHeight*.92&&wr.bottom>0)?wr.right+14+half:0,x=clamp(sx,Math.max(12+half,lo),vw-12-half),y=Math.max(sy,bh+70);
- BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
- const on=sx>-20&&sx<vw+20&&sy>0&&sy<innerHeight+200;BUB.style.opacity=on?a:0;BUB.style.pointerEvents=(a>.6)?'auto':'none';BUB.style.visibility=(a<.02||!on)?'hidden':'visible'}
+ const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,wr=WISHC.getBoundingClientRect(),
+ narrow=vw<900, wrOn=wr.top<innerHeight*.9&&wr.bottom>0,
+ lo=(!narrow&&wrOn)?wr.right+14+half:0;
+ let x,y;
+ if(narrow){
+  // on a phone the story is a caption under the nav, never a wall over the scene or the form
+  x=clamp(sx,Math.max(12+half,0),vw-12-half);
+  y=(document.querySelector('nav')||{getBoundingClientRect:()=>({bottom:56})}).getBoundingClientRect().bottom+9;
+  BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,0)`;
+ }else{
+  x=clamp(sx,Math.max(12+half,lo),vw-12-half);
+  y=Math.max(sy,bh+70);
+  BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
+ }
+ BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
+ const on=sx>-20&&sx<vw+20&&sy>0&&sy<innerHeight+200&&!(narrow&&wrOn);
+ BUB.style.opacity=on?a:0;BUB.style.pointerEvents=(a>.6)?'auto':'none';BUB.style.visibility=(a<.02||!on)?'hidden':'visible'}
 
 // Wishing pond
 const sayW=k=>{W.ov={k,u:performance.now()+75000}};
