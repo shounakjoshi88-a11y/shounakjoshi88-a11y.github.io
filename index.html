@@ -181,6 +181,58 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 .wl{position:fixed;z-index:5;left:50%;bottom:30%;font:.85rem var(--mono);color:#ffe3a0;text-shadow:0 0 8px #ff9d3c;pointer-events:none;animation:wl 9s ease-out forwards;white-space:nowrap}
 @keyframes wl{to{transform:translateY(-55vh);opacity:0}}
 @media(prefers-reduced-motion:reduce){.sx::after,.wl{animation:none}}
+
+/* the passport */
+.pfab{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:6;background:var(--bark);color:#f1e6c8;clip-path:var(--notch);padding:.42rem .62rem;font:700 .72rem var(--mono);letter-spacing:.06em;cursor:pointer}
+.pfab:hover{color:var(--amber)}
+#pass{position:fixed;inset:0;z-index:12;background:rgba(4,18,17,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+#pass[hidden]{display:none}
+.pbox{position:relative;background:var(--paper);color:var(--text);padding:1.4rem 1.5rem 1.5rem;max-width:540px;width:100%;max-height:86vh;overflow:auto;clip-path:var(--notch);box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.pbox h3{margin:0 0 .3rem;font-family:var(--mono);font-size:1.1rem;color:var(--rust);letter-spacing:.06em}
+.pbox h4{margin:1.1rem 0 .45rem;font:700 .7rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#8a6b42}
+.pclose{position:absolute;top:.4rem;right:.5rem;border:0;background:none;font:700 1.2rem var(--mono);color:#8a6b42;cursor:pointer;padding:.2rem .45rem;line-height:1}
+.pclose:hover{color:var(--rust)}
+.pnote{font-size:.85rem;margin:0 0 .9rem;color:#4a3a26}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:.55rem}
+.pst{position:relative;background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.25rem}
+.pst canvas{width:46px;height:46px;image-rendering:pixelated;border:2px solid transparent;background:#1b3a36}
+.pst.got canvas{border-color:#7a5a34;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.pst:not(.got) canvas{filter:grayscale(1) brightness(.5) contrast(.55);opacity:.45}
+.pst i{font:700 .58rem var(--mono);letter-spacing:.03em;color:#6a563a;font-style:normal;text-align:center;line-height:1.15}
+.pst.got i{color:var(--rust)}
+.pq{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem}
+.pq li{border-left:3px solid #c8b48c;padding:.4rem .65rem;font-size:.85rem;background:rgba(255,255,255,.35)}
+.pq li.done{border-left-color:var(--rust)}
+.pq b{display:block;font:700 .68rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:.15rem}
+.pq span{color:#4a3a26}
+
+/* fishing */
+#fish{position:fixed;inset:0;z-index:11;pointer-events:none}
+#fish[hidden]{display:none}
+.fbox{position:absolute;pointer-events:auto;background:var(--paper);color:var(--text);padding:.9rem 1rem 1rem;width:min(300px,calc(100vw - 24px));clip-path:var(--notch);box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.fh{font:700 .7rem var(--mono);letter-spacing:.13em;text-transform:uppercase;color:#8a6b42;margin-bottom:.5rem}
+.ftrack{position:relative;height:30px;background:#20403c;border:2px solid #16302d;overflow:hidden;cursor:pointer}
+.fzone{position:absolute;top:0;bottom:0;background:rgba(120,200,180,.32);border-left:2px solid #7fd0b8;border-right:2px solid #7fd0b8}
+.ffish{position:absolute;top:50%;width:16px;height:12px;margin:-6px 0 0 -8px;background:#e07a2a;border-radius:50% 40% 50% 40%;box-shadow:0 0 0 1px #8a3f14}
+#freel{margin-top:.6rem;width:100%;padding:.5rem;border:0;background:#3b6e2f;color:var(--cream);font:700 .85rem var(--mono);cursor:pointer}
+#freel:active{transform:translate(1px,1px)}
+#fmsg{margin:.5rem 0 0;font-size:.82rem;line-height:1.4}
+.fx{position:absolute;top:.25rem;right:.5rem;border:0;background:none;font:700 1.05rem var(--mono);color:#8a6b42;cursor:pointer;line-height:1}
+
+/* the journal */
+#journal[hidden]{display:none}
+.jcard{position:relative;max-width:640px;background:var(--paper);color:var(--text);padding:1.6rem 1.8rem 1.7rem;clip-path:var(--notch);box-shadow:0 16px 44px rgba(0,0,0,.45)}
+.jcard h3{font-size:clamp(1.3rem,3.2vw,2rem);margin:0 0 .5rem;color:var(--rust)}
+.jcard p{margin:0 0 .9rem;font-size:1rem;line-height:1.65}
+.jcard .jlead{font-size:1.05rem;color:#4a3a26}
+.jcard .jsig{font-family:var(--mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:#8a6b42;margin:.9rem 0 0}
+@media(max-width:700px){
+ .jcard{padding:1.1rem 1.1rem 1.2rem}
+ .jcard p{font-size:.92rem;line-height:1.55}
+ .pbox{padding:1.1rem 1.1rem 1.2rem}
+ .pgrid{grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:.45rem}
+ .pst canvas{width:38px;height:38px}
+}
 </style>
 </head>
 <body>
@@ -188,7 +240,7 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 <canvas id="fx" aria-hidden="true"></canvas>
 <canvas id="gl" aria-hidden="true"></canvas>
 <canvas id="fx2" aria-hidden="true"></canvas>
-<nav aria-label="Sections"><a href="#top">Pond</a><a href="#work">Work</a><a href="#shelf">Shelf</a><a href="#about">About</a><a href="#wish">Wish</a></nav>
+<nav aria-label="Sections"><a href="#top">Pond</a><a href="#work">Work</a><a href="#shelf">Shelf</a><a href="#about">About</a><a href="#journal" id="jnav" hidden>Journal</a><a href="#wish">Wish</a></nav>
 <div id="boot"><span>waking the village</span><span class="bar"><i></i></span></div>
 <noscript><div class="sign" style="position:relative;z-index:2;margin:5rem 1rem"><h1 class="pix">Shounak Joshi</h1><p class="sub">I build agentic AI systems and full-stack apps. The interactive pond needs JavaScript, but you can reach me at <a href="mailto:shounakjoshi88@gmail.com" style="color:#ffb35c">shounakjoshi88@gmail.com</a> or on <a href="https://github.com/shounakjoshi88-a11y" style="color:#ffb35c">GitHub</a>.</p></div></noscript>
 
@@ -200,7 +252,16 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 <section id="shelf" aria-label="More work"></section>
 <section id="about" aria-label="About"></section>
 <section id="s6" aria-label="Skills"></section>
-<section id="wish"><div class="wish">
+<section id="journal" hidden><div class="jcard">
+    <h3 class="pix">The pond's journal</h3>
+    <p class="jlead">You found every glint. The pond opens the one thing it was keeping for you.</p>
+    <p>Everything here is a single HTML file. There is no build step, no framework, and not one image file in it.</p>
+    <p>The ground is a pixel pass over a height field, so the village gets its hills out of a noise function instead of a picture. The trees are metaballs, shaded the way the reference you sent was shaded. The buildings are boxes drawn in a 2:1 isometric projection, with a real roof pitch, a lit side and a shadow that knows where the sun is.</p>
+    <p>The water is the part I kept going back to. It is a fragment shader: it reads the depth field, bends the pond floor through it, throws caustics across the bottom, and reflects the sky and every lit lantern on the bank. The rings your finger makes are real geometry in that shader, not a sprite pasted on top.</p>
+    <p>The camera walks the lane on a spline, and the people you meet on the way are the chapters, so the site is also the story it is telling. The nine glints are the only thing in here that was hidden on purpose.</p>
+    <p class="jsig">&mdash; Shounak</p>
+  </div></section>
+  <section id="wish"><div class="wish">
     <h3>Wishing pond</h3>
     <label for="w">Every island here ends at this pond. Wish for a season, a storm, or ask about a place: the mill, the pagoda, the lookout, the ticket office. Faint glints hide secrets.</label>
     <input id="w" type="text" autocomplete="off" placeholder="wish...">
@@ -221,7 +282,32 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
   <button class="tg" id="tg" type="button" aria-expanded="false" aria-controls="pb">Sky &amp; sound</button>
   <div class="body" id="pb">
     <div class="row" id="hud"><span id="hudt"></span></div><span class="sep" aria-hidden="true"></span><div class="row"><span id="sec">Secrets 0/0</span></div><span class="sep" aria-hidden="true"></span>
-    <div class="row"><button type="button" id="snd" aria-pressed="false">Sound off</button></div>
+        <div class="row"><button type="button" id="snd" aria-pressed="false">Sound off</button></div>
+      </div>
+</div>
+<button id="pbtn" type="button" class="pfab" title="Your passport" aria-label="Open your passport"><span id="pcount">0/0</span></button>
+
+<div id="pass" hidden>
+  <div class="pbox" role="dialog" aria-label="Your passport">
+    <button class="pclose" id="pclose" type="button" aria-label="Close the passport">&times;</button>
+    <h3>Passport</h3>
+    <p class="pnote" id="pnote"></p>
+        <h4>Glints</h4>
+    <div class="pgrid" id="pgrid"></div>
+    <h4>Chapters</h4>
+    <div class="pgrid" id="pgrid2"></div>
+    <h4>Quests</h4>
+    <ul class="pq" id="pquest"></ul>
+  </div>
+</div>
+
+<div id="fish" hidden>
+  <div class="fbox" role="dialog" aria-label="Fishing">
+    <button class="fx" id="fclose" type="button" aria-label="Stop fishing">&times;</button>
+    <div class="fh">Cast a line</div>
+    <div class="ftrack" id="ftrack"><span class="fzone" id="fzone"></span><span class="ffish" id="ffish"></span></div>
+    <button id="freel" type="button">Reel</button>
+    <p id="fmsg">Wait for the koi to pass the pale band, then reel.</p>
   </div>
 </div>
 
@@ -446,17 +532,159 @@ const SEC=[
  {id:'hermit',at:[51.0,15.4],t:'The hermit’s house',x:['Day 1. The sky-sea was empty. I had a question and no map, so I stacked a stone on a cloud and called it a village.','Day 54. The mill turns without me now. The ticket counter holds. A thing finished is a thing that can leave.','The boy from the farm kept asking why. Every why became an island. The farm came first: taking things apart to see how they ran.','The koi was the first thing he wrote that surprised him. I named it Mizu. It still answers when someone drops a coin.','My rule: build with what you have, check what you built, and never trust a thing you have not broken once. Jugaad, with tests.','If you found this house, you listened. Leave a wish in the pond, then walk to the sakura isle. The postmaster never closes the door.']},
  {id:'pagoda',at:[111,15.2],t:'Pagoda of finished things',x:'Five floors for five shipped ideas. The lanterns below are the ones still being built.'}];
 let FOUND=[];try{FOUND=JSON.parse(localStorage.koiFound||'[]')}catch(e){}
-const nf=()=>SEC.filter(s=>s.f).length,updCount=()=>{$('sec').textContent='Secrets '+nf()+'/'+SEC.length};
-function found(s){if(!s.f){s.f=1;s.el.classList.add('f');try{localStorage.koiFound=JSON.stringify(SEC.filter(q=>q.f).map(q=>q.id))}catch(e){}updCount();
+// ---- the passport: what you carry between visits ----
+const PASS={chapters:[],quests:[],caught:[],journal:0};
+try{const p=JSON.parse(localStorage.koiPass||'{}');for(const k in PASS)if(p[k]!=null)PASS[k]=p[k]}catch(e){}
+const savePass=()=>{try{localStorage.koiPass=JSON.stringify(PASS)}catch(e){}};
+const hasSecret=id=>SEC.some(s=>s.id===id&&s.f);
+const nf=()=>SEC.filter(s=>s.f).length,updCount=()=>{$('sec').textContent='Secrets '+nf()+'/'+SEC.length;const c=$('pcount');if(c)c.textContent=nf()+'/'+SEC.length+(PASS.journal?' \u2713':'')};
+function found(s){if(!s.f){s.f=1;s.el.classList.add('f');try{localStorage.koiFound=JSON.stringify(SEC.filter(q=>q.f).map(q=>q.id))}catch(e){}updCount();checkProgress();
   if(nf()==SEC.length)setTimeout(()=>note('Every secret found','The pond has heard you. Make a wish that mentions Shounak.',9000),9500)}
  const x=Array.isArray(s.x)?s.x[(s.n=s.n||0)%s.x.length]:s.x;if(Array.isArray(s.x))s.n++;note(s.t+(Array.isArray(s.x)?' · '+(((s.n-1)%s.x.length)+1)+'/'+s.x.length:''),x,9000)}
 SEC.forEach(s=>{const b=document.createElement('button');b.className='sx';b.type='button';b.setAttribute('aria-label','A faint glint: a hidden detail');b.onclick=()=>found(s);document.body.appendChild(b);s.el=b;if(FOUND.includes(s.id)){s.f=1;b.classList.add('f')}});updCount();
+
+// ---- the quests the villagers hand out ----
+const QUESTS=[
+ {id:'village',from:'Teru',t:'The four village glints',need:['shrine','cart','mill','boat'],
+  x:'Teru counts them off like a farmer counts sheep: the shrine, the cart, the mill, the boat. Four, and the village has told you its whole story. She thanks you for listening to it.'},
+ {id:'koi',from:'Sen',t:'Three koi',need:3,
+  x:'Three fish, and Sen will admit the pond has been talking to you all along. The koi nod. They have been saying the same thing.'},
+ {id:'far',from:'Kiri',t:'The two far ends',need:['lookout','falls'],
+  x:'The lookout and the falls are the two ends of the road. Kiri says most people walk one of them and call it a journey.'}];
+const questDone=q=>Array.isArray(q.need)?q.need.every(hasSecret):PASS.caught.length>=q.need;
+const questProg=q=>Array.isArray(q.need)?q.need.filter(hasSecret).length+'/'+q.need.length:PASS.caught.length+'/'+q.need;
+
+// ---- rewards, and the journal the pond keeps for you ----
+function checkProgress(){
+ let changed=false;
+ for(const q of QUESTS){
+  if(PASS.quests.includes(q.id)||!questDone(q))continue;
+  PASS.quests.push(q.id);changed=true;
+  const c=CH.find(c=>c.name===q.from);
+  if(c){c.pages=c.pages.concat([q.x]);c.text=c.pages.join(' ')}
+  setTimeout(()=>note('Quest done: '+q.t,q.x,9000),700);
+ }
+ if(nf()===SEC.length&&!PASS.journal){
+  PASS.journal=1;changed=true;
+  const j=$('journal'),jn=$('jnav');if(j)j.hidden=false;if(jn)jn.hidden=false;
+  setTimeout(()=>note('The pond opens its journal','Every glint found. There was a page it was keeping for you.',9000),1200);
+ }
+ if(changed)savePass();
+}
+
+// ---- the stamps in the passport ----
+const STAMPC=[[122,60,40],[60,92,110],[92,118,58],[130,96,44],[72,72,104],[140,60,80],[60,120,96],[140,120,60],[92,80,120]];
+function stampArt(i){
+ const c=mk(22,22),x=c.getContext('2d'),pal=STAMPC[i%STAMPC.length];
+ x.fillStyle=rgb(pal);x.fillRect(0,0,22,22);
+ x.fillStyle=rgb(pal.map(v=>v*.55));
+ for(let k=0;k<5;k++){x.fillRect(k*5,0,2,2);x.fillRect(k*5,20,2,2);x.fillRect(0,k*5,2,2);x.fillRect(20,k*5,2,2)}
+ x.fillStyle=rgb(pal.map(v=>Math.min(255,v*1.55)));
+ const m=i%4;
+ for(let k=0;k<8;k++){const a=k/8*6.283+m*.4;x.fillRect(Math.round(11+Math.cos(a)*6),Math.round(11+Math.sin(a)*6),2,2)}
+ x.fillStyle='rgba(255,248,220,.35)';x.fillRect(4,4,14,1);x.fillRect(4,4,1,14);
+ x.fillStyle=rgb(pal.map(v=>v*.35));x.fillRect(9,9,4,4);
+ return c}
+function buildPass(){
+ const g=$('pgrid');if(!g)return;g.innerHTML='';
+ SEC.forEach((s,i)=>{
+  const b=document.createElement('button');b.className='pst'+(s.f?' got':'');b.type='button';b.title=s.t;
+  b.appendChild(stampArt(i));
+  const lab=document.createElement('i');lab.textContent=s.f?s.t:'?';b.appendChild(lab);
+  b.onclick=()=>{if(s.f)note(s.t,Array.isArray(s.x)?s.x[0]:s.x,8000);
+   else note('Not found yet','A faint glint is hiding near one of the places on this island.',4200)};
+  g.appendChild(b)});
+ const g2=$('pgrid2');if(g2){g2.innerHTML='';
+  CH.forEach((c,i)=>{const got=PASS.chapters.includes(c.name);
+   const b=document.createElement('button');b.className='pst'+(got?' got':'');b.type='button';b.title=c.name+' '+c.role;
+   b.appendChild(stampArt(i+3));
+   const lab=document.createElement('i');lab.textContent=got?c.name.split('')[0]:'?';b.appendChild(lab);
+   b.onclick=()=>note(c.name+' · '+c.role,got?c.pages[c.pages.length-1]:'You have not finished this conversation yet.',6000);
+   g2.appendChild(b)})}
+ const q=$('pquest');if(q){q.innerHTML='';
+  for(const qq of QUESTS){const li=document.createElement('li');
+   if(questDone(qq))li.className='done';
+   li.innerHTML='<b>'+qq.t+'</b><span>'+(questDone(qq)?'Done. '+qq.from+' has something to say.':qq.from+' asked for it. '+questProg(qq)+' so far.')+'</span>';
+   q.appendChild(li)}}
+ const pn=$('pnote');if(pn)pn.textContent=(PASS.journal?'The journal is open. It was the last thing the pond had for you.'
+  :nf()+' of '+SEC.length+' glints found. Find them all and the pond opens its journal.')
+  +(PASS.caught.length?' You have caught '+PASS.caught.length+' koi.':'');
+}
+
+// ---- fishing at the pond ----
+const KOI=[
+ ['A koi the colour of a spent test','Flux cost nothing and took fifty four days. It still passes. So does this fish.'],
+ ['A koi with a scholar marking','Fifty four attempts at P versus NP. Most of them ended in no. He starts the next one anyway.'],
+ ['A koi that will not be caught','Stellar Forge sells the last seat to exactly one person. The counter never lies. Neither does this fish.'],
+ ['A koi the colour of a nebula','He once wrote a purple nebula shader pack, so that planets would show even in daylight. It is still in the notebook.'],
+ ['A koi wearing a red bib','Payflow is a Java payment gateway. It moves money and it does not lose it.'],
+ ['A koi with old scars','Raksha and NeRoute came out of hackathons: crowd safety, and logistics for the North East. It was his first real thing.']];
+let FISH=null;
+function fishStart(cx,cy){
+ if(FISH)return;
+ const f={pos:.15,dir:1,zone:.25,zw:.14,tries:0};
+ FISH=f;
+ const box=$('fish').firstElementChild;if(!box)return;
+ $('fish').hidden=false;
+ box.style.left=Math.max(10,Math.min(innerWidth-box.offsetWidth-10,cx-box.offsetWidth/2))+'px';
+ box.style.top=Math.max(84,Math.min(innerHeight-box.offsetHeight-12,cy-box.offsetHeight-20))+'px';
+ $('fzone').style.left=(f.zone*100)+'%';$('fzone').style.width=(f.zw*100)+'%';
+ $('ffish').style.left=(f.pos*100)+'%';
+ $('fmsg').textContent='Wait for the koi to cross the pale band, then reel.';
+ requestAnimationFrame(fishTick);
+}
+function fishTick(){
+ const f=FISH;if(!f)return;
+ f.pos+=f.dir*(.030+f.tries*.012);
+ if(f.pos>1){f.pos=1;f.dir=-1}
+ if(f.pos<0){f.pos=0;f.dir=1}
+ const el=$('ffish');if(el)el.style.left=(f.pos*100)+'%';
+ requestAnimationFrame(fishTick);
+}
+function fishMoveZone(f){
+ f.zone=.08+Math.random()*.66;f.zw=.10+Math.random()*.13;
+ const z=$('fzone');if(z){z.style.left=(f.zone*100)+'%';z.style.width=(f.zw*100)+'%'}
+}
+function fishReel(){
+ const f=FISH;if(!f)return;
+ if(f.pos>=f.zone&&f.pos<=f.zone+f.zw){
+  const k=KOI[PASS.caught.length%KOI.length];
+  PASS.caught.push(k[0]);savePass();
+  const m=$('fmsg');if(m)m.textContent=k[1];
+  note('Caught: '+k[0],k[1],8000);
+  f.tries++;fishMoveZone(f);checkProgress();
+  if(PASS.caught.length>=3)setTimeout(()=>closeFish(),4200);
+ }else{
+  f.tries++;
+  const m=$('fmsg');if(m)m.textContent='It slips the hook. The pond is not in a hurry.';
+  fishMoveZone(f);
+ }
+}
+function closeFish(){FISH=null;const f=$('fish');if(f)f.hidden=true}
+
+// ---- the passport opens and closes ----
+const openPass=()=>{buildPass();const p=$('pass');if(p)p.hidden=false};
+$('pbtn').onclick=openPass;
+$('pclose').onclick=()=>{$('pass').hidden=true};
+$('pass').addEventListener('click',e=>{if(e.target===$('pass'))$('pass').hidden=true});
+$('freel').onclick=fishReel;
+$('fclose').onclick=closeFish;
+$('ftrack').onclick=fishReel;
+addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('pass');if(p)p.hidden=true;closeFish()}});
+setTimeout(checkProgress,80);
+
 function secretTick(){for(const s of SEC){const[X,Y]=PF(s.at[0],s.at[1]),sx=(TX+X*Z)*WS,sy=(TY+(Y-16)*Z)*WS,on=sx>10&&sx<innerWidth-10&&sy>60&&sy<innerHeight-60;s.el.style.transform='translate('+sx+'px,'+sy+'px)';s.el.style.opacity=on?1:0;s.el.style.pointerEvents=on?'auto':'none'}}
 seasonSet(1);skyTick();Object.assign(cur,tgt)
 
 
 addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>(e.buttons?10:22)){lx=e.clientX;ly=e.clientY;ripple(lx,ly,e.buttons?1.2:.6)}},{passive:true});
-addEventListener('pointerdown',e=>ripple(e.clientX,e.clientY,1.8));
+addEventListener('pointerdown',e=>{
+ ripple(e.clientX,e.clientY,1.8);
+ if(WHEEL&&Math.hypot(e.clientX-WCX,e.clientY-WCY)<28*Z*WS){WHEELT=T;note('The mill wheel','The launder is louder now. It will settle in a moment.',4200);return}
+ const wx=(e.clientX/WS-TX)/Z,wy=(e.clientY/WS-TY)/Z;
+ const fi=((wx-OX)/16+(wy-OY)/8)/2,fj=((wy-OY)/8-(wx-OX)/16)/2;
+ if(Math.hypot(fi-POND[0],fj-POND[1])<6.4||Math.hypot(fi-POND2[0],fj-POND2[1])<5.4)fishStart(e.clientX,e.clientY);
+});
 
 // The villagers tell the story, one per stop on the lane.
 const CH=[
@@ -485,6 +713,7 @@ const BUB=$('bub');let curCh=-1,bw=300,bh=200,typ2=null;
 let pg=0,pgT=null;
 function adv(){const c=CH[curCh];if(pg<c.pages.length-1){pg++;drawPg()}}
 function drawPg(){const c=CH[curCh],full=c.pages[pg],last=pg==c.pages.length-1;clearInterval(typ2);clearTimeout(pgT);
+ if(last&&!PASS.chapters.includes(c.name)){PASS.chapters.push(c.name);savePass()}
  BUB.innerHTML=`<div class="bb"><div class="nm"><b>${c.name}</b> · ${c.role}<span class="chp">${c.ch}</span></div><p class="tx"><span class="on"></span><span class="off">${full}</span></p>${last?(c.tags?`<div class="tgs">${c.tags}</div>`:'')+(c.links.length?`<div class="lk">${c.links.map(l=>`<a href="${l[1]}"${l[1][0]=='h'?' target="_blank" rel="noopener"':''}>${l[0]}</a>`).join('')}</div>`:''):`<button class="nx" type="button">${pg+1}/${c.pages.length} · tap for more</button>`}</div><i class="tail"></i>`;
  const on=BUB.querySelector('.on'),off=BUB.querySelector('.off');
  if(reduce){on.textContent=full;off.textContent=''}else{let i=0;typ2=setInterval(()=>{i+=2;on.textContent=full.slice(0,i);off.textContent=full.slice(i);if(i>=full.length)clearInterval(typ2)},16)}
@@ -493,6 +722,7 @@ function drawPg(){const c=CH[curCh],full=c.pages[pg],last=pg==c.pages.length-1;c
 function setCh(k){curCh=k;pg=0;drawPg()}
 BUB.addEventListener('click',e=>{if(!e.target.closest('a'))adv()});
 const WISHC=document.querySelector('.wish');
+let WHEEL=null,WHEELT=0,WCX=0,WCY=0;
 function bubbleTick(f){skyTick();secretTick();const k=clamp(Math.round(f),0,CH.length-1);if(k!==curCh)setCh(k);
  const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,wr=WISHC.getBoundingClientRect(),
  narrow=vw<900, wrOn=wr.top<innerHeight*.9&&wr.bottom>0,
@@ -508,7 +738,8 @@ function bubbleTick(f){skyTick();secretTick();const k=clamp(Math.round(f),0,CH.l
   y=Math.max(sy,bh+70);
   BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
  }
- BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
+  BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
+ if(WHEEL){WHEEL.rate=(WHEELT&&T-WHEELT<5)?26:8;WCX=(TX+(WHEEL.x-44)*Z)*WS;WCY=(TY+(WHEEL.y-52)*Z)*WS}
  const on=sx>-20&&sx<vw+20&&sy>0&&sy<innerHeight+200&&!(narrow&&wrOn);
  BUB.style.opacity=on?a:0;BUB.style.pointerEvents=(a>.6)?'auto':'none';BUB.style.visibility=(a<.02||!on)?'hidden':'visible'}
 
@@ -1649,7 +1880,7 @@ function build(){
  put(34.4,10.8,shrine(),2,.05);put(51.0,15.6,hermit(),2,.05);{const[hx,hy]=PF(51,15.6);objs.push({d:51+15.6+.2,x:hx,y:hy,ph:0,t:0,sp:null,draw:c=>{for(let k=0;k<5;k++){const t=(T*.22+k/5)%1;c.fillStyle='rgba(214,208,196,'+((1-t)*.55).toFixed(2)+')';const s=(2+t*3)|0;c.fillRect((hx+11+Math.sin(T*.8+k*2)*2+t*7)|0,(hy-43-t*24)|0,s,s)}}})}put(52.5,17.0,woodpile(),0);put(49.9,17.4,stoneLantern(),3);put(52.6,14.4,stump(1),0);
  put(35.6,40.2,lookout(),2,.05);
  put(14.9,9.6,stall([196,72,52],[240,232,214]),1);put(16.9,10.4,stall([86,120,72],[240,232,214]),1);put(13.4,8.2,stall([72,96,124],[240,232,214]),1);
- put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0]-26,y:PF(35.3,22.9)[1]+25};
+  WHEEL=put(35.3,22.9,millWheel(),1);SURF.spray={x:PF(35.3,22.9)[0]-26,y:PF(35.3,22.9)[1]+25};
  // props
  const PR=[[16.5,10.6,barrel,0],[16.9,10.9,barrel,0],[16.2,10.1,crates,0],[17.2,9.4,hay,0],[17.6,9.0,hay,0],[10.0,12.3,wellS,0],[15.5,13.6,lamp,3],[18.2,11.4,lamp,3],[12.4,13.3,pumpkinS,0],
   [9.3,10.0,()=>logS(1),0],[11.0,11.5,()=>logS(2),0],[10.0,10.5,campfire,5],[9.6,14.6,hive,0],[10.2,14.8,hive,0],[14.55,16.9,scarecrow,0],[15.8,13.9,signpost,0],[13.0,18.4,laundry,4],[16.55,12.55,cat,0],[17.2,17.9,()=>bench(0),0],[26.2,17.7,pier,0],[14.1,13.2,flowerPot,0],[12.9,13.2,flowerPot,0],[16.0,13.0,flowerPot,0],[18.3,10.2,woodpile,0],
@@ -1994,7 +2225,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
    if(o.surf)continue;if(o.x<l||o.x>r||o.y<t||o.y>b)continue;if(o.draw){o.draw(ctx);continue}const sp=o.sp,sw=o.t==1?Math.round(Math.sin(T*1.2+o.ph)*(.8+cur.storm*1.5)):o.t==4?Math.round(Math.sin(T*1.5+o.ph)*(.5+cur.storm*1.2)):0;
    ctx.drawImage(sp.c,o.x-sp.ox+sw,o.y-sp.oy);
    if(sp.sails){const fr=sp.sails[((T*1.6)|0)%sp.sails.length];ctx.drawImage(fr,o.x-sp.ox+sp.sailAt[0]-26,o.y-sp.oy+sp.sailAt[1]-26)}
-   if(sp.fr){const fr=sp.fr[((T*(sp.frRate||1.1))|0)%sp.fr.length];ctx.drawImage(fr,o.x-sp.ox,o.y-sp.oy)}
+   if(sp.fr){const fr=sp.fr[((T*(o.rate||sp.frRate||1.1))|0)%sp.fr.length];ctx.drawImage(fr,o.x-sp.ox,o.y-sp.oy)}
    if(sp.gl)for(const q of sp.gl)GLW.push([o.x-sp.ox+q[0],o.y-sp.oy+q[1],q[2]]);
   if(sp.ch)for(let s=0;s<6;s++){ctx.fillStyle=`rgba(225,225,225,${.55-s*.09})`;ctx.fillRect(Math.round(o.x-sp.ox+sp.ch[0]+Math.sin(T*.8+s)*2+s*.7),Math.round(o.y-sp.oy+sp.ch[1]-s*4-((T*6)%4)),2,2)}
   if(sp.fire){for(let q=0;q<5;q++){const h=5+Math.round(Math.sin(T*9+q*1.7)*2+2),X=o.x-4+q*2;ctx.fillStyle=q==2?'#fff2a0':q%2?'#ffb030':'#ff6a1d';ctx.fillRect(X,o.y-5-h,2,h)}for(let q=0;q<3;q++){ctx.fillStyle='rgba(255,170,60,.85)';ctx.fillRect(o.x-3+Math.round(Math.sin(T*2+q*2)*5),o.y-14-((T*14+q*9)%18)|0,1,1)}GLW.push([o.x,o.y-6,40])}}
