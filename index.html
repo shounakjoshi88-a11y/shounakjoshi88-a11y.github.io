@@ -114,7 +114,8 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 .sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 #bub{position:fixed;left:0;top:0;z-index:4;width:min(340px,calc(100vw - 24px));opacity:0;visibility:hidden;will-change:transform,opacity;transition:opacity .15s}
 #bub .bb{background:var(--paper);color:var(--text);padding:.8rem 1rem .9rem;clip-path:var(--notch);box-shadow:0 10px 30px rgba(0,0,0,.35)}
-#bub .nm{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#8a6b42;margin-bottom:.25rem}
+#bub .nm{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#8a6b42;margin-bottom:.25rem;overflow:hidden}
+#bub .chp{display:inline-block;color:#8a6b42;letter-spacing:.06em;margin-left:.45rem;white-space:nowrap}
 #bub .nm b{color:var(--rust)}
 #bub .tx{margin:0;font-size:.97rem;line-height:1.5}
 #bub .off{color:transparent}
@@ -150,7 +151,7 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.proj .go{transition:none}.proj .go2{transition:none}#mz svg{animation:none}#boot .bar i{animation:none;width:100%}}
 #season{position:fixed;inset:0;z-index:1;pointer-events:none;mix-blend-mode:soft-light;background-color:transparent;transition:background-color 6s}
 #bub{width:min(300px,calc(100vw - 24px))}#bub .bb{cursor:pointer;padding:.7rem .9rem .8rem}#bub .tx{font-size:.92rem;line-height:1.45}
-#bub .chp{float:right;color:#8a6b42;letter-spacing:.06em}
+#bub .chp{float:right;display:block;color:#8a6b42;letter-spacing:.06em;margin:0;white-space:nowrap}
 #bub .nx{margin:.5rem 0 0;border:0;background:none;padding:0;font:700 .72rem var(--mono);color:var(--rust);cursor:pointer}
 #hudt,#sec{font:.8rem var(--mono);color:var(--cream);padding:0 .4rem}
 .sx{position:fixed;left:0;top:0;z-index:3;width:30px;height:30px;margin:-15px 0 0 -15px;border:0;background:none;cursor:pointer;opacity:0;pointer-events:none}
