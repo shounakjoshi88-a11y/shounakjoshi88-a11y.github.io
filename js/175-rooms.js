@@ -138,7 +138,7 @@ const DOORS=[
  {id:'south2',house:[16.8,30.4],off:[-0.41,1.5],room:'south2'},
  {id:'south3',house:[9.0,28.8],off:[-0.41,1.5],room:'south3'},
  {id:'south4',house:[11.8,35.2],off:[-0.41,1.5],room:'south4'},
- {id:'bridge',house:[34.9,21.4],off:[-0.41,1.5],room:'bridge'},
+ {id:'bridge',house:[36.9,20.6],off:[-0.41,1.5],room:'bridge'},
  {id:'boathouse',house:[19.4,21.8],off:[0,1.35],room:'boathouse'},
  {id:'shrine',house:[34.4,10.8],off:[0,1.2],room:'shrine'},
  {id:'lookout',house:[35.6,40.2],off:[0,1.3],room:'lookout'},

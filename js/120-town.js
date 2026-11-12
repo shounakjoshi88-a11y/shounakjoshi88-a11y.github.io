@@ -233,7 +233,7 @@ function millWheel(){
    for(let d=-3;d<=3;d++){const[X,Y]=troughPos(0,d);for(let j=0;j<7;j++){const q=((j*2+k*2)%6),e=Math.abs(d)/3;dot(g,X+1,Y+2+j,wcolB(.22+.4*(1-e*e),Math.sin((j+k)*.9)*.6,(q<3?.5:-.4),d*3,j+k))}}
    dot(g,M[0]-1,M[1]-R-1,'#e6f6fb',5,1);
    fr.push(outline(sc))}
-  return{c:outline(c),ox:cx-EX,oy:cy+6-EY,fr,frRate:8,sh:[-30,19,30,5]}}
+  return{c:outline(c),ox:cx-EX,oy:cy+6-EY,fr,frRate:8,sh:[-30,19,30,5],sol:{c:[-22,5,20]}}}
 
 // a villager, in three poses and two steps
 function villager(p,f,dir){

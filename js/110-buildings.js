@@ -17,6 +17,15 @@ function box(o){
  // gable trim + ridge cap
  ln(x,cx-a,cy-wh,Math.round(M1[0]-ov),Math.round(M1[1]+ov/2),rgb(o.trim||[240,224,190]));ln(x,cx-a,cy-wh+1,Math.round(M1[0]-ov),Math.round(M1[1]+ov/2)+1,rgb([86,58,36]));
  ln(x,Math.round(R0[0]),Math.round(R0[1])-1,Math.round(R0[0]+e1[0]),Math.round(R0[1]+e1[1])-1,rgb(mixc(RC[2],[255,240,210],.25)));ln(x,Math.round(R0[0]),Math.round(R0[1]),Math.round(R0[0]+e1[0]),Math.round(R0[1]+e1[1]),rgb(mixc(RC[1],[255,230,190],.12)));
+ // the plinth: every building stands on a stone base, so it reads as having height
+ if(o.plinth!==0){
+  const pw=5,pl=(p0,e1,e2,shade)=>{
+   para(x,p0,e1,e2,(s,t)=>{const edge=Math.min(t,.999),row=Math.floor(s*3);
+    const col=mixc(mixc(o.plinth||[124,114,96],[0,0,0],edge*.5),[0,0,0],row*.1+shade);
+    return rgb(col)})};
+  pl([cx-a,cy],[a,ah],[-pw*.25,pw*.125],0);
+  pl([cx,cy+ah],[a,-ah],[pw*.25,pw*.125],.14);
+ }
  const res={c,ox:cx,oy:cy,gl,sh:o.sh,a,ah,rf:{p0,e1,e2,M1,R0}};
  if(o.chimney){const s=o.chimney[0],t=o.chimney[1],X=Math.round(p0[0]+s*e1[0]+t*e2[0]),Y=Math.round(p0[1]+s*e1[1]+t*e2[1]),ch=o.chimney[2];
   for(let yy=0;yy<ch;yy++)for(let xx=-5;xx<=5;xx++){const lit=xx<1,br=((yy>>1)+(xx+(((yy>>1)&1)*3)))%4==0||yy%3==2,hv=hh(xx+9,yy);P(X+xx,Y-yy,br?(lit?[104,94,86]:[70,64,60]):(lit?(hv>.6?[168,156,144]:[146,134,122]):(hv>.6?[112,102,94]:[96,86,80])))}
