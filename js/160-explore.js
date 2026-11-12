@@ -22,11 +22,11 @@ function blocked(a,b){
  const arr=SGRID.get(sgKey(Math.floor(a/SGCS),Math.floor(b/SGCS)));if(!arr)return 0;
  for(const r of arr){
   const da=a-r.fi,db=b-r.fj,dx=16*(da-db),dy=8*(da+db),s=r.sol;
-  if(typeof s==='number'){if(dx*dx+dy*dy<s*s)return 1;continue}
   if(s===0){const sp=r.sp;
    if(sp.rf){if(sp.a>0&&Math.abs(dx)/sp.a+Math.abs(dy)/sp.ah<=1)return 1;continue}
    const sh=sp.sh;if(sh){if(dx>=sh[0]-1&&dx<=sh[0]+sh[2]+1&&dy>=sh[1]-1&&dy<=sh[1]+sh[3]+1)return 1}
    continue}
+  if(typeof s==='number'){if(dx*dx+dy*dy<s*s)return 1;continue}
   if(dx>=s[0]-1&&dx<=s[0]+s[2]+1&&dy>=s[1]-1&&dy<=s[1]+s[3]+1)return 1}
  return 0}
 const mkSpr=p=>({front:[villager(p,0,'front'),villager(p,1,'front')],back:[villager(p,0,'back'),villager(p,1,'back')],side:[villager(p,0,'side'),villager(p,1,'side')]});

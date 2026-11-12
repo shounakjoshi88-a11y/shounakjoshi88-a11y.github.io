@@ -136,7 +136,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   WVIS[0]=l;WVIS[1]=r;WVIS[2]=t;WVIS[3]=b;
   ctx.setTransform(Z,0,0,Z,TX,TY);if(stc)ctx.drawImage(stc,0,0);if(wc&&!GL.ok)water();fall();for(const A of ARCH)drawArch(ctx,A);life();
   let pi=0;
-  for(const o of objs){while(pi<PEOPLE.length&&PEOPLE[pi].d<o.d){if(!PL||PEOPLE[pi].P!==PL.P)drawPerson(ctx,PEOPLE[pi].P);pi++}
+  for(const o of objs){while(pi<PEOPLE.length&&PEOPLE[pi].d<o.d){drawPerson(ctx,PEOPLE[pi].P);pi++}
    if(o.surf)continue;if(o.x<l||o.x>r||o.y<t||o.y>b)continue;if(o.draw){o.draw(ctx);continue}const sp=o.sp,sw=o.t==1?Math.round(Math.sin(T*1.2+o.ph)*(.8+cur.storm*1.5)):o.t==4?Math.round(Math.sin(T*1.5+o.ph)*(.5+cur.storm*1.2)):0;
    ctx.drawImage(sp.c,o.x-sp.ox+sw,o.y-sp.oy);
    if(sp.sails){const fr=sp.sails[((T*1.6)|0)%sp.sails.length];ctx.drawImage(fr,o.x-sp.ox+sp.sailAt[0]-26,o.y-sp.oy+sp.sailAt[1]-26)}
@@ -144,8 +144,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
    if(sp.gl)for(const q of sp.gl)GLW.push([o.x-sp.ox+q[0],o.y-sp.oy+q[1],q[2]]);
   if(sp.ch)for(let s=0;s<6;s++){ctx.fillStyle=`rgba(225,225,225,${.55-s*.09})`;ctx.fillRect(Math.round(o.x-sp.ox+sp.ch[0]+Math.sin(T*.8+s)*2+s*.7),Math.round(o.y-sp.oy+sp.ch[1]-s*4-((T*6)%4)),2,2)}
   if(sp.fire){for(let q=0;q<5;q++){const h=5+Math.round(Math.sin(T*9+q*1.7)*2+2),X=o.x-4+q*2;ctx.fillStyle=q==2?'#fff2a0':q%2?'#ffb030':'#ff6a1d';ctx.fillRect(X,o.y-5-h,2,h)}for(let q=0;q<3;q++){ctx.fillStyle='rgba(255,170,60,.85)';ctx.fillRect(o.x-3+Math.round(Math.sin(T*2+q*2)*5),o.y-14-((T*14+q*9)%18)|0,1,1)}GLW.push([o.x,o.y-6,40])}}
-  while(pi<PEOPLE.length){if(!PL||PEOPLE[pi].P!==PL.P)drawPerson(ctx,PEOPLE[pi].P);pi++}
-  if(PL&&!PL.P.hid)drawPerson(ctx,PL.P);
+  while(pi<PEOPLE.length){drawPerson(ctx,PEOPLE[pi].P);pi++}
   sprites(l,r,t,b);
   if(GL.ok)drawGL();
   drawSurf();
