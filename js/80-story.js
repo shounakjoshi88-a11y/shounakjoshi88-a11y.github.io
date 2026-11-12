@@ -19,6 +19,7 @@ const CH=[
  {at:[34.4,22.6],pal:[[142,158,120],[64,66,60],[198,186,150],[220,172,132],null],name:'Kiri',role:'the bridge keeper',text:'He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch instead of configured.',tags:'TypeScript · Python · C · React · PostgreSQL · Godot · Three.js · Docker',links:[]},
  {at:[98.0,24.9],pal:[[176,132,88],[62,66,72],[122,88,52],[214,168,132],[120,88,52]],name:'Juno',role:'the postmaster',text:'Last stop. He is open to internships, to collaboration, and to being told he is doing something in a stupid way. Send a letter.',tags:'',links:[['GitHub','https://github.com/shounakjoshi88-a11y'],['X','https://x.com/BroIndian39416'],['YouTube','https://www.youtube.com/@Badass069'],['Email','mailto:shounakjoshi88@gmail.com']]},
  {at:[130.4,24.6],pal:[[54,64,98],[40,44,58],[76,64,52],[224,184,146],null],name:'Nao',role:'the astronomer',dock:'right',text:'Nao keeps the long experiment. Fifty four attempts at P versus N, charted like weather. Nothing up here is abandoned, only unsolved.',tags:'',links:[]},
+ {at:[97.2,58.6],pal:[[70,104,132],[58,54,50],[46,38,32],[222,184,146],null],name:'Tula',role:'the shipwright',text:'She builds the hulls for everything that leaves the pond. Anything finished gets a hull and a name, and then it goes out and gets used by somebody he will never meet.',tags:'',links:[]},
  {at:[137.8,33.2],pal:[[212,168,84],[70,72,88],[54,44,38],[232,192,150],[178,68,52]],name:'Wren',role:'the question',dock:'right',text:'Wren is eight, and wants to know why the sky is dark at night. Every island you walked through tonight started as one of his questions.',tags:'',links:[]}
 ];
 
@@ -32,6 +33,7 @@ const STORY={
  Kiri:{ch:'Chapter 7 · The path ahead',p:['This bridge points toward security. SC-900 is done, network security is in progress, JNCIA is next.','He likes agents that plan and verify, real-time apps where race conditions are the real problem, and graphics written from scratch.','Cost conscious by habit: a jugaad mind, a local VM lab, nothing paid when free will do.']},
  Juno:{ch:'Chapter 8 · Letters',p:['Last stop, the sakura isle. The pagoda keeps what he has finished. The lanterns keep what he is still building.','He is open to internships, to collaboration, and to being told he is doing something in a stupid way.','Send a letter. Then wander back to the pond and make a wish.']},
  Nao:{ch:'Chapter 9 · The long experiment',p:['Past the postmaster the stair keeps going. Nao keeps the sky the way Shounak keeps a problem: patiently, and in public.','Fifty four attempts at P versus N. Most end in no. The ledger does not call that failure; it calls it forty nine more things you now know.','He built the telescope himself, because he wanted to see the thing rather than configure somebody else’s view of it.']},
+ Tula:{ch:'Chapter 11 · The harbour',p:['Five hulls are on the stands and every one of them is a thing that was finished here and then sent somewhere else to be useful.','There is a hospital running Flux in a city he has never visited. Tula built the hull it arrived in. She still gets the post.']},
  Wren:{ch:'Chapter 10 · Why',p:['Why is the sky dark at night? Why does the mill turn? Why does the pond keep the coins?','Every place you walked through tonight was one of these questions, built until it could be walked through.','The boy is still asking. That is the whole method: ask, build, check, and ask again.']}};
 for(const c of CH){const s=STORY[c.name];c.ch=s.ch;c.pages=s.p;c.text=s.p.join(' ')}
 $('srl').innerHTML=CH.map(c=>`<li>${c.name}, ${c.role}: ${c.text} ${c.tags}</li>`).join('');
@@ -46,7 +48,8 @@ const MEM={Teru:'You have been here before. The farm has not changed, but you ar
  Kiri:'You have walked the whole road. That is more than most, and it took you the whole evening.',
  Juno:'There is a letter waiting for you. It has been waiting since you started looking.',
  Nao:'You came back up the stair. The sky has not changed, but your questions have.',
- Wren:'You found the observatory. I knew you would. I have been telling everyone.'};
+ Wren:'You found the observatory. I knew you would. I have been telling everyone.',
+  Tula:'You came to the harbour. Most people stop at the pagoda. Take a hull, if you like. Somebody should.'};
 function chPages(c){return nf()>0&&MEM[c.name]?[MEM[c.name]].concat(c.pages):c.pages}
 function adv(){const c=CH[curCh];if(pg<chPages(c).length-1){pg++;drawPg()}}
 function drawPg(){const c=CH[curCh],pages=chPages(c),full=pages[pg],last=pg==pages.length-1;clearInterval(typ2);clearTimeout(pgT);

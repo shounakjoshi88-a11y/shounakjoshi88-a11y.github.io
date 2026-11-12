@@ -5,4 +5,4 @@ for(const n of['oak','pine','bush','cottage','barn','windmill','boathouse','stal
 setMode('start');
 setTimeout(()=>{const g=$('sgo');if(g)g.focus({preventScroll:true})},1200);
 window.__m=()=>MODE;window.__pl=()=>PL&&{a:PL.P.a,b:PL.P.b};window.__near=()=>NEAR;window.__tp=(a,b)=>{if(!PL)return;PL.P.a=a;PL.P.b=b;CF=[a,b];GOAL=null};
-requestAnimationFrame(()=>{initGL();initSurf();build();bakeCloud();initPeople();doorList();const b=$('boot');if(b){b.classList.add('done');setTimeout(()=>b.remove(),700)}setTimeout(()=>ripple(innerWidth*.5,innerHeight*.5,2),700)});
+requestAnimationFrame(()=>{initGL();initSurf();build();bakeCloud();initPeople();doorList();buildThings();buildHarbour();const b=$('boot');if(b){b.classList.add('done');setTimeout(()=>b.remove(),700)}setTimeout(()=>ripple(innerWidth*.5,innerHeight*.5,2),700)});

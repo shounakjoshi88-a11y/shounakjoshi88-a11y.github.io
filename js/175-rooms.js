@@ -151,6 +151,11 @@ let ROOM=null,RMX=0,RMY=0,RMTX=0,RMTY=0,RMGOAL=null,RMTAKE=0;
 const RCTX=document.getElementById('rmcv').getContext('2d');
 const RMW=320,RMH=180;
 
+// ---- the small things inside a room: the same idea, in a smaller space
+const THPOS=[[172,92],[58,140],[246,140]];
+let RMREAD={};
+function rmThings(){return (typeof ROOMTHINGS!=='undefined'&&ROOMTHINGS[ROOM])||[]}
+
 // ---- the little furniture of a room
 function furnDraw(g,k,x,y){
  const px=(w,h,col)=>{g.fillStyle=col};
@@ -267,6 +272,14 @@ function roomDraw(ox,oy,ix,iy){
  rmPerson(g,ROOMSP.owner,ox,oy);
  const P=PL.P,pose=Math.abs(P.vx)>.1?'side':'front';
  rmPerson(g,P.spr[pose][P.mvg?(P.anim|0)%2:0],RMX,RMY);
+ // the small things, waiting to be looked at
+ const list=rmThings();
+ for(let i=0;i<list.length;i++){const p=THPOS[i%THPOS.length];
+  if(RMREAD[ROOM+i])continue;
+  const ig=g.createRadialGradient(p[0],p[1]-3,1,p[0],p[1]-3,9);
+  ig.addColorStop(0,'rgba(255,240,200,.5)');ig.addColorStop(1,'rgba(255,240,200,0)');
+  g.fillStyle=ig;g.fillRect(p[0]-9,p[1]-12,18,18);
+  g.fillStyle='#fff2c0';g.fillRect(p[0]-1,p[1]-5,2,2)}
  // the thing worth taking
  if(!RMTAKE){const ig=g.createRadialGradient(ix,iy-7,1,ix,iy-7,14);
    ig.addColorStop(0,'rgba(255,233,168,.55)');ig.addColorStop(1,'rgba(255,233,168,0)');
@@ -311,7 +324,17 @@ addEventListener('keyup',e=>{RKEYS[e.key.toLowerCase()]=0});
 addEventListener('blur',()=>{for(const k in RKEYS)RKEYS[k]=0});
 $('rmcv').addEventListener('pointerdown',e=>{
  const r=$('rmcv').getBoundingClientRect();
- RMGOAL=[(e.clientX-r.left)/r.width*RMW,(e.clientY-r.top)/r.height*RMH];
+ const mx=(e.clientX-r.left)/r.width*RMW,my=(e.clientY-r.top)/r.height*RMH;
+ const list=rmThings();
+ for(let i=0;i<list.length;i++){
+  if(RMREAD[ROOM+i])continue;
+  const p=THPOS[i%THPOS.length];
+  if(Math.hypot(mx-p[0],my-p[1])<15){
+   RMREAD[ROOM+i]=1;
+   $('rmcard').innerHTML='<span class="who">'+list[i][0]+'</span>'+list[i][1];
+   $('rmhint').textContent='Tap the card to keep looking.';
+   return}}
+ RMGOAL=[mx,my];
 });
 $('rmcard').addEventListener('click',()=>{
  if(!ROOM)return;
@@ -323,5 +346,7 @@ $('hint').onclick=()=>{
  if(MODE==='room')return;
  const e=doorNear();
  if(e){doorUse(e);return}
+ const th=typeof thingNear==='function'?thingNear():null;
+ if(th){thingUse(th);return}
  if(typeof anglingUse==='function')anglingUse();
 };

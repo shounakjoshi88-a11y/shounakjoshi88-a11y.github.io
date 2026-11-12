@@ -290,7 +290,7 @@ function buildBridge(){_RB=RB;
   put(118.0,28.3,stoneLantern(),3);put(124.2,28.0,stoneLantern(),3);put(118.0,31.7,stoneLantern(),3)}
 function ropeSeg(c,s0,s1,first,last,B){
  const RB=B||_RB;
- const b=RB.b,P=(a,db)=>{const t=ropeT(a),L=-RB.sag*4*t*(1-t),[x,y]=PF(a,b+db);return[x,y-L+Math.sin(T*1.1+a*.35)*.7]};
+ const b=RB.b,P=(a,db)=>{const t=ropeT(a,RB),L=-RB.sag*4*t*(1-t),[x,y]=PF(a,b+db);return[x,y-L+Math.sin(T*1.1+a*.35)*.7]};
  const posts=[];for(let a=RB.a0;a<=RB.a1+.01;a+=2)if(a>=s0-1e-6&&(a<s1-1e-6||(last&&a<=s1+1e-6)))posts.push(a);
  const rail=(db,front)=>{c.fillStyle='#8a6a44';
   for(let a=s0;a<=s1+.001;a+=.1){const[x,y]=P(a,db);c.fillRect(Math.round(x),Math.round(y)-11,1,1);if(front)c.fillRect(Math.round(x),Math.round(y)-12,1,1)}
@@ -402,7 +402,7 @@ const KS=[[8.6,6.4],[15.6,9.6],[14.6,12.8],[14.9,16.8],[21.6,20.2],[26.5,24.5],[
 const KB=[[33.6,24.6],[41,22.0],[51.4,19.0],[60,20.2],[70,19.5],[80,19.6],[88.5,20.8],[100.4,23.8]];
 // the last leg: over the short stair, across the rock, up to the dome. f is written in so the
 // camera is standing with each villager exactly when their chapter arrives.
-const KC=[[7.00,100.4,23.8],[7.45,108.5,29.6],[7.80,117.0,30.6],[8.00,129.8,25.4],[8.45,133.2,26.8],[9.00,136.2,29.0]];
+const KC=[[7.00,100.4,23.8],[7.45,108.5,29.6],[7.80,117.0,30.6],[8.00,129.8,25.4],[8.45,133.2,26.8],[9.00,136.2,29.0],[9.45,122.0,42.0],[10.00,97.2,58.6]];
 const crp=(p0,p1,p2,p3,t)=>{const t2=t*t,t3=t2*t;return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3)};
 let CAMT=[8.6,6.4];
 function camAt(f){
@@ -461,7 +461,7 @@ function build(){
  wm=new Uint8Array(Wd*Ht);LM=new Uint8Array(Wd*Ht);let x0=1e9,y0=1e9,x1=0,y1=0;
   const yard=(a,b)=>{for(const[y0,y1,r]of YARDS)if(Math.hypot(a-y0,b-y1)<r+(vn(a*2,b*2)-.5)*.8)return 1;return 0};
  const dirt=(a,b)=>fieldAt(a,b)<.4+(vn(a*5,b*5)-.5)*.3;
- for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;const isl=LANDA(fi,fj)?1:LANDB(fi,fj)?2:LANDC(fi,fj)?3:0;if(!isl)continue;LM[y*Wd+x]=isl;
+ for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;const isl=LANDA(fi,fj)?1:LANDB(fi,fj)?2:LANDC(fi,fj)?3:LANDD(fi,fj)?4:0;if(!isl)continue;LM[y*Wd+x]=isl;
   const w=WD(fi,fj),o=(y*Wd+x)*4;let k,al=255;
   if(w>0){
      wm[y*Wd+x]=clamp(Math.round(w/3*255),1,255);
@@ -478,6 +478,7 @@ function build(){
    else if(w>-.95)k=mixc(SA[Math.floor(n*2.7)%3],[94,82,60],.42);
    else if(isl==2)k=groundB(fi,fj,x,y,n,dirt(fi,fj));
     else if(isl==3)k=groundC(fi,fj,x,y,n,dirt(fi,fj));
+    else if(isl==4)k=groundD(fi,fj,x,y,n,dirt(fi,fj));
     else if(dirt(fi,fj)){const pk=Math.floor(n*2.7)%3;k=DI[pk];if(hh(x,y)>.93)k=[154,132,92]}
    else{const rg=RG(fi,fj),zone=ZONE(fi,fj),gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
      if(zone==='field'){const row=Math.floor(fj*2.4),ck=Math.floor(hh(row,Math.floor(fi*3.2))*3);

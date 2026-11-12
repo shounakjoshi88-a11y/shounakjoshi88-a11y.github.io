@@ -44,14 +44,18 @@ const LANDB=(a,b)=>{if(a<78||a>124||b<3||b>49)return 0;const k=a<90?dmp(b,19.5):
 const LANDS={a0:117,a1:151,b0:9,b1:47};
 const LANDC=(a,b)=>{if(a<LANDS.a0||a>LANDS.a1||b<LANDS.b0||b>LANDS.b1)return 0;
  const k=a>144?dmp(b,28.5):1;return sdRR(a,b,133,27,10.5,7)+vn(a*.28+71,b*.28)*1.5*k<0};
-const LAND=(a,b)=>LANDA(a,b)||LANDB(a,b)||LANDC(a,b);
+const LAND=(a,b)=>LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b);
 const landIn=(a,b,m)=>LAND(a-m,b)&&LAND(a+m,b)&&LAND(a,b-m)&&LAND(a,b+m);
 const EDA=(a,b)=>-sdRR(a,b,31.5,31.5,32,9),EDB=(a,b)=>-sdRR(a,b,101,26,19,8),EDC=(a,b)=>-sdRR(a,b,133,27,10.5,7);
 // where the rope bridge hangs between the isles
 const RB={a0:62.3,a1:83.7,b:19.5,sag:12};
 const RB2={a0:118.4,a1:124.0,b:30,sag:7};
-const ropeT=a=>clamp((a-RB.a0)/(RB.a1-RB.a0),0,1);
-const ropeLift=(a,b)=>(a<RB.a0||a>RB.a1||Math.abs(b-RB.b)>1.1)?0:-RB.sag*4*ropeT(a)*(1-ropeT(a));
+const ropeT=(a,R)=>clamp((a-R.a0)/(R.a1-R.a0),0,1);
+const ropeLift=(a,b)=>{const R=RB;
+ if(a>=R.a0&&a<=R.a1&&Math.abs(b-R.b)<=1.1)return -R.sag*4*ropeT(a,R)*(1-ropeT(a,R));
+ if(typeof RB3!=='undefined'&&RB3){const t=RB3.v?clamp((b-RB3.b0)/(RB3.b1-RB3.b0),0,1):ropeT(a,RB3);
+  if(RB3.v?Math.abs(a-RB3.a0)<=1.2&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0&&a<=RB3.a1&&Math.abs(b-RB3.b)<=1.1)return -RB3.sag*4*t*(1-t);}
+ return 0};
 const ARCH=[{i:33.5,j0:22.5,j1:26.5,h:3,pal:0},{i:104,j0:27.0,j1:36.0,h:5,pal:1}];
 const archLift=(a,b)=>{for(const A of ARCH)if(Math.abs(a-A.i)<=1.1&&b>=A.j0&&b<=A.j1)return Math.sin(Math.PI*(b-A.j0)/(A.j1-A.j0))*A.h;return 0};
 

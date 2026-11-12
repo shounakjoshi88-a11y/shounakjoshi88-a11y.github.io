@@ -57,7 +57,7 @@
     <p>The ground is a pixel pass over a height field, so the village gets its hills out of a noise function instead of a picture. The trees are metaballs, shaded the way the reference you sent was shaded. The buildings are boxes drawn in a 2:1 isometric projection, with a real roof pitch, a lit side and a shadow that knows where the sun is.</p>
     <p>The water is the part I kept going back to. It is a fragment shader: it reads the depth field, bends the pond floor through it, throws caustics across the bottom, and reflects the sky and every lit lantern on the bank. The rings your finger makes are real geometry in that shader, not a sprite pasted on top.</p>
     <p>The camera walks the lane on a spline, and the people you meet on the way are the chapters, so the site is also the story it is telling. Three rocks: the village, the sakura isle, and the observatory out past the pagoda.</p>
-    <p>You can also walk it. Press start and you are in the village with a body of your own: the camera follows, the trees and the lamp posts are solid, the glints are picked up by walking over them, and some of the doors open. There is a jetty at the pond where you can put a line in the water. Twelve glints in all, and the twelfth one only comes up on a hook.</p>
+    <p>You can also walk it. Press start and you are in the village with a body of your own: the camera follows, the trees and the lamp posts are solid, the glints are picked up by walking over them, and some of the doors open. There is a jetty at the pond where you can put a line in the water. Four rocks now, including a harbour where the finished things go out, and thirty small things in the village that each have one thing to say.</p>
     <p class="jsig">&mdash; Shounak</p>
   </div></section>
   <section id="wish"><div class="wish">
@@ -310,6 +310,8 @@ void main(){
 <script src="js/120-town.js"></script>
 <script src="js/130-world.js"></script>
 <script src="js/140-isles.js"></script>
+<script src="js/145-storybook.js"></script>
+<script src="js/147-harbour.js"></script>
 <script src="js/150-people.js"></script>
 <script src="js/160-explore.js"></script>
 <script src="js/170-water.js"></script>

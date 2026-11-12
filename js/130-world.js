@@ -19,13 +19,14 @@ function rockCol(x,v,s,D,k){
 // Every land pixel was tagged in LM (1 = village isle, 2 = sakura isle). Below the lowest tagged pixel of each
 // column we hang the rock: a lit left face, a shaded right face, and a deep tapering underside.
 function drawCliffs(c){
- YB=[null,new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
- const mn=[0,1e9,1e9,1e9],mx=[0,-1,-1,-1];
- for(let x=0;x<Wd;x++){let f1=0,f2=0,f3=0;for(let y=Ht-1;y>=0&&!(f1&&f2&&f3);y--){const m=LM[y*Wd+x];
+ YB=[null,new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
+ const mn=[0,1e9,1e9,1e9,1e9],mx=[0,-1,-1,-1,-1];
+ for(let x=0;x<Wd;x++){let f1=0,f2=0,f3=0,f4=0;for(let y=Ht-1;y>=0&&!(f1&&f2&&f3&&f4);y--){const m=LM[y*Wd+x];
   if(m==1&&!f1){YB[1][x]=y;f1=1;mn[1]=Math.min(mn[1],x);mx[1]=Math.max(mx[1],x)}
   else if(m==2&&!f2){YB[2][x]=y;f2=1;mn[2]=Math.min(mn[2],x);mx[2]=Math.max(mx[2],x)}
-   else if(m==3&&!f3){YB[3][x]=y;f3=1;mn[3]=Math.min(mn[3],x);mx[3]=Math.max(mx[3],x)}}}
- for(let k=1;k<=3;k++){const Y=YB[k],xc=(mn[k]+mx[k])/2,hw=(mx[k]-mn[k])/2,ds=k==1?1:k==2?.84:.78;
+   else if(m==3&&!f3){YB[3][x]=y;f3=1;mn[3]=Math.min(mn[3],x);mx[3]=Math.max(mx[3],x)}
+   else if(m==4&&!f4){YB[4][x]=y;f4=1;mn[4]=Math.min(mn[4],x);mx[4]=Math.max(mx[4],x)}}}
+ for(let k=1;k<=4;k++){const Y=YB[k],xc=(mn[k]+mx[k])/2,hw=(mx[k]-mn[k])/2,ds=k==1?1:k==2?.84:k==3?.78:.8;
   for(let x=mn[k];x<=mx[k];x++){const yb=Y[x];if(yb<0)continue;
    const ya=Y[Math.min(mx[k],x+5)],ypv=Y[Math.max(mn[k],x-5)],slope=(ya<0||ypv<0)?0:ya-ypv,bin=slope>0?1:slope<0?0:(x<xc?1:0);
    const tt=clamp(1-Math.abs(x-xc)/hw,0,1),D=Math.round((14+112*Math.pow(tt,1.15))*ds*(.88+.24*vn(x*.025,k*5+1))+(hh(x>>2,k+3)>.93?hh(x>>3,k)*18:0));

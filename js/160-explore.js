@@ -31,8 +31,8 @@ function blocked(a,b){
  return 0}
 const mkSpr=p=>({front:[villager(p,0,'front'),villager(p,1,'front')],back:[villager(p,0,'back'),villager(p,1,'back')],side:[villager(p,0,'side'),villager(p,1,'side')]});
 let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
-const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.95)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.95)||ARCH.some(A=>Math.abs(a-A.i)<=1.2&&b>=A.j0-.45&&b<=A.j1+.45);
-const walkable=(a,b)=>{if(a<1||a>150||b<2||b>45)return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b))||WD(a,b)>-.2)return 0;if(blocked(a,b))return 0;return 1};
+const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.95)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.95)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=1.2&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<1.7))||ARCH.some(A=>Math.abs(a-A.i)<=1.2&&b>=A.j0-.45&&b<=A.j1+.45);
+const walkable=(a,b)=>{if(a<1||a>150||b<2||b>68)return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b))||WD(a,b)>-.2)return 0;if(blocked(a,b))return 0;return 1};
 function nearestPath(a,b){let best=null,bd=1e9;
  for(const line of PATHS)for(let i=0;i<line.length-1;i++){const[x1,y1]=line[i],[x2,y2]=line[i+1],dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy||1,
   t=Math.max(0,Math.min(1,((a-x1)*dx+(b-y1)*dy)/L2)),x=x1+dx*t,y=y1+dy*t,d=Math.hypot(a-x,b-y);
@@ -81,9 +81,11 @@ function playerTick(){
  if(++mmT%6===0)drawMM();
  // the hint that tells you what you can do right here
  const dr=typeof doorNear==='function'?doorNear():null;
+ const th=typeof thingNear==='function'?thingNear():null;
  const hint=$('hint');
  if(hint){
   if(MODE==='explore'&&dr){hint.hidden=false;hint.textContent=doorLock(dr.d)?'Locked door':'Open the door'}
+  else if(MODE==='explore'&&th){hint.hidden=false;hint.textContent='Look closer'}
   else if(MODE==='explore'&&typeof anglingNear==='function'&&anglingNear()){hint.hidden=false;hint.textContent='Cast a line'}
   else hint.hidden=true}
 }
