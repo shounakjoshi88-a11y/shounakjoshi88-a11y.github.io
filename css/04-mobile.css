@@ -1,0 +1,57 @@
+/* the small screen rules, kept last so they win */
+#room{padding:8px}
+.rmbox{padding:.7rem .75rem .8rem}
+#rmcard{font-size:.86rem;line-height:1.45}
+#hint{bottom:calc(env(safe-area-inset-bottom,0px) + 104px);font-size:.7rem;padding:.5rem .9rem}
+@media(prefers-reduced-motion:reduce){#bub.pop .bb{animation:none}}
+@media(max-width:700px){
+ nav{gap:1rem;padding:.45rem .9rem;font-size:.85rem}
+ /* the story is a caption, so it is short, quiet and never in the way */
+ #bub{width:calc(100vw - 20px)}
+ #bub .bb{padding:.55rem .7rem .6rem}
+ #bub .nm{font-size:.64rem;letter-spacing:.09em;margin-bottom:.15rem}
+ #bub .tx{font-size:.86rem;line-height:1.4}
+ #bub .tgs{font-size:.66rem;margin-top:.35rem}
+ #bub .lk{gap:.25rem .7rem;margin-top:.4rem}
+ #bub .lk a{font-size:.72rem}
+ #bub .nx{font-size:.66rem;margin-top:.35rem}
+ #bub .tail{width:11px;height:7px}
+ /* the wish form stops eating the screen */
+ .wish{padding:.95rem 1.05rem}
+ .wish h3{font-size:1.05rem;margin-bottom:.25rem}
+ .wish label{font-size:.82rem;line-height:1.45}
+ .wish input{padding:.6rem .75rem;margin:.5rem 0;font-size:.95rem}
+ .wish button.go{padding:.55rem;font-size:.92rem}
+ #say{max-width:min(70vw,290px)}
+ section{padding:13vh 4vw calc(12vh + 44px)}
+ .sign,.about{padding:1.2rem 1.3rem}
+ .grid{padding:1.3rem 1.3rem .4rem}
+  #mizu{left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);max-width:none}
+  #mz svg{width:50px}
+  #say{font-size:.86rem;padding:.6rem .85rem .7rem}
+ .panel{left:12px;transform:none;padding:.5rem .9rem}
+ .panel .tg{display:block}
+ .panel .body{display:none;flex-direction:column;align-items:flex-start;gap:.5rem;margin-top:.5rem}
+ .panel.open .body{display:flex}
+ .panel .sep{display:none}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.proj .go{transition:none}.proj .go2{transition:none}#mz svg{animation:none}#boot .bar i{animation:none;width:100%}}
+@media(prefers-reduced-motion:reduce){.sx::after,.wl{animation:none}}
+@media(prefers-reduced-motion:reduce){.swave span{animation:none;transform:scaleY(.6)}}
+@media(max-width:640px){.mgrid{grid-template-columns:1fr}.mcard{padding:.7rem .8rem}}
+@media(max-width:700px){
+ .jcard{padding:1.1rem 1.1rem 1.2rem}
+ .jcard p{font-size:.92rem;line-height:1.55}
+ .pbox{padding:1.1rem 1.1rem 1.2rem}
+ .pgrid{grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:.45rem}
+ .pst canvas{width:38px;height:38px}
+}
+@media(prefers-reduced-motion:reduce){#start{transition:none}}
+@media(max-width:700px){
+ #mm{width:128px;top:calc(env(safe-area-inset-top,0px) + 42px)}
+ #walkhud{font-size:.6rem;padding:.3rem .5rem;letter-spacing:.04em}
+ #start{padding:16px 15px calc(20px + env(safe-area-inset-bottom,0px))}
+ .shint{font-size:.88rem;margin-bottom:1.15rem}
+ .srow{gap:.7rem}
+ .sbtn{width:100%;text-align:center}
+}
