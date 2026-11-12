@@ -279,6 +279,48 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
  .pgrid{grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:.45rem}
  .pst canvas{width:38px;height:38px}
 }
+
+/* ---- the start screen, and walking the village ---- */
+body.start,body.exp{overflow:hidden}
+body.start main,body.start nav,body.start #mizu,body.start #say,body.start .panel,body.start .pfab{opacity:0;pointer-events:none}
+body.exp main,body.exp nav,body.exp #mizu,body.exp #say{opacity:0;pointer-events:none}
+body.exp #fx,body.exp #fx2,body.exp #gl{touch-action:none}
+#start{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;padding:clamp(18px,5vw,64px);background:radial-gradient(85% 70% at 6% 94%,rgba(3,14,14,.94) 0%,rgba(3,14,14,.6) 42%,rgba(3,14,14,0) 74%),linear-gradient(180deg,rgba(4,20,19,.12) 0%,rgba(4,20,19,.04) 30%,rgba(3,14,14,.66) 70%,rgba(3,14,14,.94) 100%);transition:opacity .7s}
+#start[hidden]{display:none}
+#start.gone{opacity:0;pointer-events:none}
+.spane{max-width:min(680px,92vw);padding-bottom:env(safe-area-inset-bottom,0px)}
+.spill{display:flex;align-items:center;gap:.7rem;margin:0 0 .85rem;font:700 .66rem var(--mono);letter-spacing:.24em;text-transform:uppercase;color:#cfe8d8;text-shadow:0 2px 12px rgba(0,0,0,.95)}
+.spill::before{content:"";width:34px;height:2px;background:var(--amber);flex:none}
+.sname{margin:0 0 .7rem;font-size:clamp(2.5rem,7.4vw,5.2rem);color:var(--cream);text-shadow:4px 4px 0 var(--rust),0 10px 40px rgba(0,0,0,.55)}
+.ssub{margin:0 0 .9rem;max-width:30ch;font-size:clamp(1rem,1.7vw,1.32rem);color:#eaf1dc;text-shadow:0 2px 18px rgba(0,0,0,.8)}
+.shint{margin:0 0 1.6rem;max-width:50ch;font-size:.94rem;line-height:1.6;color:#dbe6da;text-shadow:0 2px 16px rgba(0,0,0,.9)}
+.srow{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.sbtn{background:var(--amber);color:#2b1a08;border:0;padding:.85rem 1.6rem;font:800 .95rem var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;clip-path:var(--notch);box-shadow:4px 4px 0 #7a3f0c;transition:transform .12s,box-shadow .12s,background .12s}
+.sbtn:hover,.sbtn:focus-visible{background:#ffc57a}
+.sbtn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #7a3f0c}
+.slink{border:0;background:none;color:#e6efd9;font:700 .82rem var(--mono);letter-spacing:.05em;text-decoration:underline;text-underline-offset:5px;cursor:pointer;padding:.4rem 0}
+.slink:hover,.slink:focus-visible{color:var(--amber)}
+.skeys{margin:1.35rem 0 0;font:.66rem var(--mono);letter-spacing:.08em;color:#a8c4b4;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.95)}
+.skeys span{color:var(--amber)}
+@media(prefers-reduced-motion:reduce){#start{transition:none}}
+#walkhud{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:12px;z-index:6;display:none;align-items:center;gap:.55rem;background:rgba(8,30,28,.74);color:#f1e6c8;padding:.36rem .68rem;clip-path:var(--notch);font:700 .68rem var(--mono);letter-spacing:.07em;pointer-events:none}
+#walkhud b{color:#ffe3a0;letter-spacing:.1em}
+#walkhud i{font-style:normal;color:#8fae9e}
+body.exp #walkhud{display:flex}
+body.exp #find{top:calc(env(safe-area-inset-top,0px) + 152px)}
+body.exp #bub{width:min(300px,calc(100vw - 92px))}
+#mm{position:fixed;top:calc(env(safe-area-inset-top,0px) + 46px);left:12px;z-index:6;width:180px;height:auto;display:none;background:rgba(6,28,26,.6);border:2px solid rgba(241,230,200,.26);clip-path:var(--notch);cursor:pointer;image-rendering:pixelated;touch-action:none}
+body.exp #mm{display:block}
+#xp{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+body.start #xp{display:none}
+@media(max-width:700px){
+ #mm{width:128px;top:calc(env(safe-area-inset-top,0px) + 42px)}
+ #walkhud{font-size:.6rem;padding:.3rem .5rem;letter-spacing:.04em}
+ #start{padding:16px 15px calc(20px + env(safe-area-inset-bottom,0px))}
+ .shint{font-size:.88rem;margin-bottom:1.15rem}
+ .srow{gap:.7rem}
+ .sbtn{width:100%;text-align:center}
+}
 </style>
 </head>
 <body>
@@ -288,6 +330,21 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 <canvas id="fx2" aria-hidden="true"></canvas>
 <nav aria-label="Sections"><a href="#top">Pond</a><a href="#work">Work</a><a href="#shelf">Shelf</a><a href="#about">About</a><a href="#journal" id="jnav" hidden>Journal</a><a href="#wish">Wish</a></nav>
 <div id="boot"><span>waking the village</span><span class="bar"><i></i></span></div>
+<div id="walkhud" aria-hidden="true"><b>Shounak Joshi</b><i>The Koi Pond</i></div>
+<canvas id="mm" width="180" height="96" role="img" aria-label="Map of the three rocks. Click to travel."></canvas>
+<div id="start">
+ <div class="spane">
+  <p class="spill">A village you can walk</p>
+  <h1 class="sname pix">Shounak Joshi</h1>
+  <p class="ssub">Agentic AI systems and full-stack apps that hold up when someone else runs them.</p>
+  <p class="shint">Ten villagers on three rocks in the cloud sea. Walk up to one and they will tell you a piece of Shounak. Eleven faint glints are hidden in the scenery, and the pond keeps the rest.</p>
+  <div class="srow">
+   <button class="sbtn" id="sgo" type="button">Start exploring</button>
+   <button class="slink" id="sread" type="button">or read it as a story</button>
+  </div>
+  <p class="skeys"><span>WASD</span> or tap to walk &middot; <span>M</span> for the map &middot; <span>Esc</span> for the story</p>
+ </div>
+</div>
 <noscript><div class="sign" style="position:relative;z-index:2;margin:5rem 1rem"><h1 class="pix">Shounak Joshi</h1><p class="sub">I build agentic AI systems and full-stack apps. The interactive pond needs JavaScript, but you can reach me at <a href="mailto:shounakjoshi88@gmail.com" style="color:#ffb35c">shounakjoshi88@gmail.com</a> or on <a href="https://github.com/shounakjoshi88-a11y" style="color:#ffb35c">GitHub</a>.</p></div></noscript>
 
 <main>
@@ -352,6 +409,7 @@ nav a[aria-current]{color:var(--amber);text-decoration:underline;text-underline-
 </div>
 
 
+<button id="xp" type="button" class="pfab" title="Walk the village" aria-label="Walk the village yourself">Explore</button>
 <button id="mapbtn" type="button" class="pfab" title="The sky map" aria-label="Open the sky map">Map</button>
 
 <div id="map" hidden>
@@ -601,10 +659,10 @@ const SEC=[
  {id:'shrine',at:[34.6,11.6],t:'Shrine offering',x:'Five Sekiro clears and two Ghost of Tsushima runs. He likes a hard fight he can learn his way through.'},
  {id:'cart',at:[32.6,22.0],t:'The jugaad cart',x:'Flux took about fifty four days and cost nothing. When the budget is zero, the cart still rolls.'},
  {id:'mill',at:[8.6,5.6],t:'Windmill ledger',x:'Fifty four P versus NP experiments are stacked up here. Unsolved. Not abandoned.'},
- {id:'boat',at:[21.2,23.0],t:'A nebula in the boat',x:'He once sketched a purple nebula shader pack, planets visible even in daylight. It lives in a notebook now.'},
+ {id:'boat',at:[21.2,23.0],r:6.4,t:'A nebula in the boat',x:'He once sketched a purple nebula shader pack, planets visible even in daylight. It lives in a notebook now.'},
  {id:'lookout',at:[35.6,40.2],t:'The lookout',x:'Philosophy, cosmology, and whether today’s models are real AI. The arguments happen up here, mostly with himself.'},
- {id:'falls',at:[62.2,25.6],t:'Where the stream ends',x:'The brook drops into the cloud sea. Old experiments go over the edge to keep running somewhere you cannot see.'},
- {id:'islet',at:[26.5,24.5],t:'The wishing islet',x:'The pond only grants wishes to visitors who heard the villagers out. You have, so far, heard something.'},
+ {id:'falls',at:[62.2,25.6],r:2.6,t:'Where the stream ends',x:'The brook drops into the cloud sea. Old experiments go over the edge to keep running somewhere you cannot see.'},
+ {id:'islet',at:[26.5,24.5],r:6.4,t:'The wishing islet',x:'The pond only grants wishes to visitors who heard the villagers out. You have, so far, heard something.'},
  {id:'hermit',at:[51.0,15.4],t:'The hermit’s house',x:['Day 1. The sky-sea was empty. I had a question and no map, so I stacked a stone on a cloud and called it a village.','Day 54. The mill turns without me now. The ticket counter holds. A thing finished is a thing that can leave.','The boy from the farm kept asking why. Every why became an island. The farm came first: taking things apart to see how they ran.','The koi was the first thing he wrote that surprised him. I named it Mizu. It still answers when someone drops a coin.','My rule: build with what you have, check what you built, and never trust a thing you have not broken once. Jugaad, with tests.','If you found this house, you listened. Leave a wish in the pond, then walk to the sakura isle. The postmaster never closes the door.']},
  {id:'pagoda',at:[111,15.2],t:'Pagoda of finished things',x:'Five floors for five shipped ideas. The lanterns below are the ones still being built.'},
  {id:'telescope',at:[135.4,21.4],t:'The long telescope',x:['He ground the mirror by hand and wrote the mount from scratch. The first thing he pointed it at was the moon, because it was close enough to check.','Fifty four nights of notes are stacked under the eyepiece. Not one of them says solved.']},
@@ -764,12 +822,13 @@ const ISLES=[
  {n:'The sakura isle',i:'rope bridge, pagoda, teahouse',ch:[5,6,7],start:5},
  {n:'The observatory rock',i:'dome, dish, standing stones',ch:[8,9],start:8}];
 const scrollP=()=>window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.body.scrollHeight-innerHeight),0,1);
-const chapNow=()=>clamp(Math.round(scrollP()*(CH.length-1)),0,CH.length-1);
+const chapNow=()=>MODE==='explore'?(NEAR>=0?NEAR:nearestChapter()):clamp(Math.round(scrollP()*(CH.length-1)),0,CH.length-1);
 const islOf=s=>s.at[0]<60?0:s.at[0]<120?1:2;
 function goChapter(k){
- const max=document.body.scrollHeight-innerHeight,p=k/(CH.length-1);
  $('map').hidden=true;
- scrollTo({top:Math.max(0,p*max),behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+ if(MODE==='explore')leaveX(1);
+ const max=document.body.scrollHeight-innerHeight,p=k/(CH.length-1);
+ requestAnimationFrame(()=>scrollTo({top:Math.max(0,p*max),behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'}));
 }
 function buildMap(){
  const g=$('mgrid');if(!g)return;const k=chapNow();g.innerHTML='';
@@ -819,10 +878,11 @@ seasonSet(1);skyTick();Object.assign(cur,tgt)
 addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>(e.buttons?10:22)){lx=e.clientX;ly=e.clientY;ripple(lx,ly,e.buttons?1.2:.6)}},{passive:true});
 addEventListener('pointerdown',e=>{
  ripple(e.clientX,e.clientY,1.8);
+ if(MODE==='start')return;
  if(WHEEL&&Math.hypot(e.clientX-WCX,e.clientY-WCY)<28*Z*WS){WHEELT=T;note('The mill wheel','The launder is louder now. It will settle in a moment.',4200);return}
  const wx=(e.clientX/WS-TX)/Z,wy=(e.clientY/WS-TY)/Z;
  const fi=((wx-OX)/16+(wy-OY)/8)/2,fj=((wy-OY)/8-(wx-OX)/16)/2;
- if(Math.hypot(fi-POND[0],fj-POND[1])<6.4||Math.hypot(fi-POND2[0],fj-POND2[1])<5.4)fishStart(e.clientX,e.clientY);
+ if((Math.hypot(fi-POND[0],fj-POND[1])<6.4||Math.hypot(fi-POND2[0],fj-POND2[1])<5.4)&&(MODE!=='explore'||!PL||Math.hypot(PL.P.a-fi,PL.P.b-fj)<7))fishStart(e.clientX,e.clientY);
 });
 
 // The villagers tell the story, one per stop on the lane.
@@ -877,26 +937,41 @@ function setCh(k){curCh=k;pg=0;drawPg()}
 BUB.addEventListener('click',e=>{if(!e.target.closest('a'))adv()});
 const WISHC=document.querySelector('.wish');
 let WHEEL=null,WHEELT=0,WCX=0,WCY=0;
-function bubbleTick(f){skyTick();secretTick();const k=clamp(Math.round(f),0,CH.length-1);if(k!==curCh)setCh(k);
-   const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,wr=WISHC.getBoundingClientRect(),
-  narrow=vw<900, wrOn=wr.top<innerHeight*.9&&wr.bottom>0,
-  lo=(!narrow&&wrOn)?wr.right+14+half:0;
-  let x,y;
-  if(narrow){
-   // on a phone the story is a caption under the nav. If the wish form is up it sits above the
-   // card instead of hiding, so the last chapters are still readable.
-   const nb=(document.querySelector('nav')||{getBoundingClientRect:()=>({bottom:56})}).getBoundingClientRect().bottom+9;
-   x=clamp(sx,Math.max(12+half,0),vw-12-half);
-   y=(wrOn&&wr.top<nb+bh+10)?Math.max(nb,wr.top-bh-10):nb;
-   BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,0)`;
-  }else{
-  x=c.dock==='right'?vw-12-half:clamp(sx,Math.max(12+half,lo),vw-12-half);
+function bubbleTick(f){skyTick();secretTick();
+ const expl=MODE==='explore';
+ if(MODE==='start'){BUB.style.opacity=0;BUB.style.pointerEvents='none';BUB.style.visibility='hidden';return}
+ const k=expl?(NEAR>=0?NEAR:curCh):clamp(Math.round(f),0,CH.length-1);
+ if(k<0){BUB.style.opacity=0;BUB.style.pointerEvents='none';BUB.style.visibility='hidden';return}
+ if(k!==curCh)setCh(k);
+ const c=CH[k],[X,Y]=PF(c.at[0],c.at[1]),a=expl?(NEAR>=0?1:0):clamp(1-(Math.abs(f-k)-.1)/.28,0,1),vw=innerWidth,sx=(TX+X*Z)*WS,sy=(TY+(Y-36)*Z)*WS,half=bw/2,wr=WISHC.getBoundingClientRect(),
+ narrow=vw<900, wrOn=wr.top<innerHeight*.9&&wr.bottom>0,
+ lo=(!narrow&&wrOn)?wr.right+14+half:0;
+ let x,y;
+ if(expl&&narrow){
+  // walking on a phone: the villager talks in a card along the bottom, clear of the map
+  // and clear of the button column on the right
+  x=12+half;y=innerHeight-92;
+  BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
+ }else if(expl){
+  // walking on a desktop: the card floats over the villager it belongs to
+  x=clamp(sx,Math.max(12+half,0),vw-12-half);
   y=Math.max(sy,bh+70);
   BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
+ }else if(narrow){
+  // on a phone the story is a caption under the nav. If the wish form is up it sits above the
+  // card instead of hiding, so the last chapters are still readable.
+  const nb=(document.querySelector('nav')||{getBoundingClientRect:()=>({bottom:56})}).getBoundingClientRect().bottom+9;
+  x=clamp(sx,Math.max(12+half,0),vw-12-half);
+  y=(wrOn&&wr.top<nb+bh+10)?Math.max(nb,wr.top-bh-10):nb;
+  BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,0)`;
+ }else{
+ x=c.dock==='right'?vw-12-half:clamp(sx,Math.max(12+half,lo),vw-12-half);
+ y=Math.max(sy,bh+70);
+ BUB.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
  }
-  BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
+ BUB.style.setProperty('--tx',clamp(sx-x,-half+20,half-20)+'px');
  if(WHEEL){WHEEL.rate=(WHEELT&&T-WHEELT<5)?26:8;WCX=(TX+(WHEEL.x-44)*Z)*WS;WCY=(TY+(WHEEL.y-52)*Z)*WS}
- const on=narrow||(sx>-20&&sx<vw+20&&sy>0&&sy<innerHeight+200);
+ const on=expl?true:(narrow||(sx>-20&&sx<vw+20&&sy>0&&sy<innerHeight+200));
  BUB.style.opacity=on?a:0;BUB.style.pointerEvents=(a>.6)?'auto':'none';BUB.style.visibility=(a<.02||!on)?'hidden':'visible'}
 
 // Wishing pond
@@ -2379,6 +2454,133 @@ function drawPerson(ctx,P){if(P.hid)return;
   else ctx.drawImage(sp.c,px_,py+bob);
   if(P.talk>0){const bx=Math.round(X)-5,by=py-6,n=(T*2.5|0)%4;ctx.fillStyle='rgba(255,252,240,.92)';ctx.fillRect(bx,by,11,6);ctx.fillRect(bx+4,by+6,2,2);ctx.fillStyle='#2a2018';for(let k=0;k<Math.min(3,n);k++)ctx.fillRect(bx+2+k*3,by+3,1,1)}}
 
+/* ================= WALK IT: explore mode ================= */
+// Walk the village yourself. The camera follows you, a villager speaks when you stand near
+// them, glints are picked up by walking over them, and the map carries you across the sea.
+// The scroll story is still one button away, so nothing that was here is lost.
+const LOOKS=[[[54,78,68],[222,204,154],[44,42,50],[228,186,150],[70,48,36]]];
+const mkSpr=p=>({front:[villager(p,0,'front'),villager(p,1,'front')],back:[villager(p,0,'back'),villager(p,1,'back')],side:[villager(p,0,'side'),villager(p,1,'side')]});
+let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
+const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.95)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.95)||ARCH.some(A=>Math.abs(a-A.i)<=1.2&&b>=A.j0-.45&&b<=A.j1+.45);
+const walkable=(a,b)=>{if(a<1||a>150||b<2||b>45)return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b))||WD(a,b)>-.2)return 0;return 1};
+function nearestPath(a,b){let best=null,bd=1e9;
+ for(const line of PATHS)for(let i=0;i<line.length-1;i++){const[x1,y1]=line[i],[x2,y2]=line[i+1],dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy||1,
+  t=Math.max(0,Math.min(1,((a-x1)*dx+(b-y1)*dy)/L2)),x=x1+dx*t,y=y1+dy*t,d=Math.hypot(a-x,b-y);
+  if(d<bd){bd=d;best=[x,y]}}
+ return best}
+let WALKLIST=null;
+function walkList(){if(WALKLIST)return WALKLIST;WALKLIST=[];
+ for(let a=1;a<151;a+=.5)for(let b=2;b<46;b+=.5)if(walkable(a,b))WALKLIST.push([a,b]);
+ return WALKLIST}
+function nearWalk(i,j){
+ for(let r=0;r<12;r+=.5)for(let t=0;t<(r?16:1);t++){const q=t/16*6.283,a=i+Math.cos(q)*r,b=j+Math.sin(q)*r;if(walkable(a,b))return[a,b]}
+ const L=walkList();let best=null,bd=1e9;
+ for(const[a,b]of L){const d=(a-i)*(a-i)+(b-j)*(b-j);if(d<bd){bd=d;best=[a,b]}}
+ return best||[31.5,30]}
+function scr2tile(sx,sy){const X=(sx/WS-TX)/Z,Y=(sy/WS-TY)/Z,u=(X-OX)/16,v=(Y-OY)/8;return[(u+v)/2,(v-u)/2]}
+function mkWalker(a,b,look,name,me){const pal=LOOKS[look%LOOKS.length],P={pal,route:[[a,b],[a,b]],spd:0,seg:0,a,b,anim:0,vx:.7,vy:.7,wait:1e9,cd:1e9,mv:0,talk:0,me,rem:!me,name,look,spr:mkSpr(pal),hid:0},it={d:a+b,P};PEOPLE.push(it);return it}
+// the title screen drifts from rock to rock, so the archipelago reads as three places
+const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27]];
+function startCam(){const n=START_CAM.length,per=15,tt=T%(per*n),k=Math.floor(tt/per),u=(tt%per)/per,e=sm(.45,1,u),A=START_CAM[k],B=START_CAM[(k+1)%n];return[lerp(A[0],B[0],e),lerp(A[1],B[1],e)]}
+const zTarget=()=>window.__z||(MODE==='start'?(innerWidth<900?.32:Math.min(.54,innerWidth/3300)):MODE==='explore'?(innerWidth<900?1.22:1.55):ZBASE);
+function nearestChapter(){if(!PL)return 0;let best=0,bd=1e9;CH.forEach((c,k)=>{const d=Math.hypot(PL.P.a-c.at[0],PL.P.b-c.at[1]);if(d<bd){bd=d;best=k}});return best}
+function playerTick(){
+ const n=performance.now(),dt=Math.min(.09,(n-PLT)/1000);PLT=n;
+ if(MODE!=='explore'||!PL)return;
+ const P=PL.P;
+ let dx=0,dy=0;
+ if(KEYS.w||KEYS.arrowup){dx--;dy--}
+ if(KEYS.s||KEYS.arrowdown){dx++;dy++}
+ if(KEYS.a||KEYS.arrowleft){dx--;dy++}
+ if(KEYS.d||KEYS.arrowright){dx++;dy--}
+ if(dx||dy)GOAL=null;else if(GOAL){dx=GOAL[0]-P.a;dy=GOAL[1]-P.b;if(Math.hypot(dx,dy)<.12){GOAL=null;dx=dy=0}}
+ const L=Math.hypot(dx,dy);P.mvg=0;
+ if(L>0){dx/=L;dy/=L;const sp=2.6*dt*(bridgeLift(P.a,P.b)>0?.85:1),na=P.a+dx*sp,nb=P.b+dy*sp;let ok=1;
+  if(walkable(na,nb)){P.a=na;P.b=nb}
+  else if(walkable(na,P.b))P.a=na;
+  else if(walkable(P.a,nb))P.b=nb;
+  else{ok=0;GOAL=null}
+  if(ok){P.vx=dx;P.vy=dy;P.mvg=1;P.anim+=dt*7}}
+ P.wait=P.mvg?0:1e9;
+ PL.d=P.a+P.b;
+ CF[0]+=(P.a-CF[0])*Math.min(1,dt*6);CF[1]+=(P.b-CF[1])*Math.min(1,dt*6);
+ let best=-1,bd=3.1;CH.forEach((c,k)=>{const d=Math.hypot(P.a-c.at[0],P.b-c.at[1]);if(d<bd){bd=d;best=k}});NEAR=best;
+ for(const s of SEC){if(s.f)continue;const r=s.r||1.95;if(Math.hypot(P.a-s.at[0],P.b-s.at[1])>=r)continue;
+  if(s.id==='signal'){if(!s.seen){s.seen=1;openSig()}}else found(s)}
+ if(++mmT%6===0)drawMM();
+}
+// ---- the minimap: three rocks, the glints you found, and where you are standing
+const MMW=180,MMH=96,MMX0=180,MMX1=3320,MMY0=20,MMY1=1720;let MMBG=null;
+const mmx=(X,Y)=>[(X-MMX0)/(MMX1-MMX0)*MMW,(Y-MMY0)/(MMY1-MMY0)*MMH];
+function bakeMM(){const b=mk(MMW,MMH),g=b.getContext('2d');
+ for(let Y=0;Y<MMH;Y+=2)for(let X=0;X<MMW;X+=2){const wx=MMX0+X/MMW*(MMX1-MMX0),wy=MMY0+Y/MMH*(MMY1-MMY0),a=((wx-OX)/16+(wy-OY)/8)/2,b2=((wy-OY)/8-(wx-OX)/16)/2;
+  if(!LAND(a,b2))continue;g.fillStyle=WD(a,b2)>-.2?'#3f7f78':'#93b170';g.fillRect(X,Y,2,2)}
+ return b}
+function drawMM(){
+ const m=$('mm');if(!m)return;const g=m.getContext('2d');if(!MMBG)MMBG=bakeMM();
+ g.clearRect(0,0,MMW,MMH);g.drawImage(MMBG,0,0);
+ for(const c of CH){const[X,Y]=PF(c.at[0],c.at[1]),[x,y]=mmx(X,Y);
+  if(PASS.chapters.includes(c.name)){g.fillStyle='#ffe3a0';g.fillRect(x-1,y-1,3,3)}
+  else{g.fillStyle='#b8a887';g.fillRect(x-1,y-1,2,2)}}
+ g.fillStyle='#9bd08a';for(const s of SEC)if(s.f){const[X,Y]=PF(s.at[0],s.at[1]),[x,y]=mmx(X,Y);g.fillRect(x-1,y-1,2,2)}
+ if(PL){const[X,Y]=PF(PL.P.a,PL.P.b),[x,y]=mmx(X,Y);
+  g.fillStyle='rgba(0,0,0,.55)';g.fillRect(x-3,y-3,7,7);
+  g.fillStyle='#ff6b4a';g.fillRect(x-2,y-2,5,5);
+  g.fillStyle='#fff4d0';g.fillRect(x-1,y-1,3,3)}
+ const vx=-TX/Z,vy=-TY/Z,vw=VW/Z,vh=VH/Z,[ax,ay]=mmx(vx,vy),[bx,by]=mmx(vx+vw,vy+vh);
+ g.strokeStyle='rgba(255,244,208,.5)';g.lineWidth=1;g.strokeRect(ax+.5,ay+.5,Math.max(3,bx-ax),Math.max(3,by-ay));
+}
+$('mm').addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();
+ if(MODE!=='explore'||!PL)return;
+ const r=$('mm').getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*MMW,my=(e.clientY-r.top)/r.height*MMH;
+ const wx=MMX0+mx/MMW*(MMX1-MMX0),wy=MMY0+my/MMH*(MMY1-MMY0);
+ const a=((wx-OX)/16+(wy-OY)/8)/2,b=((wy-OY)/8-(wx-OX)/16)/2;
+ const s=nearWalk(a,b);PL.P.a=s[0];PL.P.b=s[1];GOAL=null;CF=[s[0],s[1]];PL.P.wait=1e9;drawMM();
+});
+// ---- the modes: start, explore, and the story you can always go back to
+function setMode(m){
+ MODE=m;
+ document.body.classList.toggle('start',m==='start');
+ document.body.classList.toggle('exp',m==='explore');
+ document.documentElement.classList.toggle('exp',m==='explore');
+ const xp=$('xp');xp.textContent=m==='explore'?'Story':'Explore';
+ xp.setAttribute('aria-label',m==='explore'?'Leave the walk and read the story':'Walk the village yourself');
+ if(m!=='explore'){NEAR=-1;GOAL=null;if(PL)PL.P.hid=1;BUB.style.opacity=0;BUB.style.pointerEvents='none';BUB.style.visibility='hidden'}
+ if(m!=='start'){const s=$('start');if(s&&!s.hidden){s.classList.add('gone');setTimeout(()=>{s.hidden=true},760)}}
+}
+function startX(){
+ if(!PL){const sc=MODE==='start'?startCam():[31.5,31.5],pt=nearestPath(sc[0],sc[1])||sc,s=nearWalk(pt[0],pt[1]);PL=mkWalker(s[0],s[1],0,'You',1)}
+ PL.P.hid=0;PL.P.wait=1e9;CF=[PL.P.a,PL.P.b];GOAL=null;
+ setMode('explore');drawMM();
+ note('The village is open','Walk with WASD, the arrow keys, or by tapping the ground. Stand near a villager and they will tell you a piece of Shounak. Every faint glint you walk over is a secret.');
+}
+function leaveX(silent){
+ if(MODE==='explore'){
+  const k=nearestChapter();setMode('story');
+  if(!silent&&PL){const max=Math.max(1,document.body.scrollHeight-innerHeight),de=document.documentElement;
+   de.style.scrollBehavior='auto';scrollTo(0,max*k/(CH.length-1));de.style.scrollBehavior=''}
+ }else if(MODE==='start'){setMode('story');scrollTo(0,0)}
+}
+$('sgo').onclick=startX;
+$('sread').onclick=()=>{setMode('story');scrollTo(0,0)};
+$('xp').onclick=()=>MODE==='explore'?leaveX():startX();
+// ---- walking controls
+addEventListener('keydown',e=>{
+ if(MODE!=='explore')return;
+ if(e.target&&e.target.closest&&e.target.closest('input,textarea,select'))return;
+ const k=e.key.toLowerCase();
+ if(k==='escape'){leaveX();return}
+ if(k==='m'){buildMap();$('map').hidden=false;return}
+ if(k.startsWith('arrow')||k===' ')e.preventDefault();
+ KEYS[k]=1});
+addEventListener('keyup',e=>{KEYS[e.key.toLowerCase()]=0});
+addEventListener('blur',()=>{KEYS={}});
+const NOTAP='button,a,input,textarea,select,#mm,#bub,#map,#sig,#pass,#fish,.panel,#find,#wish,#walkhud';
+addEventListener('pointerdown',e=>{if(MODE!=='explore'||e.button)return;if(e.target.closest&&e.target.closest(NOTAP))return;CK=[e.clientX,e.clientY]},{passive:true});
+addEventListener('pointerup',e=>{if(MODE!=='explore'||!CK)return;
+ if(Math.hypot(e.clientX-CK[0],e.clientY-CK[1])<10){const f=$('fish');if(!f||f.hidden)GOAL=scr2tile(e.clientX,e.clientY)}
+ CK=null});
+
 /* ================= THE POND: v4's water, rendered for real ================= */
 const GL={ok:false,gl:null,U:{},q:.85,rp:new Float32Array(24),acc:.016,ticks:0};
 function initGL(){
@@ -2615,10 +2817,20 @@ function sprites(l,r,t,b){const c=c2,n=cur.night;extraLife(c,l,r,t,b,n);
  for(const[bx,by,k]of LEAVES){const p=(T*.1+hh(k,1))%1,X=bx+p*30+Math.sin(T*1.4+k)*5,Y=by-40+p*70;if(X<l||X>r||Y<t||Y>b)continue;if(hh(k,5)>SE.leaf||(W.s==1&&cur.night<.25))continue;c.fillStyle=LCOL[W.s][k%3];c.fillRect(X|0,Y|0,2,1);c.fillRect((X|0)+1,(Y|0)+1,1,1)}
  for(const[bx,by,k]of FLAKES){const p=(T*.07+hh(k,2))%1,X=bx+Math.sin(T*.9+k)*6+p*8,Y=by-50+p*80;if(X<l||X>r||Y<t||Y>b||hh(k,6)>SE.snow)continue;c.fillStyle='rgba(255,255,255,.9)';c.fillRect(X|0,Y|0,1,1);if(k%4==0)c.fillRect((X|0)+1,Y|0,1,1)}}
 let SCR=null;
-function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round((innerWidth<900?1.5:1)/WS*4)/4,.75,3);if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;if(window.__z)Z=window.__z;sizeGL()}
+function rz(){VW=Math.ceil(innerWidth/WS);VH=Math.ceil(innerHeight/WS);fx2.width=VW;fx2.height=VH;c2.imageSmoothingEnabled=false;Z=clamp(Math.round((innerWidth<900?1.5:1)/WS*4)/4,.75,3);ZBASE=Z;if(!SCR)SCR=mk(64,64);SCR.width=VW;SCR.height=VH;if(window.__z)Z=window.__z;sizeGL()}
 function ripple(x,y,s,dl){if(!wm)return;if(s>2){const PO=CAMT[0]>70?POND2:POND,[px_,py]=PF(PO[0],PO[1]),a=Math.random()*6.28;rps.push({x:px_+Math.cos(a)*22,y:py+Math.sin(a)*11,t:T+(dl||0)});startle=1;return}const wx=(x/WS-TX)/Z,wy=(y/WS-TY)/Z;if(wx>0&&wy>0&&wx<Wd&&wy<Ht&&wm[(wy|0)*Wd+(wx|0)]){rps.push({x:wx,y:wy,t:T});if(s>1.5){startle=Math.min(1,startle+.7);splashAt(wx,wy,12);duckReact(wx,wy)}}}
-function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*(CH.length-1),[ci,cj]=window.__cam||camAt(f),[cx,cy]=PF(ci,cj),n=cur.night,w=cur.warm;CAMT=[ci,cj];GLW=[];
-  TX=Math.round(VW*(innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/(CH.length-1))):.5)-cx*Z-PM.x*12);TY=Math.round(VH*.56-cy*Z-PM.y*8);bubbleTick(f);
+function fx(){const ctx=c2,p=window.__p!=null?window.__p:clamp(scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight),0,1),f=p*(CH.length-1),n=cur.night,w=cur.warm;
+  const expl=MODE==='explore',starty=MODE==='start';
+  let ci,cj;
+  if(expl&&PL){playerTick();ci=CF[0];cj=CF[1]}
+  else if(starty){const sc=startCam();ci=sc[0];cj=sc[1]}
+  else{[ci,cj]=window.__cam||camAt(f)}
+  const zt=zTarget();Z+=(zt-Z)*.16;if(Math.abs(zt-Z)<.002)Z=zt;
+  let[cx,cy]=PF(ci,cj);
+  if(expl){const hw=VW/(2*Z),vh=VH/Z;cx=hw*2>=Wd?Wd/2:clamp(cx,hw,Wd-hw);cy=vh>=Ht?Ht/2:clamp(cy,vh*.56,Ht-vh*.44)}
+  CAMT=[((cx-OX)/16+(cy-OY)/8)/2,((cy-OY)/8-(cx-OX)/16)/2];GLW=[];
+  const pmx=(expl||starty)?0:PM.x,pmy=(expl||starty)?0:PM.y;
+  TX=Math.round(VW*(!expl&&!starty&&innerWidth>innerHeight*1.1?lerp(.66,.5,Math.min(1,f/(CH.length-1))):.5)-cx*Z-pmx*12);TY=Math.round(VH*.56-cy*Z-pmy*8);bubbleTick(f);
  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.clearRect(0,0,VW,VH);
  if(!GL.ok){ctx.setTransform(1,0,0,1,0,0);const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,`rgb(${lerp(30,4,n)+w*55|0},${lerp(62,8,n)+w*8|0},${lerp(78,20,n)|0})`);g.addColorStop(1,`rgb(${lerp(58,10,n)+w*60|0},${lerp(96,16,n)+w*10|0},${lerp(98,30,n)|0})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);}
 if(!GL.ok)for(let i=0;i<80;i++){ctx.fillStyle=`rgba(230,240,255,${n*(.5+.5*Math.sin(T*2+i))})`;ctx.fillRect(hh(i,5)*VW|0,hh(i,6)*VH|0,1,1)}
@@ -2629,7 +2841,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   WVIS[0]=l;WVIS[1]=r;WVIS[2]=t;WVIS[3]=b;
   ctx.setTransform(Z,0,0,Z,TX,TY);if(stc)ctx.drawImage(stc,0,0);if(wc&&!GL.ok)water();fall();for(const A of ARCH)drawArch(ctx,A);life();
   let pi=0;
-  for(const o of objs){while(pi<PEOPLE.length&&PEOPLE[pi].d<o.d){drawPerson(ctx,PEOPLE[pi].P);pi++}
+  for(const o of objs){while(pi<PEOPLE.length&&PEOPLE[pi].d<o.d){if(!PL||PEOPLE[pi].P!==PL.P)drawPerson(ctx,PEOPLE[pi].P);pi++}
    if(o.surf)continue;if(o.x<l||o.x>r||o.y<t||o.y>b)continue;if(o.draw){o.draw(ctx);continue}const sp=o.sp,sw=o.t==1?Math.round(Math.sin(T*1.2+o.ph)*(.8+cur.storm*1.5)):o.t==4?Math.round(Math.sin(T*1.5+o.ph)*(.5+cur.storm*1.2)):0;
    ctx.drawImage(sp.c,o.x-sp.ox+sw,o.y-sp.oy);
    if(sp.sails){const fr=sp.sails[((T*1.6)|0)%sp.sails.length];ctx.drawImage(fr,o.x-sp.ox+sp.sailAt[0]-26,o.y-sp.oy+sp.sailAt[1]-26)}
@@ -2637,10 +2849,15 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
    if(sp.gl)for(const q of sp.gl)GLW.push([o.x-sp.ox+q[0],o.y-sp.oy+q[1],q[2]]);
   if(sp.ch)for(let s=0;s<6;s++){ctx.fillStyle=`rgba(225,225,225,${.55-s*.09})`;ctx.fillRect(Math.round(o.x-sp.ox+sp.ch[0]+Math.sin(T*.8+s)*2+s*.7),Math.round(o.y-sp.oy+sp.ch[1]-s*4-((T*6)%4)),2,2)}
   if(sp.fire){for(let q=0;q<5;q++){const h=5+Math.round(Math.sin(T*9+q*1.7)*2+2),X=o.x-4+q*2;ctx.fillStyle=q==2?'#fff2a0':q%2?'#ffb030':'#ff6a1d';ctx.fillRect(X,o.y-5-h,2,h)}for(let q=0;q<3;q++){ctx.fillStyle='rgba(255,170,60,.85)';ctx.fillRect(o.x-3+Math.round(Math.sin(T*2+q*2)*5),o.y-14-((T*14+q*9)%18)|0,1,1)}GLW.push([o.x,o.y-6,40])}}
-  while(pi<PEOPLE.length){drawPerson(ctx,PEOPLE[pi].P);pi++}
+  while(pi<PEOPLE.length){if(!PL||PEOPLE[pi].P!==PL.P)drawPerson(ctx,PEOPLE[pi].P);pi++}
+  if(PL&&!PL.P.hid)drawPerson(ctx,PL.P);
   sprites(l,r,t,b);
   if(GL.ok)drawGL();
   drawSurf();
+  if(expl&&GOAL){ctx.setTransform(Z,0,0,Z,TX,TY);const[gx,gy]=PF(GOAL[0],GOAL[1]),pu=(T*1.5)%1,s=Math.round(2+pu*5);
+   ctx.globalAlpha=(1-pu)*.8;ctx.fillStyle='#ffe3a0';
+   ctx.fillRect(Math.round(gx)-s,Math.round(gy)-s,s*2,1);ctx.fillRect(Math.round(gx)-s,Math.round(gy)+s,s*2,1);
+   ctx.fillRect(Math.round(gx)-s,Math.round(gy)-s,1,s*2);ctx.fillRect(Math.round(gx)+s,Math.round(gy)-s,1,s*2);ctx.globalAlpha=1}
  // drifting cloud shadows (the shader draws its own when there is one)
  if(!GL.ok){const sc2=SCR.getContext('2d');sc2.setTransform(1,0,0,1,0,0);sc2.clearRect(0,0,VW,VH);
   sc2.setTransform(Z,0,0,Z,TX,TY);sc2.imageSmoothingEnabled=true;sc2.globalAlpha=(1-n*.85)*(1-cur.storm*.5);
@@ -2680,6 +2897,9 @@ addEventListener('pointermove',e=>{PM.x=e.clientX/innerWidth-.5;PM.y=e.clientY/i
 addEventListener('error',e=>{const b=document.getElementById('boot');
  if(b){b.classList.remove('done');b.innerHTML='<span>the village failed to load</span><span style="text-transform:none;max-width:90ch;text-align:center;line-height:1.5">'+(e.error&&e.error.stack?String(e.error.stack).replace(/</g,'&lt;'):e.message)+'</span>'}});
 for(const n of['oak','pine','bush','cottage','barn','windmill','boathouse','stall','coop','wellS','teahouse','pagoda','fern','lookout','shrine','observatory','dish','signalMast','standingStone','tripod']){const f=window[n];if(typeof f!=='function')continue;window[n]=function(){const r=f.apply(this,arguments);if(r&&r.c&&!r._rim){r._rim=1;try{rimLight(r.c)}catch(e){}}return r}}
+setMode('start');
+setTimeout(()=>{const g=$('sgo');if(g)g.focus({preventScroll:true})},1200);
+window.__m=()=>MODE;window.__pl=()=>PL&&{a:PL.P.a,b:PL.P.b};window.__near=()=>NEAR;window.__tp=(a,b)=>{if(!PL)return;PL.P.a=a;PL.P.b=b;CF=[a,b];GOAL=null};
 requestAnimationFrame(()=>{initGL();initSurf();build();bakeCloud();initPeople();const b=$('boot');if(b){b.classList.add('done');setTimeout(()=>b.remove(),700)}setTimeout(()=>ripple(innerWidth*.5,innerHeight*.5,2),700)});
 const calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
 
