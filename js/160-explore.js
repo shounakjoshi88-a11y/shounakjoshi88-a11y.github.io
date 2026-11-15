@@ -54,7 +54,7 @@ function mkWalker(a,b,look,name,me){const pal=LOOKS[look%LOOKS.length],P={pal,ro
 // the title screen drifts from rock to rock, so the archipelago reads as three places
 const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27],[137,53]];
 function startCam(){const n=START_CAM.length,per=15,tt=T%(per*n),k=Math.floor(tt/per),u=(tt%per)/per,e=sm(.45,1,u),A=START_CAM[k],B=START_CAM[(k+1)%n];return[lerp(A[0],B[0],e),lerp(A[1],B[1],e)]}
-const zTarget=()=>window.__z||(MODE==='start'?(innerWidth<900?.28:Math.min(.46,innerWidth/3500)):MODE==='explore'?(innerWidth<700?.98:1.28):ZBASE);
+const zTarget=()=>window.__z||(MODE==='start'?(innerWidth<900?.28:Math.min(.46,innerWidth/3500)):MODE==='explore'?(innerWidth<700?.9:1.0):ZBASE);
 function nearestChapter(){if(!PL)return 0;let best=0,bd=1e9;CH.forEach((c,k)=>{const d=Math.hypot(PL.P.a-c.at[0],PL.P.b-c.at[1]);if(d<bd){bd=d;best=k}});return best}
 function playerTick(){
  const n=performance.now(),dt=Math.min(.09,(n-PLT)/1000);PLT=n;
