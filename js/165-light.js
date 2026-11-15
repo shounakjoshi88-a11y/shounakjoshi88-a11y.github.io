@@ -27,6 +27,7 @@
 
 const LGT={on:true,LS:4,k:.5,ow:0,oh:0,vw:0,vh:0,occ:[],src:[],mask:null,maskc:null,mbuf:null,
  ao:null,aoc:null,sil:null,silc:null,lk:null,lkc:null,lq:null,lqc:null,tmp:null,tmpc:null,
+ resp:null,rw:0,rh:0,lw:null,lwc:null,ref:1,
  glow:null,lastAng:-99,built:0,cost:0,tm:{},
  sun:{ang:0,day:1,night:0,el:1.4,dx:.9,dy:-.45,col:[255,244,222],i:.6,amb:[156,170,196],ambI:.78,
   isDay:1,sx:.86,sy:.05,vis:1}};
@@ -51,7 +52,12 @@ function lgtPrep(){
  // blurring cheap: a few hundred pixels of blur per bounce instead of 90,000
  const qw=Math.max(6,Math.round(w/6)),qh=Math.max(6,Math.round(h/6));
  lgtCanvas('lq',qw,qh);
- if(!LGT.lqc)LGT.lqc=LGT.lq.getContext('2d')}
+ if(!LGT.lqc)LGT.lqc=LGT.lq.getContext('2d');
+ // the water needs to sample this light, so keep one unmasked copy of it at a
+ // quarter of the frame; the shader reads it straight out of the texture unit
+ const lw=Math.max(16,Math.round(w/2)),lh=Math.max(16,Math.round(h/2));
+ lgtCanvas('lw',lw,lh);
+ if(!LGT.lwc)LGT.lwc=LGT.lw.getContext('2d')}
 
 // ---------------------------------------------------------------- the sun
 // The clock hands the sun its angle. Everything in this file is downstream of it.
@@ -156,7 +162,69 @@ function buildLight(){
  silc.setTransform(1,0,0,1,0,0);silc.clearRect(0,0,ow,oh);
  silc.imageSmoothingEnabled=true;
  if(stc)silc.drawImage(stc,0,0,ow,oh);
+ bakeResp();
  LGT.built=1;LGT.lastAng=-99}
+
+// ---------------------------------------------------------------- which way a surface faces
+/* A flat tint cannot tell a wall that faces the morning from the one behind it. So the
+   surfaces are baked once into a height field - the land as a low plateau, every object as
+   a bump of its own height - and the slope of that field is the surface normal. Eight
+   responses, one per sun azimuth, are painted from it; each frame the two nearest are
+   cross-faded and multiplied into the direct light, so as the sun crosses the sky the
+   lit faces of every cottage change sides. Flat ground stays at full sun; a wall turned
+   away from it drops to the ambient, which is what makes geometry read at all. */
+function bakeResp(){
+ lgtSun();
+ const LS=LGT.LS,ow=LGT.ow,oh=LGT.oh;
+ const cw=LGT.rw=Math.max(8,Math.ceil(ow/2)),ch=LGT.rh=Math.max(8,Math.ceil(oh/2));
+ const n=cw*ch,H=new Float32Array(n);
+ const sc=1/(LS*2);
+ // the island itself, as a low plateau, so the coast is a slope the sun grazes
+ if(stc){
+  const cv=lgtCanvas('cov',cw,ch),cc=cv.getContext('2d');
+  cc.setTransform(1,0,0,1,0,0);cc.globalCompositeOperation='source-over';cc.globalAlpha=1;
+  cc.clearRect(0,0,cw,ch);cc.imageSmoothingEnabled=true;
+  cc.drawImage(stc,0,0,cw,ch);
+  const id=cc.getImageData(0,0,cw,ch),d=id.data;
+  for(let k=0;k<n;k++)H[k]=d[k*4+3]/255*.20}
+ // every object that stands up, as a smooth dome. A sprite's own alpha is holes and
+ // dither; a dome has one honest normal, and that is the thing that should turn to
+ // face the sun as it crosses.
+ for(const o of LGT.occ){
+  const cx=o.x*sc,cy=(o.y-o.h*.40)*sc,rx=Math.max(1.6,o.r*sc*1.55),ry=Math.max(1.4,o.r*sc*1.30);
+  const hv=.22+.62*clamp(o.h/96,0,1);
+  const i0=Math.max(0,Math.floor(cx-rx)),i1=Math.min(cw-1,Math.ceil(cx+rx));
+  const j0=Math.max(0,Math.floor(cy-ry)),j1=Math.min(ch-1,Math.ceil(cy+ry));
+  for(let j=j0;j<=j1;j++){
+   const ny=(j+.5-cy)/ry,ny2=ny*ny;if(ny2>=1)continue;
+   for(let i=i0;i<=i1;i++){
+    const nx=(i+.5-cx)/rx,d2=nx*nx+ny2;if(d2>=1)continue;
+    const v=.20*(1-d2)+hv*Math.sqrt(1-d2),k=j*cw+i;
+    if(v>H[k])H[k]=v}}}
+ // soften once more so dome rims are not stair-stepped at this resolution
+ const B=new Float32Array(n);
+ for(let j=0;j<ch;j++){const jm=j>0?j-1:j,jp=j<ch-1?j+1:j;
+  for(let i=0;i<cw;i++){const im=i>0?i-1:i,ip=i<cw-1?i+1:i;
+   B[j*cw+i]=((H[j*cw+im]+2*H[j*cw+i]+H[j*cw+ip])
+            +2*(H[jm*cw+im]+2*H[jm*cw+i]+H[jm*cw+ip])
+            +(H[jp*cw+im]+2*H[jp*cw+i]+H[jp*cw+ip]))/16}}
+ // eight suns, one per azimuth; the elevation decides how much a face can catch
+ const K=5.0,az=8,Lz=clamp(LGT.sun.el*.62,.42,.98);
+ const resp=LGT.resp=LGT.resp||[];
+ for(let a=0;a<az;a++){
+  const th=a/az*Math.PI*2,Lx=Math.cos(th),Ly=Math.sin(th);
+  const o=lgtCanvas('rsp'+a,cw,ch),oc=o.getContext('2d');
+  const out=oc.createImageData(cw,ch),od=out.data;
+  for(let j=0;j<ch;j++){const jm=j>0?j-1:j,jp=j<ch-1?j+1:j;
+   for(let i=0;i<cw;i++){const im=i>0?i-1:i,ip=i<cw-1?i+1:i;
+    const gx=((B[j*cw+ip]+2*B[jp*cw+ip]+B[jm*cw+ip])-(B[j*cw+im]+2*B[jp*cw+im]+B[jm*cw+im]))*.125;
+    const gy=((B[jp*cw+im]+2*B[jp*cw+i]+B[jp*cw+ip])-(B[jm*cw+im]+2*B[jm*cw+i]+B[jm*cw+ip]))*.125;
+    const sx=-gx*K,sy=-gy*K,il=1/Math.sqrt(1+sx*sx+sy*sy);
+    let v=(sx*Lx+sy*Ly)*il/Lz+il;
+    v=.16+.84*clamp(v,0,1);
+    const g=Math.round(255*v),k=(j*cw+i)*4;
+    od[k]=od[k+1]=od[k+2]=g;od[k+3]=255}}
+  oc.putImageData(out,0,0);resp[a]=o}}
 
 // ---------------------------------------------------------------- casting
 // The mask holds the sky's view: alpha 255 means the patch is open to the sun.
@@ -226,15 +294,33 @@ function lightPass(ctx){
  lkc.imageSmoothingEnabled=true;
  lkc.globalCompositeOperation='multiply';
  lkc.drawImage(LGT.ao,0,0,LGT.ow*LGT.LS,LGT.oh*LGT.LS);
- // 3. the sun itself, only where the mask says it reaches
+ // 3. the sun itself: shaped by how each surface faces it, then clipped to the
+ //    places the shadow mask says the light still reaches
  tc.setTransform(1,0,0,1,0,0);tc.globalCompositeOperation='source-over';tc.globalAlpha=1;
  tc.clearRect(0,0,w,h);
  tc.fillStyle=`rgb(${Math.round(s.col[0]*s.i)},${Math.round(s.col[1]*s.i)},${Math.round(s.col[2]*s.i)})`;
  tc.fillRect(0,0,w,h);
- tc.globalCompositeOperation='destination-in';
- tc.imageSmoothingEnabled=false;
- tc.setTransform(Z*k,0,0,Z*k,TX*k,TY*k);
- tc.drawImage(LGT.mask,0,0,LGT.ow*LGT.LS,LGT.oh*LGT.LS);
+ const rw=LGT.rw,rh=LGT.rh;
+ if(LGT.resp&&LGT.resp.length&&rw){
+  // the sun's azimuth picks two of the eight baked responses and fades between them
+  const az=LGT.resp.length;
+  const th=((Math.atan2(s.dy,s.dx)/6.283185+1)%1)*az;
+  const a0=Math.floor(th)%az,a1=(a0+1)%az,fr=th-Math.floor(th);
+  const ww=rw*LGT.LS*2,wh=rh*LGT.LS*2;
+  tc.globalCompositeOperation='multiply';tc.imageSmoothingEnabled=true;
+  tc.setTransform(Z*k,0,0,Z*k,TX*k,TY*k);
+  tc.drawImage(LGT.resp[a0],0,0,ww,wh);
+  if(fr>.01){tc.globalAlpha=fr;tc.drawImage(LGT.resp[a1],0,0,ww,wh);tc.globalAlpha=1}
+  tc.setTransform(1,0,0,1,0,0);
+  tc.globalCompositeOperation='destination-in';tc.imageSmoothingEnabled=false;
+  tc.setTransform(Z*k,0,0,Z*k,TX*k,TY*k);
+  tc.drawImage(LGT.mask,0,0,LGT.ow*LGT.LS,LGT.oh*LGT.LS);
+  tc.setTransform(1,0,0,1,0,0)}
+ else{
+  tc.globalCompositeOperation='destination-in';tc.imageSmoothingEnabled=false;
+  tc.setTransform(Z*k,0,0,Z*k,TX*k,TY*k);
+  tc.drawImage(LGT.mask,0,0,LGT.ow*LGT.LS,LGT.oh*LGT.LS);
+  tc.setTransform(1,0,0,1,0,0)}
  lkc.globalCompositeOperation='lighter';
  lkc.setTransform(1,0,0,1,0,0);
  lkc.drawImage(tm2,0,0);
@@ -265,6 +351,15 @@ function lightPass(ctx){
  lkc.globalCompositeOperation='source-over';
  lkc.globalAlpha=1;
  tm.bounce=performance.now()-t2;
+ // 5b. keep the unmasked buffer for the water, and remember how bright "open sky"
+ //     is right now, so the pond can tell sun from shade from lamplight
+ const t2b=performance.now();
+ if(LGT.lwc){
+  const lwv=LGT.lw,LW=LGT.lwc;
+  LW.setTransform(1,0,0,1,0,0);LW.globalCompositeOperation='source-over';LW.globalAlpha=1;
+  LW.drawImage(lk,0,0,lwv.width,lwv.height);
+  LGT.ref=Math.max(.05,(ac[0]+ac[1]+ac[2])/3*amb/255+s.i*.55)}
+ tm.water=performance.now()-t2b;
  // 6. multiply it onto the scene, but only where the scene is: the sky is not ours
  const t3=performance.now();
  lkc.globalAlpha=1;

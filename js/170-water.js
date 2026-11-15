@@ -14,10 +14,21 @@ function initGL(){
   gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const a=gl.getAttribLocation(p,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
-  ['R','T','N','D','RN','ST','FL','SH','RP','CAM','ORG','MAP','LT','NL','SNP'].forEach(k=>GL.U[k]=gl.getUniformLocation(p,k));
+  ['R','T','N','D','RN','ST','FL','SH','RP','CAM','ORG','MAP','LT','NL','SNP','LTX','STX','LR','WD'].forEach(k=>GL.U[k]=gl.getUniformLocation(p,k));
   GL.gl=gl;GL.ok=true;
   gl.disable(gl.DEPTH_TEST);gl.enable(gl.BLEND);
   gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  // two textures the water depends on: the light the village is standing in, and the
+  // village itself, to mirror
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+  const tex=(unit,name)=>{const t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,t);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([255,255,255,255]));
+    gl.uniform1i(GL.U[name],unit);return t};
+  GL.tL=tex(1,'LTX');GL.tS=tex(2,'STX');
   return true}
 function sizeGL(){
   const c=$('gl'),d=Math.min(devicePixelRatio||1,1.5)*GL.q;
@@ -43,6 +54,26 @@ function drawGL(){
   gl.uniform3fv(GL.U.LT,LT);gl.uniform1f(GL.U.NL,cur.night*(1-cur.rain*.5));
   const sn=(typeof lgtSun==='function')?lgtSun():{sx:.76,sy:.05};
   gl.uniform2f(GL.U.SNP,sn.sx,sn.sy);
+  // ---- the light field, straight out of the deferred pass, at a quarter of the frame
+  const lwv=(typeof LGT==='object'&&LGT)?LGT.lw:null;
+  if(lwv){
+    gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,GL.tL);
+    if(GL.lwW!==lwv.width||GL.lwH!==lwv.height){
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,lwv);
+      GL.lwW=lwv.width;GL.lwH=lwv.height}
+    else gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGBA,gl.UNSIGNED_BYTE,lwv);
+    gl.uniform1f(GL.U.LR,LGT.ref||1)}
+  else gl.uniform1f(GL.U.LR,1);
+  // ---- and the village, half size, once: the water mirrors the real one, not a texture of it
+  if(!GL.scDone&&typeof LGT==='object'&&LGT.built&&typeof stc!=='undefined'&&stc&&stc.width){
+    const k2=Math.min(1,1600/stc.width),w2=Math.max(4,Math.round(stc.width*k2)),h2=Math.max(4,Math.round(stc.height*k2));
+    const cv=document.createElement('canvas');cv.width=w2;cv.height=h2;
+    const cc=cv.getContext('2d');cc.imageSmoothingEnabled=true;cc.drawImage(stc,0,0,w2,h2);
+    gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,GL.tS);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,cv);
+    GL.scDone=1}
+  else{gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,GL.tS)}
+  gl.uniform2f(GL.U.WD,typeof Wd==='number'?Wd:3200,typeof Ht==='number'?Ht:1760);
   gl.drawArrays(gl.TRIANGLES,0,3)}
 
 /* ---- the things that float on top of the water ---- */
