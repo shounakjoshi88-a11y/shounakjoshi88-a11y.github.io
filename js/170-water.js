@@ -14,7 +14,7 @@ function initGL(){
   gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
   const a=gl.getAttribLocation(p,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
-  ['R','T','N','D','RN','ST','FL','SH','RP','CAM','ORG','MAP','LT','NL'].forEach(k=>GL.U[k]=gl.getUniformLocation(p,k));
+  ['R','T','N','D','RN','ST','FL','SH','RP','CAM','ORG','MAP','LT','NL','SNP'].forEach(k=>GL.U[k]=gl.getUniformLocation(p,k));
   GL.gl=gl;GL.ok=true;
   gl.disable(gl.DEPTH_TEST);gl.enable(gl.BLEND);
   gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
@@ -41,6 +41,8 @@ function drawGL(){
   const LT=GL.lt||(GL.lt=new Float32Array(36));LT.fill(0);
   GLW.map(q=>{const AP=PB?POND2:POND;return[q,Math.hypot(((q[0]-OX)/16+(q[1]-OY)/8)/2-AP[0],((q[1]-OY)/8-(q[0]-OX)/16)/2-AP[1])]}).filter(q=>q[1]<13).sort((a,b)=>a[1]-b[1]).slice(0,12).forEach(([q],i)=>{LT[i*3]=q[0];LT[i*3+1]=q[1];LT[i*3+2]=q[2]});
   gl.uniform3fv(GL.U.LT,LT);gl.uniform1f(GL.U.NL,cur.night*(1-cur.rain*.5));
+  const sn=(typeof lgtSun==='function')?lgtSun():{sx:.76,sy:.05};
+  gl.uniform2f(GL.U.SNP,sn.sx,sn.sy);
   gl.drawArrays(gl.TRIANGLES,0,3)}
 
 /* ---- the things that float on top of the water ---- */

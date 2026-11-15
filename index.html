@@ -155,7 +155,7 @@
 
 <script id="fs" type="x-shader/x-fragment">
 precision highp float;
-uniform vec2 R;uniform float T,N,D,RN,ST,FL,SH;uniform vec3 RP[8];uniform vec4 CAM;uniform vec2 ORG;uniform vec4 MAP;uniform vec3 LT[12];uniform float NL;
+uniform vec2 R;uniform float T,N,D,RN,ST,FL,SH;uniform vec3 RP[8];uniform vec4 CAM;uniform vec2 ORG;uniform vec4 MAP;uniform vec3 LT[12];uniform float NL;uniform vec2 SNP;
 float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float nz(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y);}
 float fb(vec2 p){return .55*nz(p)+.28*nz(p*2.03+vec2(1.7,9.2))+.14*nz(p*4.11+vec2(4.3,1.1));}
@@ -212,13 +212,13 @@ vec3 skyAt(vec2 uv){
  vec3 hor=mix(vec3(.80,.92,.98),vec3(.07,.10,.22),N);
  zen=mix(zen,vec3(.16,.11,.38),D*day*.85);mid=mix(mid,vec3(.82,.4,.46),D*day*.8);hor=mix(hor,vec3(1.,.62,.34),D*day*.9);
  vec3 c=mix(mix(zen,mid,smoothstep(0.,.5,g)),hor,smoothstep(.35,1.,g));
- vec2 sp=vec2(.76,mix(.035,.17,D));vec2 q=(uv-sp)*vec2(asp,1.);float sd=length(q);
+ vec2 sp=SNP;vec2 q=(uv-sp)*vec2(asp,1.);float sd=length(q);
  float sun=smoothstep(.034,.028,sd)+exp(-sd*6.)*.35+exp(-sd*22.)*.5+exp(-sd*4.2)*.12;
  c+=mix(vec3(1.,.92,.74),vec3(1.,.5,.24),D)*sun*day*(1.-ST*.85);
  // soft shafts fanning out from the sun
  float ang=atan(q.y,q.x);float ray=pow(nz(vec2(ang*7.+T*.03,3.))*.6+nz(vec2(ang*17.-T*.05,8.))*.4,2.2);
  c+=mix(vec3(1.,.9,.7),vec3(1.,.55,.3),D)*ray*exp(-sd*3.4)*.3*day*(1.-ST);
- vec2 q2=(uv-vec2(.2,.07))*vec2(asp,1.);float md=length(q2);
+ vec2 q2=(uv-vec2(1.-SNP.x,mix(.045,.085,N)))*vec2(asp,1.);float md=length(q2);
  c+=vec3(.85,.9,1.)*(smoothstep(.03,.026,md)*(.85+.15*nz(q2*60.))+exp(-md*9.)*.18)*N*(1.-ST*.85);
  vec2 sg=uv*vec2(asp,1.)*64.,si=floor(sg);float sr=hs(si);
  float stl=step(.965,sr)*smoothstep(.22,0.,length(fract(sg)-.5+(hs(si+7.)-.5)*.5))*(.55+.45*sin(T*(1.5+sr*3.)+sr*40.));
@@ -314,6 +314,7 @@ void main(){
 <script src="js/147-harbour.js"></script>
 <script src="js/150-people.js"></script>
 <script src="js/160-explore.js"></script>
+<script src="js/165-light.js"></script>
 <script src="js/170-water.js"></script>
 <script src="js/175-rooms.js"></script>
 <script src="js/178-angling.js"></script>

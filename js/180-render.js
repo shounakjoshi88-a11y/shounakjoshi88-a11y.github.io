@@ -148,6 +148,7 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   sprites(l,r,t,b);
   if(GL.ok)drawGL();
   drawSurf();
+  lightPass(ctx);
   if(expl&&GOAL){ctx.setTransform(Z,0,0,Z,TX,TY);const[gx,gy]=PF(GOAL[0],GOAL[1]),pu=(T*1.5)%1,s=Math.round(2+pu*5);
    ctx.globalAlpha=(1-pu)*.8;ctx.fillStyle='#ffe3a0';
    ctx.fillRect(Math.round(gx)-s,Math.round(gy)-s,s*2,1);ctx.fillRect(Math.round(gx)-s,Math.round(gy)+s,s*2,1);
@@ -160,20 +161,16 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   ctx.globalCompositeOperation='source-atop';ctx.drawImage(SCR,0,0);ctx.globalCompositeOperation='source-over'}
  ctx.setTransform(1,0,0,1,0,0);
  {const st=1-.35*cur.storm;
-  // night falls as a cool veil over the land, so the warm lamps read as lights rather than haze
-  const vn=clamp(n*.9+w*.16,0,1);
-  if(vn>.01){ctx.globalCompositeOperation='source-atop';
-   ctx.fillStyle=`rgba(${Math.round(lerp(38,15,vn))},${Math.round(lerp(50,23,vn))},${Math.round(lerp(86,52,vn))},${(vn*.6*st).toFixed(3)})`;ctx.fillRect(0,0,VW,VH);
+  // weather, not time of day. The light pass owns the night now.
+  if(cur.storm>.02){ctx.globalCompositeOperation='source-atop';
+   ctx.fillStyle=`rgba(74,86,104,${(cur.storm*.22*st).toFixed(3)})`;ctx.fillRect(0,0,VW,VH);
    ctx.globalCompositeOperation='source-over'}}
- {const dk=(1-n)*(1-cur.storm*.7),sx=VW*.76,sy=VH*(.035+.135*cur.warm)-VH*.02;
-  ctx.globalCompositeOperation='source-atop';
-  let g=ctx.createRadialGradient(sx,sy,0,sx,sy,VW*1.2);g.addColorStop(0,`rgba(255,232,170,${.22*dk})`);g.addColorStop(.55,`rgba(255,226,160,${.07*dk})`);g.addColorStop(1,'rgba(255,226,160,0)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
-  g=ctx.createLinearGradient(VW*.9,0,VW*.05,VH);g.addColorStop(0,'rgba(20,40,80,0)');g.addColorStop(.5,`rgba(20,40,80,${.05*dk+.02})`);g.addColorStop(1,`rgba(18,32,70,${.24*dk+.06})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
-  g=ctx.createLinearGradient(0,0,0,VH*.6);g.addColorStop(0,`rgba(196,220,240,${.16*dk+.04})`);g.addColorStop(1,'rgba(196,220,240,0)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
+ {const dk=1-n;
+  // the frame's own vignette. The tint that used to sit here was a stand-in for
+  // the light pass, and the pass now does that job for real.
   ctx.globalCompositeOperation='source-over';
-  if(dk>.05){ctx.globalCompositeOperation='lighter';for(let q=0;q<6;q++){const x0=sx+(q-2.5)*VW*.022,wd_=VW*(.012+.008*((q*37)%3)),a=.06*dk*(.6+.4*Math.sin(T*.3+q*1.7)),Ls=VH*(.2+.17*q)*(q%2?1:-.35)-VH*.1,gr=ctx.createLinearGradient(x0,sy,x0+Ls,VH);gr.addColorStop(0,`rgba(255,240,200,${a})`);gr.addColorStop(1,'rgba(255,240,200,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(x0,sy);ctx.lineTo(x0+wd_,sy);ctx.lineTo(x0+wd_+Ls*1.5-VH*.25,VH);ctx.lineTo(x0+Ls*.5-VH*.45,VH);ctx.closePath();ctx.fill()}ctx.globalCompositeOperation='source-over'}
-  g=ctx.createRadialGradient(VW/2,VH*.5,Math.min(VW,VH)*.45,VW/2,VH*.5,Math.max(VW,VH)*.8);g.addColorStop(0,'rgba(8,16,28,0)');g.addColorStop(1,'rgba(8,16,28,.32)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH)}
- if(n>.15){ctx.setTransform(Z,0,0,Z,TX,TY);ctx.globalCompositeOperation='lighter';for(const[gx,gy,rr0]of GLW){const rr=rr0*.6,gd=ctx.createRadialGradient(gx,gy,0,gx,gy,rr);gd.addColorStop(0,`rgba(255,172,72,${.12*n})`);gd.addColorStop(.45,`rgba(255,164,64,${.035*n})`);gd.addColorStop(1,'rgba(255,164,64,0)');ctx.fillStyle=gd;ctx.fillRect(gx-rr,gy-rr,rr*2,rr*2)}
+  const g=ctx.createRadialGradient(VW/2,VH*.5,Math.min(VW,VH)*.45,VW/2,VH*.5,Math.max(VW,VH)*.8);g.addColorStop(0,'rgba(8,16,28,0)');g.addColorStop(1,`rgba(8,16,28,${(.18+.14*dk).toFixed(3)})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH)}
+ if(n>.15){ctx.setTransform(Z,0,0,Z,TX,TY);ctx.globalCompositeOperation='lighter';
   for(let q=0;q<150;q++){ctx.fillStyle=`rgba(206,242,118,${n*(.07+.17*Math.max(0,Math.sin(T*2+q*3)))})`;{const X=l+hh(q,1)*(r-l)+Math.sin(T*.5+q)*6,Y=t+hh(q,2)*(b-t)+Math.cos(T*.4+q*2)*6;if(LM[(Y|0)*Wd+(X|0)])ctx.fillRect(X,Y,2,2)}}ctx.globalCompositeOperation='source-over'}
  ctx.setTransform(1,0,0,1,0,0);const rn=Math.floor(cur.rain*130);ctx.fillStyle='rgba(190,220,255,.55)';for(let i=0;i<rn;i++){const sp=70+hh(i,3)*40,yy=(hh(i,2)*VH+T*sp)%VH;ctx.fillRect((((hh(i,1)*VW-yy*.2)%VW)+VW)%VW|0,yy|0,1,3)}
  if(flash>.02){ctx.fillStyle=`rgba(210,225,255,${flash*.5})`;ctx.fillRect(0,0,VW,VH)}
