@@ -340,6 +340,21 @@ function buildB(c){
   else if(q>.94){px(c,X,Y+1,'#8c9694',3,1);px(c,X,Y,'#b8c2c0',2,1);px(c,X+1,Y-1,'#dde4e2',1,1)}
   else if(q>.9){px(c,X,Y,'#ffc4d6',2,1);px(c,X+3,Y+1,'#ffe6ee',1,1);px(c,X-2,Y+2,'#ffb0c8',1,1)}
   else if(q>.46){for(let m=-2;m<=2;m++){const h=2+((hh(m+i*3,j+s)*3)|0);px(c,X+m,Y-h,rgb(pal[3+((m+s)&1)]),1,h)}px(c,X-1,Y,rgb(pal[0]),3,1);px(c,X,Y-4,rgb(pal[4]),1,1)}}
+ // a zen ring garden raked round the big cherry: pale grooves in the gravel
+ for(let rr=1.9;rr<5.15;rr+=.72){const steps=Math.floor(rr*30);
+  for(let s=0;s<steps;s++){const an=s/steps*6.283,jr=(hh(s*3+1,(rr*7)|0)-.5)*.14;
+   const fi=93.8+Math.cos(an)*(rr+jr),fj=25.6+Math.sin(an)*(rr+jr)*.72;
+   if(!LANDB(fi,fj)||WD(fi,fj)>-.4||pathD(fi,fj)<.55||fieldAt(fi,fj)<.45)continue;
+   const[X,Y]=PF(fi,fj);px(c,Math.round(X),Math.round(Y),hh(s,(rr*3)|0)>.82?'#b8b09c':'#8e8674',1,1)}}
+ // kerb pebbles: a stony edge where the path meets the grass
+ for(const p of PATHS.slice(7))for(let k=0;k<p.length-1;k++){
+  const dx=p[k+1][0]-p[k][0],dy=p[k+1][1]-p[k][1],L=Math.hypot(dx,dy),n=Math.floor(L/.55),nx=-dy/(L||1),ny=dx/(L||1);
+  for(let m=0;m<=n;m++){const t=m/Math.max(1,n),bx=lerp(p[k][0],p[k+1][0],t),by=lerp(p[k][1],p[k+1][1],t);
+   for(const sd of[-1,1]){if(hh(m*7+k,sd*13+3)<.58)continue;
+    const fi=bx+nx*.55*sd,fj=by+ny*.55*sd;
+    if(!LANDB(fi,fj)||pathD(fi,fj)<.42||WD(fi,fj)>-.3)continue;
+    const[X,Y]=PF(fi,fj);c.fillStyle='rgba(30,22,12,.3)';c.fillRect(Math.round(X)-2,Math.round(Y)+1,5,2);
+    bl(c,Math.round(X),Math.round(Y),2+((hh(m+k*7,sd*3)*2)|0),1,ST,m+k*5+sd)}}}
  // stepping stones on the gravel paths
  for(const p of PATHS.slice(7))for(let k=0;k<p.length-1;k++){const L=Math.hypot(p[k+1][0]-p[k][0],p[k+1][1]-p[k][1]),n=Math.floor(L/.5);
   for(let m=0;m<=n;m++){const t=m/Math.max(1,n),fi=lerp(p[k][0],p[k+1][0],t)+(hh(m,k+1)-.5)*.14,fj=lerp(p[k][1],p[k+1][1],t)+(hh(k+2,m)-.5)*.14;if(!LANDB(fi,fj))continue;
@@ -360,6 +375,14 @@ function buildB(c){
  // the landmarks
  put(93.8,25.6,oak('g',18,2,'cherry'),1,.05);put(111,17,pagoda(),2,.05);put(91.5,33,teahouse(),2,.05);
  put(85.8,19.6,torii(0),2,.05);put(104.3,40.2,torii(1),2,.05);
+ // the tsukubai by the teahouse step, two smooth stones beside it
+ put(93.2,31.4,basin(),0);put(91.7,30.5,RS(2,2,ST,3),0);put(94.6,32.6,RS(2,2,ST,7),0);
+ // a paper-lantern string over the torii approach
+ put(86.6,21.1,pole(),0);put(90.5,22.7,pole(),0);lanternString(86.6,21.1,90.5,22.7,4,6,52);
+ // a bench at the rest stop by the postbox, facing the pond over the gap in the cherry
+ put(100.2,25.2,bench(0,1),0);
+ // a cat asleep on the teahouse porch
+ put(90.1,34.4,cat(),0);
  put(99.4,24.6,postbox(),0);put(98.4,22.6,bench(0),0);put(100.4,27.2,bench(1),0);put(96.4,30.6,bench(0),0);
  for(const[a,b]of[[95.6,22.1],[99.4,26.9],[109.5,18.4],[112.7,18.4],[89.4,32.5],[93.6,32.5],[101.0,38.6],[104.8,39.0]])put(a,b,stoneLantern(),3);
  // rocks and reeds round the little pond

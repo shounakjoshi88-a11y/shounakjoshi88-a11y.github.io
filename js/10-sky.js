@@ -1,5 +1,5 @@
 // ---- a living sky: the clock, the weather and the year run themselves ----
-const DAYLEN=200,SEASONS=['Spring','Summer','Autumn','Winter'],SG=['rgba(255,170,205,.20)','rgba(255,214,110,.16)','rgba(255,128,36,.20)','rgba(150,190,255,.30)'],
+const DAYLEN=600,SEASONS=['Spring','Summer','Autumn','Winter'],SG=['rgba(255,170,205,.20)','rgba(255,214,110,.16)','rgba(255,128,36,.20)','rgba(150,190,255,.30)'],
  SEN=[{leaf:.9,snow:.08},{leaf:.55,snow:0},{leaf:1,snow:.3},{leaf:1,snow:1}],
  LCOL=[['#f4a6c8','#fbd0e0','#e888b0'],['#e8f27a','#e8f27a','#c8e86a'],['#e2862b','#c2491f','#f1b445'],['#ffffff','#eef4ff','#dbe8ff']],
  SNOTE=['Petals drift over the village.','Warm nights, fireflies and monsoon clouds.','The orchard turns copper.','Frost on the pines. Snow settles in.'];

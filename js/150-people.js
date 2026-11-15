@@ -39,6 +39,15 @@ function stepPeople(dt){
   PEOPLE.sort((x,y)=>x.d-y.d)}
 function drawPerson(ctx,P){if(P.hid)return;
   const[X,Y0]=PF(P.a,P.b),Y=Y0-bridgeLift(P.a,P.b),sx=P.vx-P.vy,sy=P.vx+P.vy,idle=P.wait>0;
+  if(P.sit){
+   if(!P.spr.sit)P.spr.sit={front:[villagerSit(P.pal,0,'front'),villagerSit(P.pal,1,'front')],back:[villagerSit(P.pal,0,'back'),villagerSit(P.pal,1,'back')],side:[villagerSit(P.pal,0,'side'),villagerSit(P.pal,1,'side')]};
+   const pose=Math.abs(sy)>Math.abs(sx)*1.1?(sy>0?'front':'back'):'side';
+   const sp2=P.spr.sit[pose][0],flip=pose==='side'&&sx<0,px_=Math.round(X)-sp2.ox,py=Math.round(Y)-sp2.oy;
+   ctx.fillStyle='rgba(12,28,20,.28)';
+   ctx.beginPath();ctx.ellipse(px_+sp2.ox,py+sp2.oy-1,5,1.8,0,0,6.283);ctx.fill();
+   if(flip){ctx.save();ctx.translate(px_+sp2.ox*2,0);ctx.scale(-1,1);ctx.drawImage(sp2.c,-sp2.ox,py);ctx.restore()}
+   else ctx.drawImage(sp2.c,px_,py);
+   return}
   let pose=Math.abs(sy)>Math.abs(sx)*1.1?(sy>0?'front':'back'):'side';
   const sp=P.spr[pose][idle?0:(P.anim|0)%2],flip=pose==='side'&&sx<0,
     bob=idle?(Math.sin(T*1.7+P.anim)>.93?-1:0):-(Math.abs(Math.sin(P.anim*Math.PI))>.7?1:0);

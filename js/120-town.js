@@ -236,6 +236,42 @@ function millWheel(){
   return{c:outline(c),ox:cx-EX,oy:cy+6-EY,fr,frRate:8,sh:[-30,19,30,5],sol:{c:[-22,5,20]}}}
 
 // a villager, in three poses and two steps
+function villagerSit(p,f,dir){
+  // seated: knees up, boots on the ground, nothing in the body that is in a hurry
+  const c=mk(12,12),x=c.getContext('2d');
+  const[sh,pa,ha,sk,hat]=p,st=0,side=dir=='side',back=dir=='back';
+  const lite=mixc(sh,[255,255,255],.26),dark=mixc(sh,[0,0,0],.3),boot=[48,38,30];
+  const hx=3;
+  // boots and shins on the ground, thighs running back to the bench
+  if(side){
+   px(x,2,8,rgb(pa),6,2);px(x,2,8,rgb(mixc(pa,[0,0,0],.15)),6,1);          // the thigh, side-on
+   px(x,7,8,rgb(pa),2,2);                                                // knee cap
+   px(x,7,10,rgb(pa),2,1);px(x,7,11,rgb(boot),2,1);px(x,1,11,rgb(boot),2,1);
+   px(x,1,9,rgb(mixc(pa,[0,0,0],.15)),2,2);                               // far shin
+  }else{
+   px(x,2,8,rgb(pa),3,2);px(x,7,8,rgb(mixc(pa,[0,0,0],.15)),3,2);         // thighs, knees apart
+   px(x,2,10,rgb(pa),2,1);px(x,8,10,rgb(pa),2,1);                         // shins
+   px(x,1,11,rgb(boot),3,1);px(x,8,11,rgb(boot),3,1);                     // boots flat on the rock
+  }
+  // torso, sitting tall
+  const bx=3,bw=side?5:6;
+  px(x,bx,4,rgb(sh),bw,5);
+  px(x,bx,4,rgb(lite),bw,1);
+  px(x,bx,8,rgb(dark),bw,1);
+  px(x,bx+1,3,rgb(dark),bw-2,1);
+  if(!side){px(x,bx+2,5,rgb(dark),1,1);px(x,bx+3,7,rgb(dark),1,1)}
+  // arms resting on the knees
+  px(x,side?2:1,4,rgb(sh),2,3);px(x,side?2:1,7,rgb(sk),2,1);
+  px(x,side?8:9,4,rgb(sh),2,3);px(x,side?8:9,7,rgb(sk),2,1);
+  // head
+  px(x,hx,0,rgb(sk),5,4);
+  px(x,hx-1,0,rgb(ha),7,2);                             // hair above the brow
+  px(x,hx-1,1,rgb(ha),1,3);px(x,hx+4,1,rgb(ha),1,3);
+  if(back)px(x,hx-1,0,rgb(ha),7,4);
+  else if(side){px(x,hx+3,2,rgb([28,20,16]));px(x,hx+4,3,rgb(mixc(sk,[0,0,0],.3)),1,1)}
+  else{px(x,hx+1,2,rgb([28,20,16]));px(x,hx+3,2,rgb([28,20,16]))}
+  if(hat){px(x,hx-2,0,rgb(hat),9,1);px(x,hx-1,0,rgb(mixc(hat,[0,0,0],.28)),7,1);px(x,hx-1,0,rgb(mixc(hat,[255,255,255],.15)),5,1)}
+  return{c,ox:6,oy:11}}
 function villager(p,f,dir){
   // a villager is fifteen pixels tall: half a doorway, a third of a pine
   const c=mk(12,20),x=c.getContext('2d');

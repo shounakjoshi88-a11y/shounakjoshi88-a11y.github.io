@@ -46,7 +46,7 @@ const LANDC=(a,b)=>{if(a<LANDS.a0||a>LANDS.a1||b<LANDS.b0||b>LANDS.b1)return 0;
  const k=a>144?dmp(b,28.5):1;return sdRR(a,b,133,27,10.5,7)+vn(a*.28+71,b*.28)*1.5*k<0};
 const LAND=(a,b)=>LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b));
 const landIn=(a,b,m)=>LAND(a-m,b)&&LAND(a+m,b)&&LAND(a,b-m)&&LAND(a,b+m);
-const EDA=(a,b)=>-sdRR(a,b,31.5,31.5,32,9),EDB=(a,b)=>-sdRR(a,b,101,26,19,8),EDC=(a,b)=>-sdRR(a,b,133,27,10.5,7),EDE=(a,b)=>-sdRR(a,b,136.5,53.5,15,8);
+const EDA=(a,b)=>-sdRR(a,b,31.5,31.5,32,9),EDB=(a,b)=>-sdRR(a,b,101,26,19,8),EDC=(a,b)=>-sdRR(a,b,133,27,10.5,7),EDE=(a,b)=>-sdRR(a,b,135.5,52.2,19,10);
 // where the rope bridge hangs between the isles
 const RB={a0:62.3,a1:83.7,b:19.5,sag:12};
 const RB2={a0:118.4,a1:124.0,b:30,sag:7};
@@ -246,7 +246,16 @@ function bench(axis,rev){const key='bn2'+axis+(rev?1:0);if(SPR[key])return SPR[k
  para(x,p0,L,D,(s,t)=>{const m=t*3;let k=[190,142,88];if(m%1<.16)k=[120,84,50];if(s<.03||s>.97)k=[216,170,112];return rgb(k)});
  if(rev)back();
  for(const s of[.0,1]){const[X,Y]=P(s,.5);px(x,Math.round(X)-1,Math.round(Y)-5,rgb([100,70,42]),2,5);px(x,Math.round(X)-2,Math.round(Y)-6,rgb([190,142,88]),4,1)}
- const cx_=Math.round(p0[0]+L[0]/2+D[0]/2);return SPR[key]={c,ox:cx_,oy:p0[1]+17,sh:[0,1,15,4]}}
+ const cx_=Math.round(p0[0]+L[0]/2+D[0]/2);return SPR[key]={c,ox:cx_,oy:p0[1]+17,sh:[0,1,15,4],bench:1,baxis:axis,brev:rev?1:0}}
+function basin(){if(SPR.bas)return SPR.bas;const c=mk(14,17),x=c.getContext('2d');
+ // a tsukubai: a squat stone bowl on a mossy foot, water still inside, one bamboo ladle resting across
+ px(x,3,13,rgb([74,80,72]),8,3);px(x,2,15,rgb([52,56,50]),10,1);px(x,2,10,rgb([112,116,104]),10,3);
+ px(x,1,10,rgb([152,152,138]),12,1);px(x,1,9,rgb([96,100,90]),12,1);
+ for(let k=0;k<6;k++)px(x,2+k*2,12,rgb(mixc([96,100,90],[60,64,56],k%2*.6)));
+ disc(x,7,7,4,2,rgb([46,64,54]));px(x,4,6,rgb([96,140,150]),6,1);px(x,5,5,rgb([150,190,196]),3,1);
+ px(x,3,6,rgb([64,68,58]),1,2);px(x,10,6,rgb([64,68,58]),1,2);
+ x.strokeStyle='#8a6a44';x.beginPath();x.moveTo(1,4);x.lineTo(12,2);x.stroke();px(x,0,3,rgb([160,120,70]),2,2);px(x,12,1,rgb([190,150,96]),2,1);
+ return SPR.bas={c,ox:7,oy:16,sh:[0,2,7,2]}}
 function cat(){if(SPR.cat)return SPR.cat;const c=mk(16,12),x=c.getContext('2d'),B=[236,150,70],D=[184,100,40];disc(x,7,8,5,3,rgb(B));disc(x,11,6,3,3,rgb(B));px(x,10,2,rgb(B),2,2);px(x,13,2,rgb(B),2,2);px(x,10,6,rgb([30,24,16]));px(x,13,6,rgb([30,24,16]));px(x,4,6,rgb(D),6,1);px(x,2,9,rgb(D),2,2);return SPR.cat={c,ox:8,oy:11}}
 function flowerPot(){if(SPR.pot)return SPR.pot;const c=mk(10,14),x=c.getContext('2d');px(x,2,8,rgb([190,92,52]),6,5);px(x,1,7,rgb([214,112,64]),8,2);for(let k=0;k<5;k++){px(x,1+k*2,4+(k%2)*2,rgb([['#ff8fb8','#ffd24a','#fff','#e8453c','#ff8fb8'][k]]));px(x,2+k*2,6,rgb([60,130,56]))}return SPR.pot={c,ox:5,oy:12}}
 function signpost(){if(SPR.sign)return SPR.sign;const c=mk(30,40),x=c.getContext('2d');px(x,13,6,rgb([100,68,40]),3,32);px(x,14,6,rgb([146,102,60]),1,32);

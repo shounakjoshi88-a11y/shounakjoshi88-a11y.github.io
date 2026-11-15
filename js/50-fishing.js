@@ -38,7 +38,7 @@ function fishReel(){
  const f=FISH;if(!f)return;
  if(f.lock&&performance.now()<f.lock){const m=$('fmsg');if(m)m.textContent='Too quick. Let it settle.';return}
  if(f.pos>=f.zone-.035&&f.pos<=f.zone+f.zw+.035){
-  fishCaught(rollFish());
+  fishCaught(rollFish(typeof ANG_LOC!=='undefined'?ANG_LOC:null));
   f.tries++;fishMoveZone(f);
   }else{
   f.tries++;f.lock=performance.now()+650;

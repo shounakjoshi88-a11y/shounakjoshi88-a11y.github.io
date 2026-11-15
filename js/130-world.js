@@ -1,6 +1,6 @@
 /* ================= SCENE: world build ================= */
 const SH=[];
-function put(fi,fj,sp,t,dd){const[X,Y]=PF(fi,fj),o={d:fi+fj+(dd||0),x:Math.round(X),y:Math.round(Y),sp,ph:hh(fi,fj)*6,t:t||0};objs.push(o);if(sp.sh)SH.push([o.x+sp.sh[0],o.y+sp.sh[1],sp.sh[2],sp.sh[3]]);if(sp.sol!==undefined)addSolid(fi,fj,sp.sol,sp);return o}
+function put(fi,fj,sp,t,dd){const[X,Y]=PF(fi,fj),o={d:fi+fj+(dd||0),x:Math.round(X),y:Math.round(Y),a:fi,b:fj,sp,ph:hh(fi,fj)*6,t:t||0};objs.push(o);if(sp.sh)SH.push([o.x+sp.sh[0],o.y+sp.sh[1],sp.sh[2],sp.sh[3]]);if(sp.sol!==undefined)addSolid(fi,fj,sp.sol,sp);return o}
 /* ================= SKY ISLANDS: rock undersides, waterfalls, ground ================= */
 let FALLS=[];
 const relief=(a,b)=>{const r=(p,q)=>vn(p*.2,q*.2)*.62+vn(p*.5+3,q*.5)*.28+vn(p*1.4,q*1.4+8)*.1;return 1+clamp((r(a-.16,b-.16)-r(a+.16,b+.16))*4.2,-.2,.2)+(vn(a*.07,b*.07)-.5)*.16};

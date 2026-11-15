@@ -10,20 +10,22 @@
    ------------------------------------------------------------------ */
 
 // the rock itself: a squat castle islet, wider than it is tall, cut off from the rock it grew on
-const LANDE=(a,b)=>{if(a<120||a>152||b<46||b>62)return 0;if(a+b>204)return 0;
- const k=b>56?dmp(a,138):1;return sdRR(a,b,136.5,53.5,15,8)+vn(a*.27+83,b*.27)*1.3*k<0};
+const LANDE=(a,b)=>{if(a<113||a>158||b<41||b>64)return 0;if(a+b>205)return 0;
+ const k=b>59?dmp(a,136):1;return sdRR(a,b,135.5,52.2,19,10)+vn(a*.27+83,b*.27)*1.5*k<0};
 
 // the ground: weathered flagstone, a paved ring for the court, a straight approach walk to the door,
 // castle moss in the joints, and pale pebbles in the corners
 function groundE(fi,fj,x,y,n,dirt){
  const gi=clamp(Math.floor(n*3.6+(vn(fi*.6,fj*.6)-.5)*1.7),0,4);
- const PL=PP({m:['#8b8574','#a29c88','#bdb69e','#d4cdb4','#ece6d0']}).m;
+ const PL=PP({m:['#6e685c','#87816f','#a49d86','#bcb49c','#d0c8ae']}).m;
  const lt=relief(fi,fj);let k=PL[gi];k=[k[0]*lt,k[1]*lt,k[2]*lt];
+ const mo=vn(fi*.3+3,fj*.3+7);          // old parchment patches, long dry
+ if(mo>.7)k=mixc(k,[130,120,100],.5);else if(mo<.3)k=mixc(k,[96,94,80],.45);
  const e=EDE(fi,fj);   // the shadow the walls throw, and the sea on the drop
- if(e<.55)k=mixc(k,[96,96,84],.38);
+ if(e<.55)k=mixc(k,[88,88,76],.42);
  // the court: a ring of big flat slabs under the keep, and a straight walk from the bridge door
- const dc=Math.hypot(fi-136.5,fj-55.4),rd=3.3+(vn(fi*2,fj*2)-.5)*.35,ring=rd-.45;
- const inWalk=Math.abs(fi-136.5)<.95&&fj>50.2&&fj<53.3;
+ const dc=Math.hypot(fi-136.5,fj-55.4),rd=3.7+(vn(fi*2,fj*2)-.5)*.35,ring=rd-.45;
+ const inWalk=Math.abs(fi-136.0)<1.02&&fj>44.2&&fj<53.3;
  if(dc<rd||inWalk){
   const gxi=Math.floor(fi*1.35),gyi=Math.floor(fj*1.35),fx=(fi*1.35)%1,fy=(fj*1.35)%1;
   const grout=fx<.09||fy<.09;
@@ -169,7 +171,7 @@ function seed1(i,j){return (i*13+j*7)%4}
 // ---- put up the fifth rock
 function buildCastle(){
  // the rope bridge over from the observatory rock, running south to north
- const B4={a0:136.5,b0:33.6,b1:46.8,sag:7,v:1};
+ const B4={a0:136.5,b0:33.6,b1:43.4,sag:7,v:1};
  window.RB4=B4;
  objs.push({d:B4.a0+B4.b0+.02,x:Math.round(PF(B4.a0,(B4.b0+B4.b1)/2)[0]),y:Math.round(PF(B4.a0,(B4.b0+B4.b1)/2)[1]),ph:0,t:0,sp:null,
   draw:c=>ropeSegB(c,B4.b0,B4.b1,B4)});
@@ -178,7 +180,7 @@ function buildCastle(){
  put(139.3,51.4,lamp(),0,.05);
  put(132.9,52.2,bannerPole(),0,.05);
  put(139.9,52.3,bannerPole(),0,.05);
- for(let i=122;i<152;i++)for(let j=47;j<61;j++){
+ for(let i=115;i<160;i++)for(let j=42;j<64;j++){
   const fi=i+hh(i*7,j*5)-.5,fj=j+hh(j*11,i*3)-.5;
   if(!LANDE(fi,fj)||WD(fi,fj)>-.6)continue;
   const q=hh(i*5,j*7);
@@ -186,16 +188,26 @@ function buildCastle(){
   else if(q>.84)put(fi,fj,RS(2,2,RK,seed1(i,j)),0)}
  put(126.3,52.3,pine('g',9,2),1);
  put(147.7,51.9,pine('g',8,1),1);
- put(147.7,55.7,RS(3,3,RK,2),0);
- put(126.2,56.4,RS(4,4,RK,1),0);
+ put(151.8,56.3,RS(3,3,RK,2),0);
+ put(121.6,58.7,RS(4,4,RK,1),0);
+ put(153.4,51.2,pine('g',7,3),1);
+ put(118.9,53.6,pine('g',8,2),1);
+ // broken slabs and dry pines at the rim, the way a keep that old settles
+ put(120.6,48.4,RS(3,2,ST,9),0);put(152.0,47.9,RS(2,2,ST,11),0);put(123.4,61.8,RS(2,2,RK,13),0);
+ put(153.2,59.6,RS(3,2,ST,17),0);put(127.2,44.6,pine('g',7,1),1);put(145.4,60.8,pine('g',8,4),1);
+ // a pair of coals burning at the bridge mouth, where the path arrives
+ put(133.0,45.6,brazier(),2,.05);
+ put(140.2,45.7,brazier(),2,.05);
  // the towers, then the keep
- put(129.4,56.4,keepTower(),3,.05);
- put(143.7,56.7,keepTower(),3,.05);
+ put(126.8,57.4,keepTower(),3,.05);
+ put(144.2,57.6,keepTower(),3,.05);
  put(136.5,53.3,keep(),3,.05);
  // the fire in the courtyard
- put(132.6,58.7,brazier(),2,.05);
- put(140.4,58.7,brazier(),2,.05);
+ put(131.6,59.2,brazier(),2,.05);
+ put(141.4,59.3,brazier(),2,.05);
+ // a bench set to face the keep from across the court
+ put(131.8,58.5,bench(0,0),0);
  // the chair at the edge, facing the drop
- put(139.3,59.9,kingChair(),2,.05);
+ put(140.2,62.6,kingChair(),2,.05);
  objs.sort((a,b)=>a.d-b.d);
 }

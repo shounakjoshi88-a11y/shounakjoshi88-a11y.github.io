@@ -60,6 +60,8 @@ function playerTick(){
  const n=performance.now(),dt=Math.min(.09,(n-PLT)/1000);PLT=n;
  if(MODE!=='explore'||!PL)return;
  const P=PL.P;
+ const sitting=typeof SIT!=='undefined'&&SIT;
+ if(sitting&&(KEYS.w||KEYS.s||KEYS.a||KEYS.d||KEYS.arrowup||KEYS.arrowdown||KEYS.arrowleft||KEYS.arrowright))standUp();
  let dx=0,dy=0;
  if(KEYS.w||KEYS.arrowup){dx--;dy--}
  if(KEYS.s||KEYS.arrowdown){dx++;dy++}
@@ -75,6 +77,7 @@ function playerTick(){
   if(ok){P.vx=dx;P.vy=dy;P.mvg=1;P.anim+=dt*7}}
  P.wait=P.mvg?0:1e9;
  if(blocked(P.a,P.b)){const q=nearWalk(P.a,P.b);P.a=q[0];P.b=q[1];GOAL=null}
+ if(typeof SIT!=='undefined'&&SIT){P.a=SIT.a;P.b=SIT.b;P.vx=SIT.fx;P.vy=SIT.fz;P.mvg=0}
  PL.d=P.a+P.b;
  CF[0]+=(P.a-CF[0])*Math.min(1,dt*6);CF[1]+=(P.b-CF[1])*Math.min(1,dt*6);
  let best=-1,bd=2.6;CH.forEach((c,k)=>{const d=Math.hypot(P.a-c.at[0],P.b-c.at[1]);if(d<bd){bd=d;best=k}});NEAR=best;
@@ -86,9 +89,11 @@ function playerTick(){
  const th=typeof thingNear==='function'?thingNear():null;
  const hint=$('hint');
  if(hint){
-  if(MODE==='explore'&&dr){hint.hidden=false;hint.textContent=doorLock(dr.d)?'Locked door':'Open the door'}
+  if(MODE==='explore'&&typeof SIT!=='undefined'&&SIT){hint.hidden=false;hint.textContent='Stand up'}
+  else if(MODE==='explore'&&dr){hint.hidden=false;hint.textContent=doorLock(dr.d)?'Locked door':'Open the door'}
   else if(MODE==='explore'&&th){hint.hidden=false;hint.textContent='Look closer'}
   else if(MODE==='explore'&&typeof anglingNear==='function'&&anglingNear()){hint.hidden=false;hint.textContent='Cast a line'}
+  else if(MODE==='explore'&&typeof perchNear==='function'&&perchNear()){hint.hidden=false;hint.textContent='Sit a while'}
   else hint.hidden=true}
 }
 // ---- the minimap: three rocks, the glints you found, and where you are standing
@@ -134,6 +139,7 @@ function startX(){
  note('The village is open','Walk with WASD, the arrow keys, or by tapping the ground. Stand near a villager and they will tell you a piece of Shounak. Every faint glint you walk over is a secret.');
 }
 function leaveX(silent){
+ if(typeof standUp==='function')standUp();
  if(MODE==='explore'){
   const k=nearestChapter();setMode('story');
   if(!silent&&PL){const max=Math.max(1,document.body.scrollHeight-innerHeight),de=document.documentElement;
@@ -157,5 +163,7 @@ addEventListener('blur',()=>{KEYS={}});
 const NOTAP='button,a,input,textarea,select,#mm,#bub,#map,#sig,#pass,#fish,.panel,#find,#wish,#walkhud';
 addEventListener('pointerdown',e=>{if(MODE!=='explore'||e.button)return;if(e.target.closest&&e.target.closest(NOTAP))return;CK=[e.clientX,e.clientY]},{passive:true});
 addEventListener('pointerup',e=>{if(MODE!=='explore'||!CK)return;
- if(Math.hypot(e.clientX-CK[0],e.clientY-CK[1])<10){const f=$('fish');if(!f||f.hidden)GOAL=scr2tile(e.clientX,e.clientY)}
+ if(Math.hypot(e.clientX-CK[0],e.clientY-CK[1])<10){
+  if(typeof SIT!=='undefined'&&SIT){standUp()}
+  else{const f=$('fish');if(!f||f.hidden)GOAL=scr2tile(e.clientX,e.clientY)}}
  CK=null});

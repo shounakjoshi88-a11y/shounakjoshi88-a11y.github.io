@@ -368,9 +368,11 @@ $('rmcard').addEventListener('click',()=>{
 $('rmclose').onclick=roomShut;
 $('hint').onclick=()=>{
  if(MODE==='room')return;
+ if(typeof SIT!=='undefined'&&SIT){standUp();return}
  const e=doorNear();
  if(e){doorUse(e);return}
  const th=typeof thingNear==='function'?thingNear():null;
  if(th){thingUse(th);return}
- if(typeof anglingUse==='function')anglingUse();
+ if(typeof anglingNear==='function'&&anglingNear()){anglingUse();return}
+ if(typeof perchUse==='function')perchUse();
 };
