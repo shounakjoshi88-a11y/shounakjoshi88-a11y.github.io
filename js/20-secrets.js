@@ -13,5 +13,6 @@ const SEC=[
  {id:'signal',at:[140.9,31.4],t:'A signal from the cloud sea',x:'The dish picks up something repeating every seven turns. It is not a message from anyone. It is the pond, humming.'},
  {id:'light',at:[95.0,58.6],t:'The light on the rock',x:'The light is not for ships, because there are no ships. It is so that anything leaving at night can see the edge of the island from the outside, and know there is a shore.'},
  {id:'hulls',at:[97.4,60.2],t:'Five hulls on the stands',x:'Each one is a thing that was finished here and is now somewhere else, doing its job to somebody Shounak has never met and will never thank.'},
- {id:'golden',at:[26.2,17.7],noGlint:1,t:'The golden koi',x:'The pond keeps one that is not really a fish. It rises for people who have listened to every villager, and it gives up the only secret it owns.'}];
+ {id:'golden',at:[26.2,17.7],noGlint:1,t:'The golden koi',x:'The pond keeps one that is not really a fish. It rises for people who have listened to every villager, and it gives up the only secret it owns.'},
+ {id:'throne',at:[139.3,59.9],t:'The king’s chair',x:'The castle was built for the one who finished everything. He left it the moment it opened, and nobody has found him. It is facing the drop because the drop is the one thing in the sky sea that never stays.'}];
 let FOUND=[];try{FOUND=JSON.parse(localStorage.koiFound||'[]')}catch(e){}

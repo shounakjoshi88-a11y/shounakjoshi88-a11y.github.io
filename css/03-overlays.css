@@ -36,6 +36,7 @@
 #map[hidden]{display:none}
 .mbox{position:relative;background:var(--paper);color:var(--text);padding:1.3rem 1.35rem 1.35rem;max-width:720px;width:100%;max-height:88vh;overflow:auto;clip-path:var(--notch);box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .mbox h3{margin:0 0 .3rem;font-family:var(--mono);font-size:1.05rem;color:var(--rust);letter-spacing:.06em}
+#mchart{width:100%;height:auto;display:block;border:2px solid #6a563a;border-radius:3px;background:#c8b06e;margin:.7rem 0 .8rem}
 .mlead{font-size:.85rem;color:#4a3a26;margin:0 0 1rem;max-width:52ch}
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
 .mcard{position:relative;text-align:left;background:#1b3a36;color:#f1e6c8;border:0;padding:.85rem .85rem .8rem;clip-path:var(--notch);cursor:pointer;display:flex;flex-direction:column;gap:.15rem;transition:background .15s,transform .15s}

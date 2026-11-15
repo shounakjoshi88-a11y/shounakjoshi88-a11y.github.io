@@ -89,10 +89,12 @@ function lgtSun(){
                   :mixc([64,80,124],[198,142,118],tw*.88);
  s.amb=ambC;
  s.ambI=isDay?(.90+.02*day):Math.max(.40,(.90+.08*night)*(1-tw*.22));
- // ---- where it hangs in the screen, so the visible disc agrees with the shadows
- s.sx=clamp(.5+.44*s.dx,.05,.95);
- s.sy=isDay?clamp(.185-.155*clamp((s.el-.46)/.74,0,1),.015,.2)
-            :clamp(.02+.11*(1-clamp(night,0,1)),.015,.16);
+ // ---- where it hangs in the sky. The disc must sit in the direction the light actually
+ // comes from, or the shadows and the sun disagree with each other. Azimuth slides the disc
+ // across the sky (east to west), elevation lifts it toward the zenith. The moon rides the
+ // same formula, because at night (s.dx,s.dy) already points at it.
+ s.sx=clamp(.5+s.dx*.38,.03,.97);
+ s.sy=clamp(.19-(s.el-.95)*.17+s.dy*.06,.015,.30);
  // storms eat the sun and leave the ambient
  const st=cur.storm;
  s.i*=(1-st*.80); s.ambI*=(1-st*.16); s.amb=mixc(s.amb,[92,104,124],st*.55);
@@ -152,8 +154,8 @@ function buildLight(){
  // one pre-rendered pool of light, drawn for every lamp
  const gs=lgtCanvas('glow',128,128),gc=gs.getContext('2d');
  const gr=gc.createRadialGradient(64,64,0,64,64,64);
- gr.addColorStop(0,'rgba(255,240,208,1)');gr.addColorStop(.30,'rgba(255,212,146,.52)');
- gr.addColorStop(.62,'rgba(255,172,100,.15)');gr.addColorStop(1,'rgba(255,152,82,0)');
+ gr.addColorStop(0,'rgba(255,246,220,1)');gr.addColorStop(.28,'rgba(255,214,148,.58)');
+ gr.addColorStop(.62,'rgba(255,176,104,.20)');gr.addColorStop(1,'rgba(255,152,82,0)');
  gc.fillStyle=gr;gc.fillRect(0,0,128,128);
  // the shape of the land itself, which never changes: that is what keeps the
  // sky out of the multiply without copying the frame every tick
@@ -256,7 +258,7 @@ function lgtCast(){
     if(u<0)u=0;else if(u>L)u-=L;else u=0;
     const v=X*sy-Y*sx, d2=u*u+v*v;
     if(d2>=rr)continue;
-    const d=Math.sqrt(d2),a=(r-d)/(1.5+u*.055);
+    const d=Math.sqrt(d2),a=(r-d)/(2.3+u*.085);
     if(a<=0)continue;
     const k=(j*ow+ii)*4, na=255-Math.min(1,a)*255;
     if(na<mb[k+3])mb[k+3]=na}}}
@@ -312,12 +314,12 @@ function lightPass(ctx){
   tc.drawImage(LGT.resp[a0],0,0,ww,wh);
   if(fr>.01){tc.globalAlpha=fr;tc.drawImage(LGT.resp[a1],0,0,ww,wh);tc.globalAlpha=1}
   tc.setTransform(1,0,0,1,0,0);
-  tc.globalCompositeOperation='destination-in';tc.imageSmoothingEnabled=false;
+  tc.globalCompositeOperation='destination-in';tc.imageSmoothingEnabled=true;
   tc.setTransform(Z*k,0,0,Z*k,TX*k,TY*k);
   tc.drawImage(LGT.mask,0,0,LGT.ow*LGT.LS,LGT.oh*LGT.LS);
   tc.setTransform(1,0,0,1,0,0)}
  else{
-  tc.globalCompositeOperation='destination-in';tc.imageSmoothingEnabled=false;
+  tc.globalCompositeOperation='destination-in';tc.imageSmoothingEnabled=true;
   tc.setTransform(Z*k,0,0,Z*k,TX*k,TY*k);
   tc.drawImage(LGT.mask,0,0,LGT.ow*LGT.LS,LGT.oh*LGT.LS);
   tc.setTransform(1,0,0,1,0,0)}
@@ -335,8 +337,8 @@ function lightPass(ctx){
   if(S.x<l-160||S.x>vr+160||S.y<tp-200||S.y>bt+160)continue;
   near.push(S);
   if(emis<=0)continue;
-  const rr=S.r*(1+.25*L);
-  lkc.globalAlpha=clamp(emis*(S.k?1.15:1)*.55,0,1);
+  const rr=S.r*(1+.35*L);
+  lkc.globalAlpha=clamp(emis*(S.k?1.15:1)*.72,0,1);
   lkc.drawImage(LGT.glow,S.x-rr,S.y-rr*.72,rr*2,rr*1.44)}
  lkc.globalAlpha=1;
  tm.lamp=performance.now()-t1;
@@ -382,9 +384,13 @@ function lightPass(ctx){
   near.sort((a,b)=>Math.hypot(a.x-cx,a.y-cy)-Math.hypot(b.x-cx,b.y-cy));
   const N=Math.min(near.length,22);
   for(let n=0;n<N;n++){
-   const S=near[n],rr=S.r*(1+.25*L);
-   ctx.globalAlpha=clamp((.06+.16*L)*(S.k?1.25:1),0,.3);
-   ctx.drawImage(LGT.glow,S.gx-rr,S.gy-rr*.8,rr*2,rr*1.6)}
+   const S=near[n],rr=S.r*(1+.32*L);
+   ctx.globalAlpha=clamp((.07+.19*L)*(S.k?1.25:1),0,.34);
+   ctx.drawImage(LGT.glow,S.gx-rr,S.gy-rr*.8,rr*2,rr*1.6);
+   // and the hot core right at the bulb, so the fixture reads as lit
+   const cr=rr*.5;
+   ctx.globalAlpha=clamp((.10+.30*L)*(S.k?1.2:1),0,.5);
+   ctx.drawImage(LGT.glow,S.gx-cr,S.gy-cr,cr*2,cr*2)}
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
   tm.pool=performance.now()-t4}
  ctx.setTransform(1,0,0,1,0,0);

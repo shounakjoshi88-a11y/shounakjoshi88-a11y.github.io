@@ -24,7 +24,7 @@ const ROOMS={
    'A jugaad cart, a hand drill, and a soldering iron with a wooden handle he turned out of a fence post.',
    'The rule he lives by: build with what you have, check what you built, and never trust a thing you have not broken once.'],
   item:['A hand drill with a fence post handle','The bit is slightly off-centre. It still drills straight, which he says is the point.'],
-  furn:[['crates',96,132],['hay',210,142],['barrel',44,152],['lamp',252,104]],
+  furn:[['crate',96,132],['hay',210,142],['barrel',44,152],['lamp',252,104]],
   ox:150,oy:112,ix:96,iy:120},
  desk:{name:"The student's desk",owner:'Pip',wall:'#4a5a63',floor:'#7a6a54',accent:'#9fc6b2',
   lines:['I photograph the timetable before class so I never have to look at it again.',
@@ -70,6 +70,14 @@ const ROOMS={
   item:['A page of notes on the sky','Half the page is a definition. The other half is a question he has not closed yet.'],
   furn:[['scope',120,116],['desk',220,132],['books',52,100],['crate',262,152]],
   ox:78,oy:120,ix:220,iy:120},
+ keep:{name:'The Tall Hall',owner:'Venna',wall:'#4a4436',floor:'#7d7560',accent:'#e0b070',
+  lines:['Sit. The floor is old stone and the sun crosses it on one hour of the day. I do not measure the hour for you.',
+   'Two hundred and four names are in the pond itself, written in the pond’s own hand. What it was, and who it was for. The last page stays empty.',
+   'The king who built this finished everything he ever started. The pond showed him one more thing to finish, and he did, and then the sky sea was here, and this is what was left.',
+   'Everyone who reaches this room is somebody who finished. That is the whole test, and you are past it.'],
+  item:['A page from the pond’s tally','Two columns, in the pond’s own writing: what it was, and who it was for. The last line is blank.'],
+  furn:[['rug',160,144],['chair',160,126],['desk',230,116],['shelf',56,100],['lamp',252,104],['counter',124,126],['candles',124,112],['banner',160,54],['tome',230,106],['bonsai',62,118]],
+  ox:92,oy:118,ix:124,iy:112},
  shrine:{name:'The shrine room',owner:'The shrine',wall:'#5a4438',floor:'#6f6152',accent:'#e8c07a',
   lines:['Five Sekiro clears and two Ghost of Tsushima runs. He likes a hard fight he can learn his way through.',
    'There is no priest here. There is a bell, an offering bowl, and the count of how many times he came up here to think.'],
@@ -118,7 +126,7 @@ const ROOMS={
 
 // the houses with nobody in them still get a name, a look and one thing left on the table
 const HOMEKIT={wall:'#5a4a3a',floor:'#7a6a54',accent:'#c9a25a',ox:120,oy:116,ix:100,iy:112,
- furn:[['table',90,126],['bed',230,120],['crate',40,152],['shelf',250,96],['lamp',262,104]]};
+ furn:[['rug',150,146],['table',92,128],['bed',232,122],['crate',38,152],['shelf',252,98],['lamp',264,106],['tome',88,118],['bonsai',182,120]]};
 for(const k in ROOMS)if(!ROOMS[k].furn)ROOMS[k]=Object.assign({},HOMEKIT,ROOMS[k]);
 
 // the doors: where they are, which room is behind them, and what keeps them shut
@@ -145,7 +153,8 @@ const DOORS=[
  {id:'hermit',house:[51.0,15.6],off:[0,1.2],room:'hermit'},
  {id:'post',house:[91.5,33],off:[-0.41,1.5],room:'post'},
  {id:'pagoda',house:[111,17],off:[0,1.4],room:'pagoda'},
- {id:'dome',house:[133.0,27.0],off:[0,1.5],room:'dome'}];
+ {id:'dome',house:[133.0,27.0],off:[0,1.5],room:'dome'},
+ {id:'starkeep',house:[136.5,53.3],off:[0,1.9],room:'keep',lock:{quests:['village','koi','far','sky']},lockMsg:'The keeper counts four promises: the village, the fish, the far ends of the road, and the sky. Keep them all and the door opens.'}];
 
 let ROOM=null,RMX=0,RMY=0,RMTX=0,RMTY=0,RMGOAL=null,RMTAKE=0;
 const RCTX=document.getElementById('rmcv').getContext('2d');
@@ -182,7 +191,21 @@ function furnDraw(g,k,x,y){
   case 'barrel': px(0,0,'#6a4a2a');g.fillRect(x-9,y-16,18,18);g.fillStyle='#8a6a3a';g.fillRect(x-9,y-16,18,2);g.fillRect(x-9,y-7,18,2);break;
   case 'hay': px(0,0,'#c8a44a');g.fillRect(x-16,y-10,32,12);g.fillStyle='#a8883a';g.fillRect(x-16,y-4,32,2);break;
   case 'lamp': px(0,0,'#4a4a4a');g.fillRect(x-2,y-16,3,18);g.fillStyle='#ffd27a';g.fillRect(x-6,y-24,11,9);g.fillStyle='#fff0c0';g.fillRect(x-4,y-22,7,5);break;
-  case 'rug': px(0,0,'#7a3a3a');g.fillRect(x-30,y-8,60,16);g.fillStyle='#a05440';g.fillRect(x-26,y-6,52,12);break}}
+  case 'rug': px(0,0,'#7a3a3a');g.fillRect(x-30,y-8,60,16);g.fillStyle='#a05440';g.fillRect(x-26,y-6,52,12);break;
+  // the keep's own company: three candles, two banners, one empty chair
+  case 'candles': g.fillStyle='#6a5a2a';g.fillRect(x-9,y-3,18,4);g.fillRect(x-2,y-18,3,16);
+   g.fillStyle='#c9b06a';for(const dx of[-8,0,8])g.fillRect(x+dx-1,y-21,2,8);
+   g.fillStyle='#ffd27a';for(const dx of[-8,0,8])g.fillRect(x+dx-1,y-24,2,3);break;
+  case 'banner': g.fillStyle='#5a1d17';g.fillRect(x-6,y,13,36);g.fillStyle='#7d2b21';g.fillRect(x-6,y,3,36);
+   g.fillStyle='#e8c86a';g.fillRect(x-2,y+8,5,1);g.fillRect(x,y+7,1,3);
+   g.fillStyle='#5a1d17';g.fillRect(x-6,y+36,11,2);g.fillRect(x-5,y+38,9,2);g.fillRect(x-4,y+40,7,2);g.fillRect(x-3,y+42,5,2);break;
+  case 'chair': g.fillStyle='#2e211a';g.fillRect(x-8,y-27,16,27);g.fillStyle='#463326';g.fillRect(x-6,y-25,12,14);
+   g.fillStyle='#241c14';g.fillRect(x-2,y-22,4,5);g.fillRect(x-4,y-20,8,2);
+   g.fillStyle='#2e211a';g.fillRect(x-11,y,22,4);g.fillRect(x-10,y+4,3,9);g.fillRect(x+7,y+4,3,9);break;
+  case 'bonsai': g.fillStyle='#6a4a2a';g.fillRect(x-7,y-3,14,5);
+   g.fillStyle='#3a5a34';g.fillRect(x-5,y-8,10,5);g.fillStyle='#4d7345';g.fillRect(x-8,y-13,16,5);g.fillStyle='#638f58';g.fillRect(x-11,y-17,22,4);break;
+  case 'tome': g.fillStyle='#3a2e1e';g.fillRect(x-10,y-4,20,4);g.fillStyle='#503c28';g.fillRect(x-9,y-8,18,4);
+   g.fillStyle='#27455a';g.fillRect(x-10,y-12,20,4);g.fillStyle='#c9b06a';g.fillRect(x-2,y-11,5,2);break}}
 
 // ---- a person standing in a room
 function rmPerson(g,sp,x,y){
@@ -299,6 +322,7 @@ function doorList(){
 function doorLock(d){
  const R=ROOMS[d.room],L=d.lock||R.lock,msg=d.lockMsg||R.lockMsg;
  if(L&&L.quest&&!PASS.quests.includes(L.quest))return msg||'Not yet.';
+ if(L&&L.quests&&!L.quests.every(q=>PASS.quests.includes(q)))return msg||'Not yet.';
  if(L&&L.need&&!L.need.every(hasSecret))return msg||'Not yet.';
  if(L&&L.fish&&PASS.caught.length<L.fish)return msg||'Not yet.';
  return null}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Shounak Joshi | The Koi Pond</title>
 <meta name="description" content="Shounak Joshi builds agentic AI systems and full-stack apps that hold up under real use. Walk the pixel-art village — farm, market, orchard, river — down to the koi pond. Change the weather, toss a coin, make ripples.">
 <meta name="theme-color" content="#06201f">
@@ -114,7 +114,8 @@
   <div class="mbox" role="dialog" aria-label="The sky map">
     <button class="pclose" id="mclose" type="button" aria-label="Close the map">&times;</button>
     <h3>Where you have walked</h3>
-    <p class="mlead">Three rocks in the cloud sea. Pick one to go back to it.</p>
+    <p class="mlead">Five rocks in the cloud sea. The sky sea answers to nobody, but the path is clear once it has been walked.</p>
+    <canvas id="mchart" width="720" height="400" role="img" aria-label="A hand-drawn chart of the five rocks in the cloud sea: the village, the sakura isle, the observatory rock, the harbour and the star keep."></canvas>
     <div class="mgrid" id="mgrid"></div>
     <p class="mfoot" id="mfoot"></p>
   </div>
@@ -224,11 +225,11 @@ vec3 skyAt(vec2 uv){
  vec3 c=mix(mix(zen,mid,smoothstep(0.,.5,g)),hor,smoothstep(.35,1.,g));
  vec2 sp=SNP;vec2 q=(uv-sp)*vec2(asp,1.);float sd=length(q);
  float sun=smoothstep(.034,.028,sd)+exp(-sd*6.)*.35+exp(-sd*22.)*.5+exp(-sd*4.2)*.12;
- c+=mix(vec3(1.,.92,.74),vec3(1.,.5,.24),D)*sun*day*(1.-ST*.85);
+ c+=mix(vec3(1.,.92,.74),vec3(1.,.5,.24),D)*sun*max(day,D*1.35)*(1.-ST*.85);
  // soft shafts fanning out from the sun
  float ang=atan(q.y,q.x);float ray=pow(nz(vec2(ang*7.+T*.03,3.))*.6+nz(vec2(ang*17.-T*.05,8.))*.4,2.2);
- c+=mix(vec3(1.,.9,.7),vec3(1.,.55,.3),D)*ray*exp(-sd*3.4)*.3*day*(1.-ST);
- vec2 q2=(uv-vec2(1.-SNP.x,mix(.045,.085,N)))*vec2(asp,1.);float md=length(q2);
+ c+=mix(vec3(1.,.9,.7),vec3(1.,.55,.3),D)*ray*exp(-sd*3.4)*.3*max(day,D*1.2)*(1.-ST);
+ vec2 q2=(uv-SNP)*vec2(asp,1.);float md=length(q2);
  c+=vec3(.85,.9,1.)*(smoothstep(.03,.026,md)*(.85+.15*nz(q2*60.))+exp(-md*9.)*.18)*N*(1.-ST*.85);
  vec2 sg=uv*vec2(asp,1.)*64.,si=floor(sg);float sr=hs(si);
  float stl=step(.965,sr)*smoothstep(.22,0.,length(fract(sg)-.5+(hs(si+7.)-.5)*.5))*(.55+.45*sin(T*(1.5+sr*3.)+sr*40.));
@@ -334,6 +335,7 @@ void main(){
 <script src="js/40-passport.js"></script>
 <script src="js/50-fishing.js"></script>
 <script src="js/60-map.js"></script>
+<script src="js/62-chart.js"></script>
 <script src="js/70-signal.js"></script>
 <script src="js/80-story.js"></script>
 <script src="js/85-wishes.js"></script>
@@ -345,6 +347,7 @@ void main(){
 <script src="js/140-isles.js"></script>
 <script src="js/145-storybook.js"></script>
 <script src="js/147-harbour.js"></script>
+<script src="js/148-castle.js"></script>
 <script src="js/150-people.js"></script>
 <script src="js/160-explore.js"></script>
 <script src="js/165-light.js"></script>

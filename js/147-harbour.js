@@ -104,16 +104,16 @@ function seed1(i,j){return (i*13+j*7)%4}
 function ropeSegB(c,s0,s1,B){
  const a=B.a0;
  const P=(b,db)=>{const[x,y]=PF(a,b+db);const t=clamp((b-B.b0)/(B.b1-B.b0),0,1),L=-B.sag*4*t*(1-t);
-  return[x,y-L+Math.sin(T*1.1+b*.35)*.7]};
+  return[Math.round(x),Math.round(y-L+Math.sin(T*1.1+b*.35)*.7)]};
  for(let b=s0;b<=s1+.001;b+=.5){const[x,y]=P(b,0);
-  c.fillStyle='#8a6a44';c.fillRect(Math.round(x)-11,Math.round(y)-12,23,3);
-  c.fillStyle='#5a4024';c.fillRect(Math.round(x)-11,Math.round(y)-9,23,1);
-  c.fillStyle='#a88a5c';c.fillRect(Math.round(x)-11,Math.round(y)-12,23,1)}
+  c.fillStyle='#8a6a44';c.fillRect(x-11,y-12,23,3);
+  c.fillStyle='#5a4024';c.fillRect(x-11,y-9,23,1);
+  c.fillStyle='#a88a5c';c.fillRect(x-11,y-12,23,1)}
  for(const side of[-1,1]){
-  for(let b=s0;b<=s1+.001;b+=.06){const[x,y]=P(b,side*.55);c.fillStyle='#8a6a44';c.fillRect(Math.round(x),Math.round(y)-13,1,1)}
+  for(let b=s0;b<=s1+.001;b+=.06){const[x,y]=P(b,side*.55);c.fillStyle='#8a6a44';c.fillRect(x,y-13,1,1)}
   for(let b=s0;b<=s1+.001;b+=2){const[x,y]=P(b,side*.55);
-   c.fillStyle='#4d3120';c.fillRect(Math.round(x)-1,Math.round(y)-15,3,16);
-   c.fillStyle='#c18b56';c.fillRect(Math.round(x)-1,Math.round(y)-16,3,2);c.fillStyle='#4d3120';c.fillRect(Math.round(x),Math.round(y)-14,1,14)}}}
+   c.fillStyle='#4d3120';c.fillRect(x-1,y-15,3,16);
+   c.fillStyle='#c18b56';c.fillRect(x-1,y-16,3,2);c.fillStyle='#4d3120';c.fillRect(x,y-14,1,14)}}}
 // the little jetty on the harbour side
 function harbourJetty(){
  if(SPR.hjt)return SPR.hjt;

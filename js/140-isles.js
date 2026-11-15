@@ -287,19 +287,19 @@ function buildBridge(){_RB=RB;
   for(let k=0;k<Math.ceil(RB2.a1-RB2.a0);k++){const s0=RB2.a0+k,s1=Math.min(RB2.a1,s0+1),[xm,ym]=PF((s0+s1)/2,RB2.b);
    objs.push({d:(s0+s1)/2+RB2.b+.02,x:Math.round(xm),y:Math.round(ym+8),ph:0,t:0,sp:null,draw:c=>ropeSeg(c,s0,s1,k==0,s1>=RB2.a1,RB2)})}
   _RB=null;
-  put(118.0,28.3,stoneLantern(),3);put(124.2,28.0,stoneLantern(),3);put(118.0,31.7,stoneLantern(),3)}
+  put(118.0,28.3,stoneLantern(),3);put(118.0,31.7,stoneLantern(),3)}
 function ropeSeg(c,s0,s1,first,last,B){
  const RB=B||_RB;
- const b=RB.b,P=(a,db)=>{const t=ropeT(a,RB),L=-RB.sag*4*t*(1-t),[x,y]=PF(a,b+db);return[x,y-L+Math.sin(T*1.1+a*.35)*.7]};
+ const b=RB.b,P=(a,db)=>{const t=ropeT(a,RB),L=-RB.sag*4*t*(1-t),[x,y]=PF(a,b+db);return[Math.round(x),Math.round(y-L+Math.sin(T*1.1+a*.35)*.7)]};
  const posts=[];for(let a=RB.a0;a<=RB.a1+.01;a+=2)if(a>=s0-1e-6&&(a<s1-1e-6||(last&&a<=s1+1e-6)))posts.push(a);
  const rail=(db,front)=>{c.fillStyle='#8a6a44';
-  for(let a=s0;a<=s1+.001;a+=.1){const[x,y]=P(a,db);c.fillRect(Math.round(x),Math.round(y)-11,1,1);if(front)c.fillRect(Math.round(x),Math.round(y)-12,1,1)}
-  for(const a of posts){const[x,y]=P(a,db);c.fillStyle='#4d3120';c.fillRect(Math.round(x)-1,Math.round(y)-13,3,14);c.fillStyle='#c18b56';c.fillRect(Math.round(x)-1,Math.round(y)-14,3,2);
-   if(front&&Math.round((a-RB.a0)/2)%2==0){const f=.88+.12*Math.sin(T*5+a);c.fillStyle='#2a1c14';c.fillRect(Math.round(x),Math.round(y)-11,1,5);c.fillStyle=rgb([240*f,80*f,52*f]);c.fillRect(Math.round(x)-2,Math.round(y)-6,5,5);c.fillStyle='#ffe2a0';c.fillRect(Math.round(x)-1,Math.round(y)-5,3,3);GLW.push([x,y-3,24])}}};
+  for(let a=s0;a<=s1+.001;a+=.1){const[x,y]=P(a,db);c.fillRect(x,y-11,1,1);if(front)c.fillRect(x,y-12,1,1)}
+  for(const a of posts){const[x,y]=P(a,db);c.fillStyle='#4d3120';c.fillRect(x-1,y-13,3,14);c.fillStyle='#c18b56';c.fillRect(x-1,y-14,3,2);
+   if(front&&Math.round((a-RB.a0)/2)%2==0){const f=.88+.12*Math.sin(T*5+a);c.fillStyle='#2a1c14';c.fillRect(x,y-11,1,5);c.fillStyle=rgb([240*f,80*f,52*f]);c.fillRect(x-2,y-6,5,5);c.fillStyle='#ffe2a0';c.fillRect(x-1,y-5,3,3);GLW.push([x,y-3,24])}}};
  rail(-.62,false);
  for(let a=s0;a<s1+.001;a+=.06){const[x,y]=P(a,0),pi=Math.floor((a-RB.a0)/.2),seam=((a-RB.a0)%.2)<.06;
-  for(let k=0;k<23;k++){c.fillStyle=(k<2||k>20)?'#5e3d21':seam?'#6e4526':['#b07a45','#a56f3c','#bb8650'][pi%3];c.fillRect(Math.round(x+11-k),Math.round(y-5.5+k*.5),1,3)}
-  c.fillStyle='#3a2616';c.fillRect(Math.round(x+10),Math.round(y+3),2,2)}
+  for(let k=0;k<23;k++){c.fillStyle=(k<2||k>20)?'#5e3d21':seam?'#6e4526':['#b07a45','#a56f3c','#bb8650'][pi%3];c.fillRect(x+11-k,Math.round(y-6+k*.5),1,3)}
+  c.fillStyle='#3a2616';c.fillRect(x+10,y+3,2,2)}
  rail(.62,true)}
 // ---- the sakura isle itself ----
 const RESB=[[97.5,39.0,3.4],[108.5,22.6,2.6],[111,17,5.8],[91.5,33,4.6],[93.8,25.6,3.8],[99.4,24.6,1.3],[88.2,29.2,3.4],[104,31.5,6.2],[85.8,19.6,2],[104.3,40.2,2.2],[104,26.2,1.8]];
@@ -336,7 +336,7 @@ function buildB(c){
  put(93.8,25.6,oak('g',18,2,'cherry'),1,.05);put(111,17,pagoda(),2,.05);put(91.5,33,teahouse(),2,.05);
  put(85.8,19.6,torii(0),2,.05);put(104.3,40.2,torii(1),2,.05);
  put(99.4,24.6,postbox(),0);put(98.4,22.6,bench(0),0);put(100.4,27.2,bench(1),0);put(96.4,30.6,bench(0),0);
- for(const[a,b]of[[88.6,18.2],[88.6,21.0],[92.6,19.0],[93.2,22.4],[97.4,22.4],[99.2,28.4],[108.8,35.4],[104.8,25.6],[103.2,37.8],[105.8,38.2],[108.4,21.8],[106.2,23.4],[100.0,34.8],[112.6,19.6],[110.2,13.2],[90.2,35.0],[87.0,31.8]])put(a,b,stoneLantern(),3);
+ for(const[a,b]of[[95.6,22.1],[99.4,26.9],[109.5,18.4],[112.7,18.4],[89.4,32.5],[93.6,32.5],[101.0,38.6],[104.8,39.0]])put(a,b,stoneLantern(),3);
  // rocks and reeds round the little pond
  for(let q=0;q<44;q++){const an=q/44*6.283;if(Math.abs(Math.cos(an))<.22)continue;let rr=6;while(rr>2&&WD(POND2[0]+Math.cos(an)*rr,POND2[1]+Math.sin(an)*rr)<=0)rr-=.1;
   const fi=POND2[0]+Math.cos(an)*(rr+.25),fj=POND2[1]+Math.sin(an)*(rr+.25);if(!LANDB(fi,fj))continue;
@@ -391,10 +391,10 @@ function buildC(c){
  put(136.4,31.4,signalMast(),2,.06);
  put(129.8,23.4,tripod(),0);
  // a ring of standing stones round the back of the rock
- for(let q=0;q<7;q++){const an=q/7*6.283;put(128.6+Math.cos(an)*2.8,32.8+Math.sin(an)*2.2,standingStone(q%3),0)}
- put(131.6,34.2,bench(1),0);put(127.6,27.0,bench(0),0);
+ for(let q=0;q<7;q++){const an=q/7*6.283;put(129.7+Math.cos(an)*2.35,34.7+Math.sin(an)*1.85,standingStone(q%3),0)}
+ put(135.2,35.6,bench(1),0);put(127.6,27.0,bench(0),0);
  put(124.7,29.0,signpost(),0);
- for(const[a,b]of[[127.0,30.6],[131.6,22.9],[136.0,24.8],[138.2,34.0],[127.6,23.2],[124.6,28.4],[124.6,31.6]])put(a,b,stoneLantern(),3);
+ for(const[a,b]of[[127.6,22.6],[132.4,22.9],[124.4,27.4],[123.8,32.6]])put(a,b,stoneLantern(),3);
  put(131.0,31.2,crates(),0);put(134.6,30.4,barrel(),0);
 }
 // ---- camera: down the village lane, then across the rope bridge to the sakura isle ----
@@ -417,10 +417,10 @@ function camAt(f){
 const APAL=[{plank:['#b07a45','#a56f3c','#bb8650'],edge:'#5e3d21',seam:'#6e4526',post:'#3d2817',rail:'#4d3120',cap:'#c18b56',rope:'#8a5a33',cross:'#4a2f19'},
  {plank:['#b8402e','#a83626','#c44c36'],edge:'#6a1c14',seam:'#7a2218',post:'#5a1812',rail:'#b83a28',cap:'#e8c458',rope:'#d8c090',cross:'#4a1410'}];
 function drawArch(c,A){const P=APAL[A.pal],i=A.i,L0=A.j0,L1=A.j1,lift=jj=>Math.round(Math.sin(Math.PI*(jj-L0)/(L1-L0))*A.h);
- c.fillStyle='rgba(6,26,36,.14)';for(let jj=L0+.2;jj<L1-.1;jj+=.4){const[x,y]=PF(i,jj);c.fillRect(x-10,y+6,21,2)}
+ c.fillStyle='rgba(6,26,36,.14)';for(let jj=L0+.2;jj<L1-.1;jj+=.4){const[x,y]=PF(i,jj);c.fillRect(Math.round(x-10),Math.round(y+6),21,2)}
  const n=Math.max(3,Math.round((L1-L0)/1.3));for(let q=1;q<n;q++){const jj=L0+(L1-L0)*q/n,[x,y]=PF(i,jj),L=lift(jj);c.fillStyle=P.post;c.fillRect(Math.round(x+9),Math.round(y+4-L),2,9);c.fillRect(Math.round(x-12),Math.round(y-6-L),2,8)}
  for(let jj=L0;jj<L1;jj+=.08){const[x,y]=PF(i,jj),L=lift(jj),pi=Math.floor((jj-L0)/.26),seam=((jj-L0)%.26)<.08;
-  for(let k=0;k<23;k++){c.fillStyle=(k<2||k>20)?P.edge:seam?P.seam:P.plank[pi%3];c.fillRect(Math.round(x-11+k),Math.round(y-5.5+k*.5-L),1,3)}
+  for(let k=0;k<23;k++){c.fillStyle=(k<2||k>20)?P.edge:seam?P.seam:P.plank[pi%3];c.fillRect(Math.round(x-11+k),Math.round(y-6+k*.5-L),1,3)}
   c.fillStyle=P.cross;c.fillRect(Math.round(x+10),Math.round(y-L+1),2,3)}}
 function archRails(A){const P=APAL[A.pal];for(let jj=A.j0;jj<A.j1-.05;jj+=.85)for(const di of[-.78,.78]){const[x,y]=PF(A.i+di,jj);
  objs.push({d:A.i+di+jj+.02,x:Math.round(x),y:Math.round(y),ph:0,t:0,sp:null,draw:c=>{
@@ -443,8 +443,10 @@ function buildTown(){
  // north quarter: a market street running from the farm lane down to the pond road
  H(22.4,3.8,'ochre');H(28.2,3.6,'blue');H(23.2,10.8,'teal');H(29.6,11.0,'plum');H(23.0,15.0,'slate');H(30.2,15.2,'moss');
  put(26.5,12.6,wellS(),0);
- put(24.6,13.0,stall([212,120,48],[240,232,214]),1);put(28.5,13.6,stall([176,60,96],[240,232,214]),1);put(27.8,10.2,stall([60,120,132],[240,232,214]),1);
- for(const[a,b,f,t]of[[25.0,12.1,crates,0],[28.0,12.0,barrel,0],[24.4,9.8,flowerPot,0],[28.6,9.1,flowerPot,0],[25.6,14.5,barrel,0],[27.4,14.6,hay,0],[22.6,12.8,()=>bench(0),0],[30.4,13.4,()=>bench(1),0],[21.6,6.4,woodpile,0],[30.4,4.8,hay,0],[22.6,16.4,crates,0],[29.6,17.0,barrel,0],[27.2,2.4,laundry,4]])put(a,b,f(),t);
+ // the plaza: three stalls set round the well, clear of the road and the house fronts,
+ // and the shopkeeper standing at hers where the trade actually happens
+ put(24.3,12.5,stall([212,120,48],[240,232,214]),1);put(28.5,12.6,stall([176,60,96],[240,232,214]),1);put(28.2,15.3,stall([60,120,132],[240,232,214]),1);
+ for(const[a,b,f,t]of[[24.6,13.9,crates,0],[27.9,11.7,barrel,0],[24.4,9.8,flowerPot,0],[28.6,9.1,flowerPot,0],[25.6,14.5,barrel,0],[27.4,14.6,hay,0],[22.6,12.8,()=>bench(0),0],[30.4,13.4,()=>bench(1),0],[21.6,6.4,woodpile,0],[30.4,4.8,hay,0],[22.6,16.4,crates,0],[29.6,17.0,barrel,0],[27.2,2.4,laundry,4]])put(a,b,f(),t);
  for(const[a,b]of[[25.4,7.6],[27.2,7.6],[25.4,10.8],[27.6,11.6],[25.5,15.6],[27.4,15.8],[24.0,6.0],[29.4,6.2]])put(a,b,lamp(),3);
  put(27.2,13.8,dog(2),0);put(24.9,11.2,cat(),0);put(26.0,9.2,cat(),0);
  // south-west quarter: a snowed-in hamlet round a campfire
@@ -461,7 +463,80 @@ function build(){
  wm=new Uint8Array(Wd*Ht);LM=new Uint8Array(Wd*Ht);let x0=1e9,y0=1e9,x1=0,y1=0;
   const yard=(a,b)=>{for(const[y0,y1,r]of YARDS)if(Math.hypot(a-y0,b-y1)<r+(vn(a*2,b*2)-.5)*.8)return 1;return 0};
  const dirt=(a,b)=>fieldAt(a,b)<.4+(vn(a*5,b*5)-.5)*.3;
- for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;const isl=LANDA(fi,fj)?1:LANDB(fi,fj)?2:LANDC(fi,fj)?3:LANDD(fi,fj)?4:0;if(!isl)continue;LM[y*Wd+x]=isl;
+ // ---- the road makers. A road here is not a brown streak: it is laid stone.
+ // Sett paving on an isometric grid, a rim of bigger revetment blocks at the edges,
+ // wheel-dust down the lanes, and the occasional sand splash where carts spill.
+ const cobble=(a,b,ltq)=>{
+  const d=pathD(a,b);
+  const onRim=d>.44;
+  // the sett grid: alternate rows offset, always joints across the direction of travel
+  const g=1.62, gx=a*g, gy=b*g, ix=Math.floor(gx), iy=Math.floor(gy), fx=gx-ix, fy=gy-iy;
+  const off=(iy&1)?.5:0, u=fx-off<0?fx-off+1:fx-off, u2=u<.12?1:0;
+  const grout=u<.11||fy<.10;
+  const h=hh(ix*3+(iy&1)*7,iy*5+11), sq=[150,144,133];
+  let v=.74+h*.5;
+  let k=[sq[0]*v,sq[1]*v,sq[2]*v*.92];
+  if((ix+iy)&1)k=[k[0]*.93,k[1]*.93,k[2]*.94];
+  if(grout)k=[102*ltq,98*ltq,90*ltq];
+  else if(h>.88)k=[k[0]*.82,k[1]*.82,k[2]*.82];         // a worn, darkened sett
+  else if(h<.16)k=[k[0]*1.14,k[1]*1.14,k[2]*1.1];       // a fresh pale sett
+  if(d<.19)k=mixc(k,[118,113,104],.38);                // the dust lane down the middle
+  const sd=vn(a*3.1+7,b*3.3+2); if(sd>.66)k=mixc(k,[176,162,128],.32); // spilled sand
+  if(onRim){                                           // the rim: bigger, paler revetment blocks
+   const g2=.62, bx2=Math.floor(a*g2), by2=Math.floor(b*g2);
+   const joint=((a*g2)%1<.12)||((b*g2)%1<.12), hhj=hh(bx2*5,by2*7);
+   if(joint)k=[96*ltq,92*ltq,84*ltq];
+   else k=mixc([176+hhj*30,170+hhj*30,158+hhj*28],[150,144,130],.35);
+   if(vn(a*7+3,b*7)>.78)k=mixc(k,[112,124,84],.4);     // moss in the rim joints
+   return k}
+  return[k[0]*ltq,k[1]*ltq,k[2]*ltq]};
+ // the market plaza: an ellipse of big flat slabs south of the north houses,
+ // cut by the road but handsome all the same
+ const plaza=(a,b)=>{
+  const ex=(a-26.5)/4.6, ey=(b-13.3)/3.2, q=ex*ex+ey*ey;
+  if(q>=1)return null;
+  const ltq=relief(a,b)*.95;
+  const g=1.02, ix=Math.floor(a*g), iy=Math.floor(b*g), fx=a*g-ix, fy=b*g-iy;
+  const joint=fx<.075||fy<.075;
+  if(q>.78)return[112*ltq,108*ltq,100*ltq];            // the outer ring of the plaza
+  const h=hh(ix*3+5,iy*7+2);
+  if(joint)return[122*ltq,118*ltq,110*ltq];
+  const v=.8+h*.4, sc=[[186,180,166],[176,170,156],[192,186,172]][(ix+iy)%3];
+  let k=[sc[0]*v,sc[1]*v,sc[2]*v];
+  if(h<.2)k=mixc(k,[150,146,134],.4);
+  return[k[0]*ltq,k[1]*ltq,k[2]*ltq]};
+ // raised earthworks: a terrace is a slab of ground standing proud of the village,
+ // with a drystone revetment round the rim and stone steps where the road crosses
+ const TERRA=[
+  {a:25.35,b:4.15,rx:5.7,ry:4.0,st:[1.02,2.18]},   // the north farm quarter, above the lane
+  {a:34.4, b:10.8,rx:2.7,ry:2.15,st:[1.02,2.18]},   // the shrine knoll
+  {a:8.6,  b:4.4, rx:3.7,ry:2.9,st:[1.02,2.18]}];   // the mill knoll
+ const terra=(a,b)=>{
+  for(const T of TERRA){
+   const ex=(a-T.a)/T.rx, ey=(b-T.b)/T.ry, q=ex*ex+ey*ey;
+   if(q>=1)continue;
+   const ltq=relief(a,b)*1.13, v=Math.sqrt(q);
+   // the rim: a two-course drystone revetment, broken by steps on the south face
+   const rd=pathD(a,b);
+   if(v>.83){
+    const ang=Math.atan2((b-T.b)/T.ry,(a-T.a)/T.rx);
+    if(ang>T.st[0]&&ang<T.st[1]){                    // the steps
+     const sv=(ang-T.st[0])/(T.st[1]-T.st[0]), f=sv*11, band=Math.floor(f);
+     if(f-band<.22)return[94*ltq,90*ltq,82*ltq];     // grout between treads
+     return band&1?[216,210,196]:[166,160,148]}
+    const blk=(ang/6.2832+.5)*17, bj=blk-Math.floor(blk), hv=hh(Math.floor(blk)*7+3,Math.floor(v*40)+8);
+    const vv=(v-.83)/.17;                            // 0 at the coping, 1 at the foot
+    if(bj<.14||(vv>.46&&vv<.55))return[88*ltq,84*ltq,76*ltq];
+    const vc=mixc([150,145,132],[198,192,178],hv);
+    const sh=1.1-vv*.35;
+    return[vc[0]*ltq*sh,vc[1]*ltq*sh,vc[2]*ltq*sh]}
+   if(rd<.62)return cobble(a,b,ltq);                    // the road runs over the knoll, not around it
+   // inside: higher ground, brighter sun, packed grass and pale pebbles
+   const g0=[126,158,84], k=[g0[0]*ltq,g0[1]*ltq,g0[2]*ltq];
+   if(hh(a*3|0,b*3|0)>.93)return[204*ltq,198*ltq,182*ltq];
+   return k}
+  return null};
+ for(let y=0;y<Ht;y++)for(let x=0;x<Wd;x++){const fi=((x-OX)/16+(y-OY)/8)/2,fj=((y-OY)/8-(x-OX)/16)/2;const isl=LANDA(fi,fj)?1:LANDB(fi,fj)?2:LANDC(fi,fj)?3:LANDD(fi,fj)?4:(typeof LANDE!=='undefined'&&LANDE(fi,fj))?5:0;if(!isl)continue;let pzk0=null,trk0=null;LM[y*Wd+x]=isl;
   const w=WD(fi,fj),o=(y*Wd+x)*4;let k,al=255;
   if(w>0){
      wm[y*Wd+x]=clamp(Math.round(w/3*255),1,255);
@@ -479,6 +554,10 @@ function build(){
    else if(isl==2)k=groundB(fi,fj,x,y,n,dirt(fi,fj));
     else if(isl==3)k=groundC(fi,fj,x,y,n,dirt(fi,fj));
     else if(isl==4)k=groundD(fi,fj,x,y,n,dirt(fi,fj));
+     else if(isl==5)k=groundE(fi,fj,x,y,n,dirt(fi,fj));
+    else if(isl<=3&&(pzk0=plaza(fi,fj)))k=pzk0;
+    else if(isl==1&&(trk0=terra(fi,fj)))k=trk0;
+    else if(isl<=3&&pathD(fi,fj)<.62)k=cobble(fi,fj,relief(fi,fj));
     else if(dirt(fi,fj)){const pk=Math.floor(n*2.7)%3;k=DI[pk];if(hh(x,y)>.93)k=[154,132,92]}
    else{const rg=RG(fi,fj),zone=ZONE(fi,fj),gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
      if(zone==='field'){const row=Math.floor(fj*2.4),ck=Math.floor(hh(row,Math.floor(fi*3.2))*3);
@@ -507,7 +586,7 @@ function build(){
  moreDetailA(c,dirt);
  // stepping stones
  const stones=p=>{for(let k=0;k<p.length-1;k++){const L=Math.hypot(p[k+1][0]-p[k][0],p[k+1][1]-p[k][1]),n=Math.floor(L/.48);for(let m=0;m<=n;m++){const t=m/Math.max(1,n),fi=lerp(p[k][0],p[k+1][0],t)+(hh(m,k+1)-.5)*.16,fj=lerp(p[k][1],p[k+1][1],t)+(hh(k+2,m)-.5)*.16,[X,Y]=PF(fi,fj);c.fillStyle='rgba(30,22,12,.38)';c.fillRect(Math.round(X)-5,Math.round(Y)+1,10,3);bl(c,Math.round(X),Math.round(Y),4+(m%2),2,ST,m+k*9)}}};
- stones(PATHS[0]);stones(PATHS[1]);stones(PATHS[2]);
+ // the roads are laid stone now; no stepping stones over cobbles
  for(let k=8;k>=0;k--){const[X,Y0]=PF(11.4-k*.42,9.1),Y=(Y0-k*2.4)|0;for(let dy=-5;dy<5;dy++){const w=Math.round(10*(1-Math.abs(dy+.5)/5));c.fillStyle=dy>2?'#857d6c':k%2?'#b5ae9d':'#c2bba9';c.fillRect(X-w,Y+dy,w*2,1)}}
 // ---- garden ----
  const BEDS=[[10.5,13.7,'cab'],[12.5,13.7,'car'],[10.5,14.95,'tom'],[12.5,14.95,'let'],[10.5,16.2,'pum'],[12.5,16.2,'cor']],BI=1.7,BJ=1.0,plants=[];

@@ -11,8 +11,9 @@ const LORE={
   {n:'The village',t:'the work',s:'Twenty one tools, a ticket counter, a ticket that only one person can win. The village is what happens when a question gets a street.'},
   {n:'The sakura isle',t:'what is finished',s:'Five floors for five shipped ideas, and an empty top floor kept for the next one. The lanterns below are the ones still being built.'},
   {n:'The observatory',t:'what is unsolved',s:'Fifty four nights of notes and not one of them says solved. The mirror was ground by hand, because seeing it was the point.'},
-  {n:'The harbour',t:'what goes out',s:'A boatyard, a light on the rock, and a fleet of things that were built to leave. The pond is the last stop before the sea.'}],
- ending:'The pond keeps the things that were finished and lets the rest out. Somebody has to go and check that the boats are tied up, and then the whole sky sea is yours to walk.'};
+  {n:'The harbour',t:'what goes out',s:'A boatyard, a light on the rock, and a fleet of things that were built to leave. The pond is the last stop before the sea.'},
+  {n:'The star keep',t:'what stays',s:'A castle cut from one stone at the end of the cloud sea. It is the home of the one who finished everything he ever started, and it is the last door in the sky.'}],
+ ending:'The pond keeps the things that were finished and lets the rest out. Somebody has to go and check that the boats are tied up, and then the keep is unlocked, and the whole sky sea is yours to walk.'};
 
 // ---------------------------------------------------------------- the small things
 // t: what it is called. s: the one thing it has to say.
@@ -65,7 +66,18 @@ const ROOMTHINGS={
  post:[['A stack of letters','Nine of them are addressed to the same house, and the postman knows all nine people by name.']],
  pagoda:[['An empty floor','The top floor has been empty for months. It is for the next thing, and that is the most hopeful room in the village.']],
  dome:[['A log book','Fifty four nights of it. Every entry ends with the same word: again.']],
- boathouse:[['A net with one repair in it','The repair is better than the original. He is unreasonably pleased about that.']]};
+ boathouse:[['A net with one repair in it','The repair is better than the original. He is unreasonably pleased about that.']],
+ keep:[['A chair with nothing behind it','It faces the drop. Everyone who reaches this room sits in it once, and gets up lighter.'],
+  ['Two hundred and four names','Written in the pond’s own hand, in two columns: what it was, and who it was for. The last page is blank, and stays blank.']],
+ north1:[['A folded map','Folded so many times the creases have gone white. The pond is in the middle of it, drawn from memory.']],
+ north2:[['A matchbox with three matches','For the stove. Somebody who left in a hurry expects to come back.']],
+ market1:[['Seven pencil stubs','All worn to the same length. A shopkeeper counts everything, even the things that do not count.']],
+ market2:[['A jar with no label','It smells of apples and of rain on dust. It is not for sale, whatever the price list says.']],
+ east1:[['A corner of the torn map','The part with the observatory on it. He kept the observatory and lost the map, which is the right trade.']],
+ south1:[['A pair of wet boots','Still damp, facing the door. Whoever left them is coming back before they dry.']],
+ south2:[['A book face down','Open at P versus NP. Everyone in this village has read the same page at least twice.']],
+ south3:[['Nine things to fix','Crossed out twice and written again underneath in a bigger hand. The house is learning to be patient.']],
+ south4:[['A bell with no clapper','It hangs because it was kept, not because it rings. Some kept things are exactly that.']]};
 
 // ---------------------------------------------------------------- the little props that carry them
 function propBin(){

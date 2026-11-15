@@ -33,8 +33,8 @@ function blocked(a,b){
  return 0}
 const mkSpr=p=>({front:[villager(p,0,'front'),villager(p,1,'front')],back:[villager(p,0,'back'),villager(p,1,'back')],side:[villager(p,0,'side'),villager(p,1,'side')]});
 let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
-const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.95)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.95)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=1.2&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<1.7))||ARCH.some(A=>Math.abs(a-A.i)<=1.2&&b>=A.j0-.45&&b<=A.j1+.45);
-const walkable=(a,b)=>{if(a<1||a>150||b<2||b>68)return 0;if(blocked(a,b))return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b))||WD(a,b)>-.2)return 0;return 1};
+const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.95)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.95)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=1.2&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<1.7))||(typeof RB4!=='undefined'&&RB4&&Math.abs(a-RB4.a0)<=1.3&&b>=RB4.b0-.4&&b<=RB4.b1)||ARCH.some(A=>Math.abs(a-A.i)<=1.2&&b>=A.j0-.45&&b<=A.j1+.45);
+const walkable=(a,b)=>{if(a<1||a>160||b<2||b>68)return 0;if(blocked(a,b))return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b)))||WD(a,b)>-.2)return 0;return 1};
 function nearestPath(a,b){let best=null,bd=1e9;
  for(const line of PATHS)for(let i=0;i<line.length-1;i++){const[x1,y1]=line[i],[x2,y2]=line[i+1],dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy||1,
   t=Math.max(0,Math.min(1,((a-x1)*dx+(b-y1)*dy)/L2)),x=x1+dx*t,y=y1+dy*t,d=Math.hypot(a-x,b-y);
@@ -42,7 +42,7 @@ function nearestPath(a,b){let best=null,bd=1e9;
  return best}
 let WALKLIST=null;
 function walkList(){if(WALKLIST)return WALKLIST;WALKLIST=[];
- for(let a=1;a<151;a+=.5)for(let b=2;b<46;b+=.5)if(walkable(a,b))WALKLIST.push([a,b]);
+ for(let a=1;a<161;a+=.5)for(let b=2;b<68;b+=.5)if(walkable(a,b))WALKLIST.push([a,b]);
  return WALKLIST}
 function nearWalk(i,j){
  for(let r=0;r<12;r+=.5)for(let t=0;t<(r?16:1);t++){const q=t/16*6.283,a=i+Math.cos(q)*r,b=j+Math.sin(q)*r;if(walkable(a,b))return[a,b]}
@@ -52,7 +52,7 @@ function nearWalk(i,j){
 function scr2tile(sx,sy){const X=(sx/WS-TX)/Z,Y=(sy/WS-TY)/Z,u=(X-OX)/16,v=(Y-OY)/8;return[(u+v)/2,(v-u)/2]}
 function mkWalker(a,b,look,name,me){const pal=LOOKS[look%LOOKS.length],P={pal,route:[[a,b],[a,b]],spd:0,seg:0,a,b,anim:0,vx:.7,vy:.7,wait:1e9,cd:1e9,mv:0,talk:0,me,rem:!me,name,look,spr:mkSpr(pal),hid:0},it={d:a+b,P};PEOPLE.push(it);return it}
 // the title screen drifts from rock to rock, so the archipelago reads as three places
-const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27]];
+const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27],[137,53]];
 function startCam(){const n=START_CAM.length,per=15,tt=T%(per*n),k=Math.floor(tt/per),u=(tt%per)/per,e=sm(.45,1,u),A=START_CAM[k],B=START_CAM[(k+1)%n];return[lerp(A[0],B[0],e),lerp(A[1],B[1],e)]}
 const zTarget=()=>window.__z||(MODE==='start'?(innerWidth<900?.28:Math.min(.46,innerWidth/3500)):MODE==='explore'?(innerWidth<700?.98:1.28):ZBASE);
 function nearestChapter(){if(!PL)return 0;let best=0,bd=1e9;CH.forEach((c,k)=>{const d=Math.hypot(PL.P.a-c.at[0],PL.P.b-c.at[1]);if(d<bd){bd=d;best=k}});return best}
@@ -94,10 +94,7 @@ function playerTick(){
 // ---- the minimap: three rocks, the glints you found, and where you are standing
 const MMW=180,MMH=96,MMX0=180,MMX1=3320,MMY0=20,MMY1=1720;let MMBG=null;
 const mmx=(X,Y)=>[(X-MMX0)/(MMX1-MMX0)*MMW,(Y-MMY0)/(MMY1-MMY0)*MMH];
-function bakeMM(){const b=mk(MMW,MMH),g=b.getContext('2d');
- for(let Y=0;Y<MMH;Y+=2)for(let X=0;X<MMW;X+=2){const wx=MMX0+X/MMW*(MMX1-MMX0),wy=MMY0+Y/MMH*(MMY1-MMY0),a=((wx-OX)/16+(wy-OY)/8)/2,b2=((wy-OY)/8-(wx-OX)/16)/2;
-  if(!LAND(a,b2))continue;g.fillStyle=WD(a,b2)>-.2?'#3f7f78':'#93b170';g.fillRect(X,Y,2,2)}
- return b}
+function bakeMM(){return typeof bakeChartMM==='function'?bakeChartMM():(m=>{const b=mk(MMW,MMH);return b})()}
 function drawMM(){
  const m=$('mm');if(!m)return;const g=m.getContext('2d');if(!MMBG)MMBG=bakeMM();
  g.clearRect(0,0,MMW,MMH);g.drawImage(MMBG,0,0);

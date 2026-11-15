@@ -19,14 +19,15 @@ function rockCol(x,v,s,D,k){
 // Every land pixel was tagged in LM (1 = village isle, 2 = sakura isle). Below the lowest tagged pixel of each
 // column we hang the rock: a lit left face, a shaded right face, and a deep tapering underside.
 function drawCliffs(c){
- YB=[null,new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
- const mn=[0,1e9,1e9,1e9,1e9],mx=[0,-1,-1,-1,-1];
- for(let x=0;x<Wd;x++){let f1=0,f2=0,f3=0,f4=0;for(let y=Ht-1;y>=0&&!(f1&&f2&&f3&&f4);y--){const m=LM[y*Wd+x];
+ YB=[null,new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1),new Int16Array(Wd).fill(-1)];
+ const mn=[0,1e9,1e9,1e9,1e9,1e9],mx=[0,-1,-1,-1,-1,-1];
+ for(let x=0;x<Wd;x++){let f1=0,f2=0,f3=0,f4=0,f5=0;for(let y=Ht-1;y>=0&&!(f1&&f2&&f3&&f4&&f5);y--){const m=LM[y*Wd+x];
   if(m==1&&!f1){YB[1][x]=y;f1=1;mn[1]=Math.min(mn[1],x);mx[1]=Math.max(mx[1],x)}
   else if(m==2&&!f2){YB[2][x]=y;f2=1;mn[2]=Math.min(mn[2],x);mx[2]=Math.max(mx[2],x)}
    else if(m==3&&!f3){YB[3][x]=y;f3=1;mn[3]=Math.min(mn[3],x);mx[3]=Math.max(mx[3],x)}
-   else if(m==4&&!f4){YB[4][x]=y;f4=1;mn[4]=Math.min(mn[4],x);mx[4]=Math.max(mx[4],x)}}}
- for(let k=1;k<=4;k++){const Y=YB[k],xc=(mn[k]+mx[k])/2,hw=(mx[k]-mn[k])/2,ds=k==1?1:k==2?.84:k==3?.78:.8;
+   else if(m==4&&!f4){YB[4][x]=y;f4=1;mn[4]=Math.min(mn[4],x);mx[4]=Math.max(mx[4],x)}
+   else if(m==5&&!f5){YB[5][x]=y;f5=1;mn[5]=Math.min(mn[5],x);mx[5]=Math.max(mx[5],x)}}}
+ for(let k=1;k<=5;k++){const Y=YB[k],xc=(mn[k]+mx[k])/2,hw=(mx[k]-mn[k])/2,ds=k==1?1:k==2?.84:k==3?.78:k==4?.8:.68;
   for(let x=mn[k];x<=mx[k];x++){const yb=Y[x];if(yb<0)continue;
    const ya=Y[Math.min(mx[k],x+5)],ypv=Y[Math.max(mn[k],x-5)],slope=(ya<0||ypv<0)?0:ya-ypv,bin=slope>0?1:slope<0?0:(x<xc?1:0);
    const tt=clamp(1-Math.abs(x-xc)/hw,0,1),D=Math.round((14+112*Math.pow(tt,1.15))*ds*(.88+.24*vn(x*.025,k*5+1))+(hh(x>>2,k+3)>.93?hh(x>>3,k)*18:0));
@@ -82,7 +83,14 @@ function groundC(fi,fj,x,y,n,isDirt){
 function moreDetailA(c,dirt){
  for(let i=0;i<VN;i++)for(let j=0;j<VN;j++)for(let s=0;s<16;s++){
   const fi=i+hh(i*29+s,j+91)-.5,fj=j+hh(j*17+s,i+57)-.5;
-  if(!LANDA(fi,fj)||WD(fi,fj)>-.7||dirt(fi,fj)||ZONE(fi,fj)=='field')continue;
+  if(!LANDA(fi,fj)||WD(fi,fj)>-.7||ZONE(fi,fj)=='field')continue;
+  // the laid-stone roads keep their own details: pebble chips and a rare tuft at the kerb
+  const pdR=pathD(fi,fj);
+  if(pdR<.66){const[X0,Y0]=PF(fi,fj),X=Math.round(X0),Y=Math.round(Y0);
+   if(hh(s*13+i,j*7+5)>.72){px(c,X,Y,'#a8a49a',2,1);px(c,X+1,Y-1,'#dcd8cb',1,1)}
+   else if(hh(i*3+s,j*11+1)>.9){px(c,X,Y,rgb(GP.g[1]),1,2);px(c,X-1,Y-1,rgb(GP.g[3]),1,1);px(c,X+1,Y-1,rgb(GP.g[3]),1,1)}
+   continue}
+  if(dirt(fi,fj))continue;
   const[X0,Y0]=PF(fi,fj),X=Math.round(X0),Y=Math.round(Y0),r=RG(fi,fj),q=hh(s*7+i,j*3+11),pal=GP[r];
   if(r=='s'){if(q<.45){px(c,X-1,Y,'#ffffff',3,1);px(c,X,Y+1,'#cfe4ee',2,1);px(c,X+2,Y-1,'#f4fafc',1,1)}continue}
   if(q<.46){for(let m=-2;m<=2;m++){const h=2+((hh(m+i*3,j+s)*3)|0);px(c,X+m,Y-h,rgb(pal[3+((m+s)&1)]),1,h)}px(c,X-1,Y,rgb(pal[0]),3,1);px(c,X,Y-4,rgb(pal[4]),1,1)}
