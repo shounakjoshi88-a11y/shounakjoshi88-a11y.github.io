@@ -4,9 +4,13 @@
    first, and then it ends up somewhere he has never been.
    ------------------------------------------------------------------ */
 // the rock itself: a squat round island with a hard edge and a gravel shore
-const LANDD=(a,b)=>{if(a<86||a>104||b<49||b>67)return 0;
- const k=a>100?dmp(b,57):1;return sdRR(a,b,95,58,8,4)+vn(a*.28+51,b*.28)*1.3*k<0};
-const EDD=(a,b)=>-sdRR(a,b,95,58,8,4);
+// the harbour rock: the old drum, and a NE shoulder reaching toward the isle so the bridge
+// can land under the torii gate's path instead of hanging over open water
+const LANDD=(a,b)=>{if(a<86||a>107.5||b<46.4||b>67)return 0;
+ const k=a>100?dmp(b,57):1;
+ const d=Math.min(sdRR(a,b,95,58,8,4),sdRR(a,b,102.3,52.5,5.2,3.0));
+ return d+vn(a*.28+51,b*.28)*1.3*k<0};
+const EDD=(a,b)=>-Math.min(sdRR(a,b,95,58,8,4),sdRR(a,b,102.3,52.5,5.2,3.0));
 // the ground: wet gravel, dry gravel, and a little scrub in the middle
 function groundD(fi,fj,x,y,n,dirt){
  const g=[168,158,138],wet=[122,118,104],scrub=[96,116,74];
@@ -73,13 +77,14 @@ function crane(){
 // the new rock
 function buildHarbour(){
  // the rope bridge over from the sakura isle, running north to south
- const B3={a0:95,b0:43.4,b1:51.6,sag:3,v:1};
+ const B3={a0:104.3,b0:43.4,b1:53.0,sag:3,v:1};
  RB3=B3;
  objs.push({d:B3.a0+B3.b0+.02,x:Math.round(PF(B3.a0,(B3.b0+B3.b1)/2)[0]),y:Math.round(PF(B3.a0,(B3.b0+B3.b1)/2)[1]),ph:0,t:0,sp:null,draw:c=>ropeSegB(c,B3.b0,B3.b1,B3)})
  // the ground of the rock: gravel, a scrubby middle, and a few wind-bent pines
- for(let i=87;i<104;i++)for(let j=50;j<67;j++){
+ for(let i=87;i<107;i++)for(let j=47;j<67;j++){
   const fi=i+hh(i*7,j*3)-.5,fj=j+hh(j*11,i*5)-.5;
   if(!LANDD(fi,fj)||WD(fi,fj)>-.6)continue;
+  if(fi>101.0&&fj<53.2)continue;   // the bridge landing: nothing grows on the mouth of it
   const q=hh(i*3,j*7);
   if(q>.86)put(fi,fj,pine('g',10,seed1(i,j)),1);
   else if(q>.78)put(fi,fj,RS(3,3,RK,seed1(i,j)),0);
@@ -93,7 +98,7 @@ function buildHarbour(){
  for(const[a,b,f]of[[93.6,59.2,crates],[98.6,60.6,barrel],[91.4,53.6,crates],[96.0,61.4,barrel],[94.6,52.8,barrel]])
   put(a,b,f(),0);
  put(90.6,56.0,postbox(),0);
- put(97.0,54.0,lamp(),3);
+ put(97.0,54.0,lamp(),3);put(103.4,52.6,lamp(),3);
  put(93.2,58.0,woodpile(),0);
  put(99.2,54.6,reed(1),0);
  // the jetty out over the cloud sea

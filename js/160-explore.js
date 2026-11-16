@@ -56,7 +56,7 @@ function mkWalker(a,b,look,name,me){const pal=LOOKS[look%LOOKS.length],P={pal,ro
 const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27],[137,53]];
 function startCam(){const n=START_CAM.length,per=15,tt=T%(per*n),k=Math.floor(tt/per),u=(tt%per)/per,e=sm(.45,1,u),A=START_CAM[k],B=START_CAM[(k+1)%n];return[lerp(A[0],B[0],e),lerp(A[1],B[1],e)]}
 // the spyglass: a spectate view that pulls back to frame the whole rock you are standing on
-const ISLEBOX=[[-2,66,-2,66],[76,126,1,51],[115,153,7,49],[84,106,47,69],[97,180,33,81]];
+const ISLEBOX=[[-2,66,-2,66],[76,126,1,51],[115,153,7,49],[84,108,46.2,69],[97,180,33,81]];
 function isleBounds(){
  if(ISLB)return ISLB;ISLB=[];
  const F=[LANDA,LANDB,LANDC,LANDD,(a,b)=>typeof LANDE!=='undefined'&&LANDE(a,b)];
