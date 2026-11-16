@@ -91,7 +91,7 @@ function drawSurf(){
    for(let q=0;q<5;q++){const ph=(T*1.6+q*.37)%1;
     c.fillStyle=`rgba(236,248,252,${(1-ph)*.8})`;
     c.fillRect(Math.round(o.x-8+q*4+Math.sin(T*3+q)*2),Math.round(o.y-4-ph*11),2,2)}}
-  if(SURF.boat){const o=SURF.boat;const bob=Math.round(Math.sin(T*1.1)*1.4);c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy+bob)}
+  if(SURF.boat&&!(typeof BOATMODE!=='undefined'&&BOATMODE)){const o=SURF.boat;const bob=Math.round(Math.sin(T*1.1)*1.4);c.drawImage(o.sp.c,o.x-o.sp.ox,o.y-o.sp.oy+bob)}
   const dt=Math.min(.05,Math.max(0,T-DKT));DKT=T;
   ringsPx(c);duckStep(dt);for(const d of DK)drawDuck(c,d);koiLeap(c);dropletsPx(c)}
 const DK=[],SPL=[];let DKT=0;

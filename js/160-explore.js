@@ -33,7 +33,8 @@ function blocked(a,b){
  return 0}
 const mkSpr=p=>({front:[villager(p,0,'front'),villager(p,1,'front')],back:[villager(p,0,'back'),villager(p,1,'back')],side:[villager(p,0,'side'),villager(p,1,'side')]});
 let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
-const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.95)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.95)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=1.2&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<1.7))||(typeof RB4!=='undefined'&&RB4&&Math.abs(a-RB4.a0)<=1.3&&b>=RB4.b0-.4&&b<=RB4.b1)||ARCH.some(A=>Math.abs(a-A.i)<=1.2&&b>=A.j0-.45&&b<=A.j1+.45);
+let SPECTATE=0,PANLOCK=0,PANDRAG=null,WAKET=0,ISLB=null;
+const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.6)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.6)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=.75&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<.7))||(typeof RB4!=='undefined'&&RB4&&Math.abs(a-RB4.a0)<=.75&&b>=RB4.b0-.4&&b<=RB4.b1)||ARCH.some(A=>Math.abs(a-A.i)<=.62&&b>=A.j0-.3&&b<=A.j1+.3);
 const walkable=(a,b)=>{if(a<1||a>160||b<2||b>68)return 0;if(blocked(a,b))return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b)))||WD(a,b)>-.2)return 0;return 1};
 function nearestPath(a,b){let best=null,bd=1e9;
  for(const line of PATHS)for(let i=0;i<line.length-1;i++){const[x1,y1]=line[i],[x2,y2]=line[i+1],dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy||1,
@@ -54,7 +55,27 @@ function mkWalker(a,b,look,name,me){const pal=LOOKS[look%LOOKS.length],P={pal,ro
 // the title screen drifts from rock to rock, so the archipelago reads as three places
 const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27],[137,53]];
 function startCam(){const n=START_CAM.length,per=15,tt=T%(per*n),k=Math.floor(tt/per),u=(tt%per)/per,e=sm(.45,1,u),A=START_CAM[k],B=START_CAM[(k+1)%n];return[lerp(A[0],B[0],e),lerp(A[1],B[1],e)]}
-const zTarget=()=>window.__z||(MODE==='start'?(innerWidth<900?.28:Math.min(.46,innerWidth/3500)):MODE==='explore'?(innerWidth<700?.9:1.0):ZBASE);
+// the spyglass: a spectate view that pulls back to frame the whole rock you are standing on
+const ISLEBOX=[[-2,66,-2,66],[76,126,1,51],[115,153,7,49],[84,106,47,69],[111,161,39,66]];
+function isleBounds(){
+ if(ISLB)return ISLB;ISLB=[];
+ const F=[LANDA,LANDB,LANDC,LANDD,(a,b)=>typeof LANDE!=='undefined'&&LANDE(a,b)];
+ for(let k=0;k<5;k++){let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;const box=ISLEBOX[k];
+  for(let a=box[0];a<box[1];a++)for(let b=box[2];b<box[3];b++){if(!F[k](a,b))continue;if(a<mnx)mnx=a;if(a>mxx)mxx=a;if(b<mny)mny=b;if(b>mxy)mxy=b}
+  ISLB.push(mnx>mxx?[24,24,40,40]:[mnx,mny,mxx,mxy])}
+ return ISLB}
+function specIsle(a,b){let best=0,bd=1e9;for(let k=0;k<ISLESL.length;k++){const d=Math.hypot(a-ISLESL[k][0],b-ISLESL[k][1]);if(d<bd){bd=d;best=k}}return best}
+function specZoom(){const B=isleBounds()[specIsle(CF[0],CF[1])];if(!B)return .5;
+ const[X0,Y0]=PF(B[0],B[1]),[X1,Y1]=PF(B[2],B[3]);
+ const w=Math.abs(X1-X0)+150,h=Math.abs(Y1-Y0)+180;
+ return clamp(Math.min(VW/w,VH/h),.16,.8)}
+function toggleSpectate(){if(MODE!=='explore')return;SPECTATE^=1;
+ if(SPECTATE)note('Spyglass','The whole rock at a glance. Walk, jump, tap or press V to come back down.',4500)}
+function doJump(){if(MODE!=='explore'||!PL)return;
+ if(typeof BOATMODE!=='undefined'&&BOATMODE)return;
+ if(typeof SIT!=='undefined'&&SIT)return;
+ PL.P.jmp=.001;SPECTATE=0}
+const zTarget=()=>window.__z||(SPECTATE?specZoom():(MODE==='start'?(innerWidth<900?.28:Math.min(.46,innerWidth/3500)):MODE==='explore'?(innerWidth<700?.9:1.0):ZBASE));
 function nearestChapter(){if(!PL)return 0;let best=0,bd=1e9;CH.forEach((c,k)=>{const d=Math.hypot(PL.P.a-c.at[0],PL.P.b-c.at[1]);if(d<bd){bd=d;best=k}});return best}
 function playerTick(){
  const n=performance.now(),dt=Math.min(.09,(n-PLT)/1000);PLT=n;
@@ -62,24 +83,33 @@ function playerTick(){
  const P=PL.P;
  const sitting=typeof SIT!=='undefined'&&SIT;
  if(sitting&&(KEYS.w||KEYS.s||KEYS.a||KEYS.d||KEYS.arrowup||KEYS.arrowdown||KEYS.arrowleft||KEYS.arrowright))standUp();
+ if(PANLOCK&&(KEYS.w||KEYS.s||KEYS.a||KEYS.d||KEYS.arrowup||KEYS.arrowdown||KEYS.arrowleft||KEYS.arrowright))PANLOCK=0;
  let dx=0,dy=0;
  if(KEYS.w||KEYS.arrowup){dx--;dy--}
  if(KEYS.s||KEYS.arrowdown){dx++;dy++}
  if(KEYS.a||KEYS.arrowleft){dx--;dy++}
  if(KEYS.d||KEYS.arrowright){dx++;dy--}
- if(dx||dy)GOAL=null;else if(GOAL){dx=GOAL[0]-P.a;dy=GOAL[1]-P.b;if(Math.hypot(dx,dy)<.12){GOAL=null;dx=dy=0}}
+ if(dx||dy){GOAL=null;SPECTATE=0}else if(GOAL){dx=GOAL[0]-P.a;dy=GOAL[1]-P.b;if(Math.hypot(dx,dy)<.12){GOAL=null;dx=dy=0}if(SPECTATE)SPECTATE=0}
  const L=Math.hypot(dx,dy);P.mvg=0;
- if(L>0){dx/=L;dy/=L;const sp=2.6*dt*(bridgeLift(P.a,P.b)>0?.85:1),na=P.a+dx*sp,nb=P.b+dy*sp;let ok=1;
-  if(walkable(na,nb)){P.a=na;P.b=nb}
-  else if(walkable(na,P.b))P.a=na;
-  else if(walkable(P.a,nb))P.b=nb;
-  else{ok=0;GOAL=null}
-  if(ok){P.vx=dx;P.vy=dy;P.mvg=1;P.anim+=dt*7}}
+ const boat=typeof BOATMODE!=='undefined'&&BOATMODE;
+ if(L>0){dx/=L;dy/=L;
+  if(boat){const sp=2.05*dt,na=P.a+dx*sp,nb=P.b+dy*sp;
+   if(boatWater(na,nb)){P.a=na;P.b=nb;P.mvg=1;P.anim+=dt*5;P.vx=dx;P.vy=dy;WAKET+=dt;
+    if(WAKET>.3){WAKET=0;const wx=PF(P.a,P.b);try{rps.push({x:wx[0],y:wx[1]+6,t:T})}catch(e){}}}
+   else GOAL=null}
+  else{const sp=2.6*dt*(bridgeLift(P.a,P.b)>0?.85:1),na=P.a+dx*sp,nb=P.b+dy*sp;let ok=1;
+   if(walkable(na,nb)){P.a=na;P.b=nb}
+   else if(walkable(na,P.b))P.a=na;
+   else if(walkable(P.a,nb))P.b=nb;
+   else{ok=0;GOAL=null}
+   if(ok){P.vx=dx;P.vy=dy;P.mvg=1;P.anim+=dt*7}}}
  P.wait=P.mvg?0:1e9;
  if(blocked(P.a,P.b)){const q=nearWalk(P.a,P.b);P.a=q[0];P.b=q[1];GOAL=null}
  if(typeof SIT!=='undefined'&&SIT){P.a=SIT.a;P.b=SIT.b;P.vx=SIT.fx;P.vy=SIT.fz;P.mvg=0}
+ if(P.jmp>0){P.jmp+=dt;if(P.jmp>=.62)P.jmp=0}
  PL.d=P.a+P.b;
- CF[0]+=(P.a-CF[0])*Math.min(1,dt*6);CF[1]+=(P.b-CF[1])*Math.min(1,dt*6);
+ if(SPECTATE){const B=isleBounds()[specIsle(P.a,P.b)];CF[0]+=(((B[0]+B[2])/2)-CF[0])*Math.min(1,dt*3.5);CF[1]+=(((B[1]+B[3])/2)-CF[1])*Math.min(1,dt*3.5)}
+ else{CF[0]+=(P.a-CF[0])*Math.min(1,dt*6);CF[1]+=(P.b-CF[1])*Math.min(1,dt*6)}
  let best=-1,bd=2.6;CH.forEach((c,k)=>{const d=Math.hypot(P.a-c.at[0],P.b-c.at[1]);if(d<bd){bd=d;best=k}});NEAR=best;
  for(const s of SEC){if(s.f||s.noGlint)continue;const r=s.r||1.95;if(Math.hypot(P.a-s.at[0],P.b-s.at[1])>=r)continue;
   if(s.id==='signal'){if(!s.seen){s.seen=1;openSig()}}else found(s)}
@@ -88,8 +118,13 @@ function playerTick(){
  const dr=typeof doorNear==='function'?doorNear():null;
  const th=typeof thingNear==='function'?thingNear():null;
  const hint=$('hint');
+ const bt=typeof BOATMODE!=='undefined'&&BOATMODE;
  if(hint){
-  if(MODE==='explore'&&typeof SIT!=='undefined'&&SIT){hint.hidden=false;hint.textContent='Stand up'}
+  if(MODE==='explore'&&bt){hint.hidden=false;hint.textContent='Hop out onto the grass'}
+  else if(MODE==='explore'&&typeof SIT!=='undefined'&&SIT){hint.hidden=false;hint.textContent='Stand up'}
+  else if(MODE==='explore'&&PANLOCK){hint.hidden=false;hint.textContent='Panning — walk or tap to follow'}
+  else if(MODE==='explore'&&typeof quizNear==='function'&&quizNear()){hint.hidden=false;hint.textContent=(typeof PASS!=='undefined'&&PASS.boatLicense)?'The riddle-box':'Open the riddle-box'}
+  else if(MODE==='explore'&&typeof boatBoardNear==='function'&&boatBoardNear()){hint.hidden=false;hint.textContent='Take the rowboat'}
   else if(MODE==='explore'&&dr){hint.hidden=false;hint.textContent=doorLock(dr.d)?'Locked door':'Open the door'}
   else if(MODE==='explore'&&th){hint.hidden=false;hint.textContent='Look closer'}
   else if(MODE==='explore'&&typeof anglingNear==='function'&&anglingNear()){hint.hidden=false;hint.textContent='Cast a line'}
@@ -140,6 +175,8 @@ function startX(){
 }
 function leaveX(silent){
  if(typeof standUp==='function')standUp();
+ SPECTATE=0;PANLOCK=0;PANDRAG=null;
+ if(typeof BOATMODE!=='undefined'&&BOATMODE){BOATMODE=0;if(PL)PL.P.hid=0;const it=PL?PEOPLE.find(r=>r.P===PL.P):null;if(it)it.d=PL.P.a+PL.P.b}
  if(MODE==='explore'){
   const k=nearestChapter();setMode('story');
   if(!silent&&PL){const max=Math.max(1,document.body.scrollHeight-innerHeight),de=document.documentElement;
@@ -149,21 +186,29 @@ function leaveX(silent){
 $('sgo').onclick=startX;
 $('sread').onclick=()=>{setMode('story');scrollTo(0,0)};
 $('xp').onclick=()=>MODE==='explore'?leaveX():startX();
+$('jumpbtn').onclick=()=>doJump();
+$('scanbtn').onclick=()=>toggleSpectate();
 // ---- walking controls
 addEventListener('keydown',e=>{
  if(MODE!=='explore')return;
  if(e.target&&e.target.closest&&e.target.closest('input,textarea,select'))return;
  const k=e.key.toLowerCase();
- if(k==='escape'){leaveX();return}
+ if(k==='escape'){if(SPECTATE){SPECTATE=0;return}leaveX();return}
+ if(k===' '||k==='j'){doJump();e.preventDefault();return}
+ if(k==='v'){toggleSpectate();return}
  if(k==='m'){buildMap();$('map').hidden=false;return}
  if(k.startsWith('arrow')||k===' ')e.preventDefault();
  KEYS[k]=1});
 addEventListener('keyup',e=>{KEYS[e.key.toLowerCase()]=0});
 addEventListener('blur',()=>{KEYS={}});
 const NOTAP='button,a,input,textarea,select,#mm,#bub,#map,#sig,#pass,#fish,.panel,#find,#wish,#walkhud';
-addEventListener('pointerdown',e=>{if(MODE!=='explore'||e.button)return;if(e.target.closest&&e.target.closest(NOTAP))return;CK=[e.clientX,e.clientY]},{passive:true});
+addEventListener('pointerdown',e=>{if(MODE!=='explore'||e.button)return;if(e.target.closest&&e.target.closest(NOTAP))return;CK=[e.clientX,e.clientY];PANDRAG={x:e.clientX,y:e.clientY,cf:[CF[0],CF[1]],moved:0}},{passive:true});
+addEventListener('pointermove',e=>{if(!PANDRAG)return;const dx=e.clientX-PANDRAG.x,dy=e.clientY-PANDRAG.y;
+ if(!PANDRAG.moved&&Math.hypot(dx,dy)>14){PANDRAG.moved=1;SPECTATE=0}
+ if(PANDRAG.moved){PANLOCK=1;CF[0]=PANDRAG.cf[0]+(-dy/8/Z-dx/16/Z)/2;CF[1]=PANDRAG.cf[1]+(-dy/8/Z+dx/16/Z)/2}},{passive:true});
 addEventListener('pointerup',e=>{if(MODE!=='explore'||!CK)return;
- if(Math.hypot(e.clientX-CK[0],e.clientY-CK[1])<10){
+ if(PANDRAG&&PANDRAG.moved){/* the pan holds; walk or tap to follow again */}
+ else if(Math.hypot(e.clientX-CK[0],e.clientY-CK[1])<10){
   if(typeof SIT!=='undefined'&&SIT){standUp()}
-  else{const f=$('fish');if(!f||f.hidden)GOAL=scr2tile(e.clientX,e.clientY)}}
- CK=null});
+  else{PANLOCK=0;SPECTATE=0;const f=$('fish');if(!f||f.hidden)GOAL=scr2tile(e.clientX,e.clientY)}}
+ CK=null;PANDRAG=null});

@@ -369,6 +369,9 @@ $('rmclose').onclick=roomShut;
 $('hint').onclick=()=>{
  if(MODE==='room')return;
  if(typeof SIT!=='undefined'&&SIT){standUp();return}
+ if(typeof BOATMODE!=='undefined'&&BOATMODE){boatUse();return}
+ if(typeof quizNear==='function'&&quizNear()){quizOpen();return}
+ if(typeof boatBoardNear==='function'&&boatBoardNear()){boatUse();return}
  const e=doorNear();
  if(e){doorUse(e);return}
  const th=typeof thingNear==='function'?thingNear():null;

@@ -39,6 +39,18 @@ function stepPeople(dt){
   PEOPLE.sort((x,y)=>x.d-y.d)}
 function drawPerson(ctx,P){if(P.hid)return;
   const[X,Y0]=PF(P.a,P.b),Y=Y0-bridgeLift(P.a,P.b),sx=P.vx-P.vy,sy=P.vx+P.vy,idle=P.wait>0;
+  if(P.jmp>0){
+   if(!P.spr.jmp)P.spr.jmp={front:[villagerJump(P.pal,0,'front'),villagerJump(P.pal,1,'front')],back:[villagerJump(P.pal,0,'back'),villagerJump(P.pal,1,'back')],side:[villagerJump(P.pal,0,'side'),villagerJump(P.pal,1,'side')]};
+   const pose=Math.abs(sy)>Math.abs(sx)*1.1?(sy>0?'front':'back'):'side';
+   const sp2=P.spr.jmp[pose][0],flip=pose==='side'&&sx<0;
+   const lift=Math.sin(Math.PI*Math.min(1,P.jmp/.62))*9;
+   const px_=Math.round(X)-sp2.ox,py=Math.round(Y)-sp2.oy-Math.round(lift);
+   const sc=Math.max(.55,1-lift*.028);
+   ctx.fillStyle='rgba(12,28,20,.28)';
+   ctx.beginPath();ctx.ellipse(Math.round(X),Math.round(Y)-1,4.5*sc,1.8*sc,0,0,6.283);ctx.fill();
+   if(flip){ctx.save();ctx.translate(px_+sp2.ox*2,0);ctx.scale(-1,1);ctx.drawImage(sp2.c,-sp2.ox,py);ctx.restore()}
+   else ctx.drawImage(sp2.c,px_,py);
+   return}
   if(P.sit){
    if(!P.spr.sit)P.spr.sit={front:[villagerSit(P.pal,0,'front'),villagerSit(P.pal,1,'front')],back:[villagerSit(P.pal,0,'back'),villagerSit(P.pal,1,'back')],side:[villagerSit(P.pal,0,'side'),villagerSit(P.pal,1,'side')]};
    const pose=Math.abs(sy)>Math.abs(sx)*1.1?(sy>0?'front':'back'):'side';

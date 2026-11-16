@@ -6,7 +6,7 @@ $('pass').addEventListener('click',e=>{if(e.target===$('pass'))$('pass').hidden=
 $('freel').onclick=fishReel;
 $('fclose').onclick=closeFish;
 $('ftrack').onclick=fishReel;
-addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('pass');if(p)p.hidden=true;$('map').hidden=true;$('sig').hidden=true;closeFish();if(typeof standUp==='function')standUp()}});
+addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('pass');if(p)p.hidden=true;$('map').hidden=true;$('sig').hidden=true;closeFish();if(typeof standUp==='function')standUp();const q=$('quiz');if(q)q.hidden=true}});
 setTimeout(checkProgress,80);
 
 // ---- the sky map: three rocks, and the way back to each ----

@@ -57,6 +57,8 @@ const GRV=[[176,168,152],[190,182,166],[160,154,140]];
 function groundB(fi,fj,x,y,n,isDirt){
  const dz=Math.hypot(fi-88.2,fj-29.2);
  if(dz<2.7+(vn(fi*2,fj*2)-.5)*.3){const rr=Math.sin(dz*9.5+Math.sin(fj*2.1)*.7);return rr>.35?[226,218,200]:rr<-.4?[130,124,112]:GRV[Math.floor(n*2.7)%3]}
+ const tedz=Math.hypot(fi-91.7,fj-32.5);
+ if(tedz<2.45+(vn(fi*2.3,fj*2.3)-.5)*.3){const rr=Math.sin(tedz*8.5+Math.sin(fj*1.9+.8)*.6);return rr>.35?[214,206,190]:rr<-.38?[136,128,114]:GRV[Math.floor(n*2.7)%3]}
  if(isDirt){let k=GRV[Math.floor(n*2.7)%3];if(hh(x,y)>.93)k=[214,206,190];if(hh(x,y*3)<.05)k=[118,112,100];return k}
  const gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);let k=MB[gi];const lt=relief(fi,fj);k=[k[0]*lt,k[1]*lt,k[2]*lt];
  const gr=Math.max(0,1-Math.hypot(fi-113,fj-33)/11)+Math.max(0,1-Math.hypot(fi-94,fj-24)/6);

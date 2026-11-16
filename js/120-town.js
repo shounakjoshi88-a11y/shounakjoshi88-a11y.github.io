@@ -272,6 +272,30 @@ function villagerSit(p,f,dir){
   else{px(x,hx+1,2,rgb([28,20,16]));px(x,hx+3,2,rgb([28,20,16]))}
   if(hat){px(x,hx-2,0,rgb(hat),9,1);px(x,hx-1,0,rgb(mixc(hat,[0,0,0],.28)),7,1);px(x,hx-1,0,rgb(mixc(hat,[255,255,255],.15)),5,1)}
   return{c,ox:6,oy:11}}
+function villagerJump(p,f,dir){
+  // the jump pose: arms thrown wide to either side, legs tucked, everything leaving the ground at once
+  const c=mk(12,17),x=c.getContext('2d');
+  const[sh,pa,ha,sk,hat]=p,side=dir=='side',back=dir=='back';
+  const lite=mixc(sh,[255,255,255],.26),dark=mixc(sh,[0,0,0],.3),boot=[48,38,30];
+  // legs tucked under
+  px(x,3,13,rgb(pa),2,2);px(x,7,13,rgb(mixc(pa,[0,0,0],.15)),2,2);
+  px(x,3,15,rgb(boot),2,1);px(x,7,15,rgb(boot),2,1);
+  // torso
+  const bx=3,bw=side?5:6;
+  px(x,bx,7,rgb(sh),bw,5);px(x,bx,7,rgb(lite),bw,1);px(x,bx,11,rgb(dark),bw,1);px(x,bx+1,6,rgb(dark),bw-2,1);
+  if(!side){px(x,bx+2,8,rgb(dark),1,1);px(x,bx+3,10,rgb(dark),1,1)}
+  // arms SPREAD wide to either side, mitten hands up
+  px(x,0,4,rgb(sh),2,4);px(x,10,4,rgb(sh),2,4);
+  px(x,0,3,rgb(sk),1,1);px(x,11,3,rgb(sk),1,1);
+  // head
+  const hx=3;
+  px(x,hx,2,rgb(sk),5,5);
+  px(x,hx-1,1,rgb(ha),7,2);px(x,hx-1,3,rgb(ha),1,3);px(x,hx+4,3,rgb(ha),1,3);
+  if(back)px(x,hx-1,2,rgb(ha),7,4);
+  else if(side){px(x,hx+3,4,rgb([28,20,16]));px(x,hx+4,5,rgb(mixc(sk,[0,0,0],.3)),1,1)}
+  else{px(x,hx+1,4,rgb([28,20,16]));px(x,hx+3,4,rgb([28,20,16]))}
+  if(hat){px(x,hx-2,1,rgb(hat),9,1);px(x,hx-1,0,rgb(mixc(hat,[0,0,0],.28)),7,1)}
+  return{c,ox:6,oy:17}}
 function villager(p,f,dir){
   // a villager is fifteen pixels tall: half a doorway, a third of a pine
   const c=mk(12,20),x=c.getContext('2d');

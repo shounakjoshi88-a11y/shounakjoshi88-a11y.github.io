@@ -146,6 +146,11 @@ if(!GL.ok)for(let q=0;q<7;q++){const X=((hh(q,1)*VW*1.4+T*(1.2+q*.35))%(VW*1.4+1
   if(sp.fire){for(let q=0;q<5;q++){const h=5+Math.round(Math.sin(T*9+q*1.7)*2+2),X=o.x-4+q*2;ctx.fillStyle=q==2?'#fff2a0':q%2?'#ffb030':'#ff6a1d';ctx.fillRect(X,o.y-5-h,2,h)}for(let q=0;q<3;q++){ctx.fillStyle='rgba(255,170,60,.85)';ctx.fillRect(o.x-3+Math.round(Math.sin(T*2+q*2)*5),o.y-14-((T*14+q*9)%18)|0,1,1)}GLW.push([o.x,o.y-6,40])}}
   while(pi<PEOPLE.length){drawPerson(ctx,PEOPLE[pi].P);pi++}
   sprites(l,r,t,b);
+ // Sen's rowboat, if you are in it: a little hull, two oars, and a wake behind
+ if(typeof BOATMODE!=='undefined'&&BOATMODE&&PL){const[PX,PY]=PF(PL.P.a,PL.P.b),bob=Math.round(Math.sin(T*1.3+1)*1.6);
+  const rb=SPR.rbt||(SPR.rbt=rowboat());
+  ctx.globalAlpha=.55;ctx.fillStyle='#e8f4f8';ctx.fillRect(Math.round(PX-7),Math.round(PY+9),14,1);ctx.globalAlpha=1;
+  ctx.drawImage(rb.c,Math.round(PX)-rb.ox,Math.round(PY)-rb.oy+bob)}
   if(GL.ok)drawGL();
   drawSurf();
   lightPass(ctx);

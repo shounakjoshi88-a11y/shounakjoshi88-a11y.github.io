@@ -339,13 +339,15 @@ function buildB(c){
   if(q>.972){const fc=FLB[(hh(i,j+s)*4)|0];for(let m=0;m<5;m++){const fx_=X+Math.round((hh(m,i+s)-.5)*12),fy_=Y+Math.round((hh(m,j+s*3)-.5)*6);px(c,fx_,fy_+1,rgb(pal[1]),1,2);px(c,fx_,fy_,fc[0],2,1);px(c,fx_,fy_-1,fc[0],1,1);px(c,fx_+1,fy_-1,fc[1],1,1)}}
   else if(q>.94){px(c,X,Y+1,'#8c9694',3,1);px(c,X,Y,'#b8c2c0',2,1);px(c,X+1,Y-1,'#dde4e2',1,1)}
   else if(q>.9){px(c,X,Y,'#ffc4d6',2,1);px(c,X+3,Y+1,'#ffe6ee',1,1);px(c,X-2,Y+2,'#ffb0c8',1,1)}
-  else if(q>.46){for(let m=-2;m<=2;m++){const h=2+((hh(m+i*3,j+s)*3)|0);px(c,X+m,Y-h,rgb(pal[3+((m+s)&1)]),1,h)}px(c,X-1,Y,rgb(pal[0]),3,1);px(c,X,Y-4,rgb(pal[4]),1,1)}}
- // a zen ring garden raked round the big cherry: pale grooves in the gravel
- for(let rr=1.9;rr<5.15;rr+=.72){const steps=Math.floor(rr*30);
-  for(let s=0;s<steps;s++){const an=s/steps*6.283,jr=(hh(s*3+1,(rr*7)|0)-.5)*.14;
+  else if(q>.46){for(let m=-2;m<=2;m++){const h=2+((hh(m+i*3,j+s)*3)|0);px(c,X+m,Y-h,rgb(pal[3+((m+s)&1)]),1,h)}px(c,X-1,Y,rgb(pal[0]),3,1);px(c,X,Y-4,rgb(pal[4]),1,1)}
+  else if(q>.40){if(pathD(fi,fj)<.68){const pk=['#ffb0c8','#ffd0e0','#e08498'][(hh(i*3+s,j*7)*3)|0];px(c,X,Y,pk,2,1);if(hh(i+s*7,j)>.55)px(c,X+2,Y+1,'#ffc4d6',1,1)}}}
+ // a zen ring garden raked round the big cherry: deep grooves in the gravel
+ for(let rr=1.8;rr<5.3;rr+=.68){const steps=Math.floor(rr*34);
+  for(let s=0;s<steps;s++){const an=s/steps*6.283,jr=(hh(s*3+1,(rr*7)|0)-.5)*.16;
    const fi=93.8+Math.cos(an)*(rr+jr),fj=25.6+Math.sin(an)*(rr+jr)*.72;
-   if(!LANDB(fi,fj)||WD(fi,fj)>-.4||pathD(fi,fj)<.55||fieldAt(fi,fj)<.45)continue;
-   const[X,Y]=PF(fi,fj);px(c,Math.round(X),Math.round(Y),hh(s,(rr*3)|0)>.82?'#b8b09c':'#8e8674',1,1)}}
+   if(!LANDB(fi,fj)||WD(fi,fj)>-.4||pathD(fi,fj)<.5||fieldAt(fi,fj)<.38)continue;
+   const[RX,RY]=PF(fi,fj),X=Math.round(RX),Y=Math.round(RY);
+   px(c,X,Y,'#6f675a',2,1);px(c,X,Y-1,'#a49c88',1,1)}}
  // kerb pebbles: a stony edge where the path meets the grass
  for(const p of PATHS.slice(7))for(let k=0;k<p.length-1;k++){
   const dx=p[k+1][0]-p[k][0],dy=p[k+1][1]-p[k][1],L=Math.hypot(dx,dy),n=Math.floor(L/.55),nx=-dy/(L||1),ny=dx/(L||1);
@@ -375,15 +377,20 @@ function buildB(c){
  // the landmarks
  put(93.8,25.6,oak('g',18,2,'cherry'),1,.05);put(111,17,pagoda(),2,.05);put(91.5,33,teahouse(),2,.05);
  put(85.8,19.6,torii(0),2,.05);put(104.3,40.2,torii(1),2,.05);
- // the tsukubai by the teahouse step, two smooth stones beside it
- put(93.2,31.4,basin(),0);put(91.7,30.5,RS(2,2,ST,3),0);put(94.6,32.6,RS(2,2,ST,7),0);
+ // the tea garden on the open south lawn: a tsukubai with a bamboo ladle, two flat mossy
+ // stones as the path to the door, and two autumn bushes holding the corners of the bed
+ put(94.0,36.0,basin(),0);put(95.4,36.8,RS(2,1,ST,3),0);put(96.3,37.7,RS(1,1,ST,7),0);
+ put(95.9,33.9,bush('a',2,false),0);put(93.2,36.6,bush('a',5,false),0);
+ // cairns at the forks where the walks meet, the way a walker would mark them
+ put(102.0,24.9,cairn(),0);put(96.7,23.7,cairn(),0);
  // a paper-lantern string over the torii approach
  put(86.6,21.1,pole(),0);put(90.5,22.7,pole(),0);lanternString(86.6,21.1,90.5,22.7,4,6,52);
  // a bench at the rest stop by the postbox, facing the pond over the gap in the cherry
- put(100.2,25.2,bench(0,1),0);
+ put(100.2,25.2,bench(0,1),0);put(100.35,25.15,cat(),0);   // the pond bench is the cat's, not yours
  // a cat asleep on the teahouse porch
- put(90.1,34.4,cat(),0);
- put(99.4,24.6,postbox(),0);put(98.4,22.6,bench(0),0);put(100.4,27.2,bench(1),0);put(96.4,30.6,bench(0),0);
+ put(99.4,24.6,postbox(),0);put(98.4,22.6,bench(0),0);put(100.4,27.2,bench(0,1),0);put(96.4,30.6,bench(0),0);
+ // the terrace rim: a bench facing the pagoda steps between two lanterns
+ put(107.0,21.3,stoneLantern(),3);put(110.0,20.5,stoneLantern(),3);put(108.6,20.9,bench(0,0),0);
  for(const[a,b]of[[95.6,22.1],[99.4,26.9],[109.5,18.4],[112.7,18.4],[89.4,32.5],[93.6,32.5],[101.0,38.6],[104.8,39.0]])put(a,b,stoneLantern(),3);
  // rocks and reeds round the little pond
  for(let q=0;q<44;q++){const an=q/44*6.283;if(Math.abs(Math.cos(an))<.22)continue;let rr=6;while(rr>2&&WD(POND2[0]+Math.cos(an)*rr,POND2[1]+Math.sin(an)*rr)<=0)rr-=.1;
@@ -717,6 +724,7 @@ function build(){
  put(36.9,20.6,cottage([[92,84,74],[118,108,96],[148,136,122]]),2,.05);
  put(8.6,4.4,windmill(),2,.05);
  put(19.4,21.8,boathouse(),2,.05);
+ put(26.05,16.95,quizbox(),0);   // the old fisher's riddle-box, on the pier by Sen
  put(24.0,22.0,oak('g',8,1,'cherry'),1);put(24.3,21.6,RS(4,2,RK,7),0);
  put(34.4,10.8,shrine(),2,.05);put(51.0,15.6,hermit(),2,.05);{const[hx,hy]=PF(51,15.6);objs.push({d:51+15.6+.2,x:hx,y:hy,ph:0,t:0,sp:null,draw:c=>{for(let k=0;k<5;k++){const t=(T*.22+k/5)%1;c.fillStyle='rgba(214,208,196,'+((1-t)*.55).toFixed(2)+')';const s=(2+t*3)|0;c.fillRect((hx+11+Math.sin(T*.8+k*2)*2+t*7)|0,(hy-43-t*24)|0,s,s)}}})}put(52.5,17.0,woodpile(),0);put(49.9,17.4,stoneLantern(),3);put(52.6,14.4,stump(1),0);
  put(35.6,40.2,lookout(),2,.05);

@@ -109,6 +109,8 @@
 
 <button id="xp" type="button" class="pfab" title="Walk the village" aria-label="Walk the village yourself">Explore</button>
 <button id="mapbtn" type="button" class="pfab" title="The sky map" aria-label="Open the sky map">Map</button>
+<button id="jumpbtn" type="button" class="pfab" title="Jump (Space)" aria-label="Jump">Jump</button>
+<button id="scanbtn" type="button" class="pfab" title="Spectate — see the whole rock (V)" aria-label="Spectate — see the whole rock">Scan</button>
 
 <div id="map" hidden>
   <div class="mbox" role="dialog" aria-label="The sky map">
@@ -144,6 +146,16 @@
  </div>
 </div>
 
+<div id="quiz" hidden>
+ <div class="sbox qbox" role="dialog" aria-label="The old fisher's riddle-box">
+  <button class="pclose qclose" id="qclose" type="button" aria-label="Close the box">&times;</button>
+  <h3>The riddle-box</h3>
+  <p class="slead">A barnacled strongbox on the pier, with six questions about water scratched into the lid in a hand that is not Sen's and is absolutely Sen's.</p>
+  <p class="qq" id="qq"></p>
+  <div class="qopts" id="qopts"></div>
+  <p class="smsg" id="qmsg"></p>
+ </div>
+</div>
 <div id="fish" hidden>
   <div class="fbox" role="dialog" aria-label="Fishing">
     <button class="fx" id="fclose" type="button" aria-label="Stop fishing">&times;</button>
@@ -355,6 +367,7 @@ void main(){
 <script src="js/175-rooms.js"></script>
 <script src="js/176-perch.js"></script>
 <script src="js/178-angling.js"></script>
+<script src="js/179-boat.js"></script>
 <script src="js/180-render.js"></script>
 <script src="js/185-boot.js"></script>
 <script src="js/190-loop.js"></script>

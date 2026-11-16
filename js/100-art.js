@@ -76,7 +76,7 @@ const PATHS=[
  [[63.0,19.5],[70,19.5],[78,19.5],[82.4,19.5],[86,19.6],[90,20.2],[93.4,21.6],[96.2,23.6],[98.6,25.4],[102,26.0],[104,26.4]],
  [[104,36.6],[104.4,39.6],[104.2,43]],
  [[96.2,23.6],[96.8,27.6],[97.6,30.6],[96.0,33.6],[93.6,34.2]],
- [[102,26.0],[105.5,23],[108.4,20.2],[110.3,18.4]]
+ [[102,26.0],[105.5,23],[108.4,20.2],[108.6,19.9]]
 ];
 const pathD=(a,b)=>{let d=9;for(const p of PATHS)for(let k=0;k<p.length-1;k++)d=Math.min(d,SEG(a,b,p[k][0],p[k][1],p[k+1][0],p[k+1][1]));return d};
 const YARDS=[[14.6,12.4,2.5],[19.8,10.4,2.6],[10.0,10.5,1.7],[17.2,13.0,1.9],[11.8,7.6,2.3],[8.6,4.4,2.0],[15.9,9.6,2.2],[24.3,19.3,1.9],[33.0,9.4,1.5],[35.4,37.2,1.5],[34.9,21.4,1.8],[22.4,3.8,1.9],[28.2,3.6,1.9],[23.2,10.8,1.9],[29.6,11.0,1.9],[23.0,15.0,1.9],[30.2,15.2,1.9],[26.5,12.6,2.8],[17.6,26.0,1.9],[9.6,22.4,1.9],[16.8,30.4,1.9],[9.0,28.8,1.9],[11.8,35.2,1.9],[13.4,31.8,2.0],[95,24.5,3.0],[92,33,2.4],[110.5,17.5,3.0]];
@@ -247,15 +247,37 @@ function bench(axis,rev){const key='bn2'+axis+(rev?1:0);if(SPR[key])return SPR[k
  if(rev)back();
  for(const s of[.0,1]){const[X,Y]=P(s,.5);px(x,Math.round(X)-1,Math.round(Y)-5,rgb([100,70,42]),2,5);px(x,Math.round(X)-2,Math.round(Y)-6,rgb([190,142,88]),4,1)}
  const cx_=Math.round(p0[0]+L[0]/2+D[0]/2);return SPR[key]={c,ox:cx_,oy:p0[1]+17,sh:[0,1,15,4],bench:1,baxis:axis,brev:rev?1:0}}
-function basin(){if(SPR.bas)return SPR.bas;const c=mk(14,17),x=c.getContext('2d');
- // a tsukubai: a squat stone bowl on a mossy foot, water still inside, one bamboo ladle resting across
- px(x,3,13,rgb([74,80,72]),8,3);px(x,2,15,rgb([52,56,50]),10,1);px(x,2,10,rgb([112,116,104]),10,3);
- px(x,1,10,rgb([152,152,138]),12,1);px(x,1,9,rgb([96,100,90]),12,1);
- for(let k=0;k<6;k++)px(x,2+k*2,12,rgb(mixc([96,100,90],[60,64,56],k%2*.6)));
- disc(x,7,7,4,2,rgb([46,64,54]));px(x,4,6,rgb([96,140,150]),6,1);px(x,5,5,rgb([150,190,196]),3,1);
- px(x,3,6,rgb([64,68,58]),1,2);px(x,10,6,rgb([64,68,58]),1,2);
- x.strokeStyle='#8a6a44';x.beginPath();x.moveTo(1,4);x.lineTo(12,2);x.stroke();px(x,0,3,rgb([160,120,70]),2,2);px(x,12,1,rgb([190,150,96]),2,1);
- return SPR.bas={c,ox:7,oy:16,sh:[0,2,7,2]}}
+function basin(){if(SPR.bas)return SPR.bas;const c=mk(15,18),x=c.getContext('2d');
+ // a tsukubai: a cylindrical stone block with a water hollow on top, bamboo ladle resting across the mouth
+ px(x,3,14,rgb([96,98,90]),9,3);px(x,2,16,rgb([64,66,60]),11,1);
+ px(x,3,7,rgb([140,138,128]),9,7);
+ px(x,3,7,rgb([198,195,181]),2,7);px(x,4,7,rgb([198,195,181]),1,7);
+ px(x,11,7,rgb([96,94,86]),1,7);px(x,10,7,rgb([116,114,104]),1,7);
+ px(x,2,5,rgb([206,203,189]),11,2);px(x,1,5,rgb([160,157,145]),13,1);
+ disc(x,7,4,5,2,rgb([50,82,78]));px(x,5,3,rgb([120,178,182]),5,1);px(x,6,2,rgb([206,240,240]),2,1);
+ x.strokeStyle='#9a744a';x.beginPath();x.moveTo(1,2);x.lineTo(13,0);x.stroke();px(x,0,1,rgb([168,126,74]),2,2);px(x,13,0,rgb([196,158,102]),1,1);
+ return SPR.bas={c,ox:7,oy:17,sh:[1,2,9,2]}}
+function cairn(){if(SPR.crn)return SPR.crn;const c=mk(14,17),x=c.getContext('2d');
+ bl(x,7,13,6,2,ST,3);bl(x,7,9,5,2,ST,8);bl(x,7,5,3,2,ST,13);
+ px(x,6,2,rgb([240,150,110]),2,1);px(x,6,3,rgb([140,190,110]),2,1);
+ return SPR.crn={c,ox:7,oy:15,sh:[1,1,6,2]}}
+function quizbox(){if(SPR.qbx)return SPR.qbx;const c=mk(18,14),x=c.getContext('2d');
+ // a barnacled strongbox with one riveted lid and a question nobody has answered
+ px(x,2,4,rgb([64,58,48]),14,8);px(x,1,4,rgb([96,88,70]),16,2);px(x,1,11,rgb([40,36,30]),16,1);
+ for(let k=0;k<4;k++)px(x,3+k*4,4,rgb([122,110,88]),1,8);
+ px(x,7,1,rgb([64,58,48]),4,3);px(x,6,1,rgb([96,88,70]),6,1);
+ disc(x,9,8,2,2,rgb([212,192,122]));px(x,8,7,rgb([88,76,36]),2,2);
+ px(x,2,10,rgb([208,201,183]),1,1);px(x,15,10,rgb([208,201,183]),1,1);px(x,12,3,rgb([208,201,183]),1,1);
+ return SPR.qbx={c,ox:9,oy:12,sh:[0,2,9,2]}}
+function rowboat(){if(SPR.rbt)return SPR.rbt;const c=mk(46,30),x=c.getContext('2d');
+ // Sen's rowboat: low hull, a bench seat, and two oars shipped out, ready to dip
+ para(x,[4,17],[32,-1],[0,7],(s,t)=>rgb(t<.3?[154,106,60]:t<.7?[126,86,48]:[86,58,32]));
+ para(x,[4,17],[32,-1],[-5,7],(s,t)=>rgb(t<.3?[122,82,44]:[80,52,28]));
+ px(x,4,16,rgb([182,132,78]),31,2);
+ px(x,14,12,rgb([96,64,36]),11,3);px(x,15,13,rgb([140,98,56]),9,1);
+ x.strokeStyle='#6a4526';x.beginPath();x.moveTo(6,15);x.lineTo(0,9);x.stroke();x.beginPath();x.moveTo(34,15);x.lineTo(44,10);x.stroke();
+ px(x,0,8,rgb([150,106,62]),3,2);px(x,42,9,rgb([150,106,62]),3,2);
+ return SPR.rbt={c,ox:23,oy:21,sh:[10,4,15,3]}}
 function cat(){if(SPR.cat)return SPR.cat;const c=mk(16,12),x=c.getContext('2d'),B=[236,150,70],D=[184,100,40];disc(x,7,8,5,3,rgb(B));disc(x,11,6,3,3,rgb(B));px(x,10,2,rgb(B),2,2);px(x,13,2,rgb(B),2,2);px(x,10,6,rgb([30,24,16]));px(x,13,6,rgb([30,24,16]));px(x,4,6,rgb(D),6,1);px(x,2,9,rgb(D),2,2);return SPR.cat={c,ox:8,oy:11}}
 function flowerPot(){if(SPR.pot)return SPR.pot;const c=mk(10,14),x=c.getContext('2d');px(x,2,8,rgb([190,92,52]),6,5);px(x,1,7,rgb([214,112,64]),8,2);for(let k=0;k<5;k++){px(x,1+k*2,4+(k%2)*2,rgb([['#ff8fb8','#ffd24a','#fff','#e8453c','#ff8fb8'][k]]));px(x,2+k*2,6,rgb([60,130,56]))}return SPR.pot={c,ox:5,oy:12}}
 function signpost(){if(SPR.sign)return SPR.sign;const c=mk(30,40),x=c.getContext('2d');px(x,13,6,rgb([100,68,40]),3,32);px(x,14,6,rgb([146,102,60]),1,32);
