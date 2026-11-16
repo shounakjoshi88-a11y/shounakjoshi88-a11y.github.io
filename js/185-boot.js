@@ -1,5 +1,5 @@
 for(const n of['oak','pine','bush','cottage','barn','windmill','boathouse','stall','coop','wellS','teahouse','pagoda','fern','lookout','shrine','observatory','dish','signalMast','standingStone','tripod',
- 'basin','cairn','quizbox','rowboat','bamboo','reed','corn','sunflower','tomato','pumpkinS','stump','logS','woodpile','hermit','torii','bench','cart','crates','barrel','millWheel','pole','lamp','postbox','signpost','stoneLantern','RS','keep','keepTower','brazier','kingChair']){
+ 'basin','cairn','quizbox','rowboat','wallPiece','gateArch','gateTower','bastion','longHall','libraryTower','smithyHut','bamboo','reed','corn','sunflower','tomato','pumpkinS','stump','logS','woodpile','hermit','torii','bench','cart','crates','barrel','millWheel','pole','lamp','postbox','signpost','stoneLantern','RS','keep','keepTower','brazier','kingChair']){
  const f=window[n];if(typeof f!=='function')continue;window[n]=function(){const r=f.apply(this,arguments);if(r&&r.c&&!r._rim){r._rim=1;try{rimLight(r.c)}catch(e){}
   if(r.sol===undefined&&SOLSPEC[n]!==undefined)r.sol=SOLSPEC[n]}return r}}
 setMode('start');

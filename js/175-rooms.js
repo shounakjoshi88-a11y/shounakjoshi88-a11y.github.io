@@ -70,6 +70,13 @@ const ROOMS={
   item:['A page of notes on the sky','Half the page is a definition. The other half is a question he has not closed yet.'],
   furn:[['scope',120,116],['desk',220,132],['books',52,100],['crate',262,152]],
   ox:78,oy:120,ix:220,iy:120},
+ gate:{name:'The gatehouse',owner:'Ryle',wall:'#4a4436',floor:'#7d7560',accent:'#e0b070',
+  lines:['First door of the keep. She is the last door, and she counts four promises: the village, the fish, the far road, and the sky.',
+   'Nobody passes that the pond has not already weighed. I keep the tally so she does not have to wake for the small ones.',
+   'When the fourth promise is kept you will not see me move. I will simply not be standing here any more. That is how you will know.'],
+  item:['A knotted cord','Two hundred and four knots, one for every name the pond weighed before you. He began splicing yours on at the bridge.'],
+  furn:[['rug',160,148],['counter',100,124],['shelf',248,92],['books',246,84],['banner',160,54],['lamp',262,104],['barrel',38,152],['candles',214,126]],
+  ox:80,oy:118,ix:112,iy:112},
  keep:{name:'The Tall Hall',owner:'Venna',wall:'#4a4436',floor:'#7d7560',accent:'#e0b070',
   lines:['Sit. The floor is old stone and the sun crosses it on one hour of the day. I do not measure the hour for you.',
    'Two hundred and four names are in the pond itself, written in the pond’s own hand. What it was, and who it was for. The last page stays empty.',
@@ -154,6 +161,7 @@ const DOORS=[
  {id:'post',house:[91.5,33],off:[-0.41,1.5],room:'post'},
  {id:'pagoda',house:[111,17],off:[0,1.4],room:'pagoda'},
  {id:'dome',house:[133.0,27.0],off:[0,1.5],room:'dome'},
+ {id:'gate',house:[136.5,46.3],off:[0,-1.2],room:'gate'},
  {id:'starkeep',house:[136.5,53.3],off:[0,1.9],room:'keep',lock:{quests:['village','koi','far','sky']},lockMsg:'The keeper counts four promises: the village, the fish, the far ends of the road, and the sky. Keep them all and the door opens.'}];
 
 let ROOM=null,RMX=0,RMY=0,RMTX=0,RMTY=0,RMGOAL=null,RMTAKE=0;

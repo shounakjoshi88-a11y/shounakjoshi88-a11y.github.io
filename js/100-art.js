@@ -46,7 +46,7 @@ const LANDC=(a,b)=>{if(a<LANDS.a0||a>LANDS.a1||b<LANDS.b0||b>LANDS.b1)return 0;
  const k=a>144?dmp(b,28.5):1;return sdRR(a,b,133,27,10.5,7)+vn(a*.28+71,b*.28)*1.5*k<0};
 const LAND=(a,b)=>LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b));
 const landIn=(a,b,m)=>LAND(a-m,b)&&LAND(a+m,b)&&LAND(a,b-m)&&LAND(a,b+m);
-const EDA=(a,b)=>-sdRR(a,b,31.5,31.5,32,9),EDB=(a,b)=>-sdRR(a,b,101,26,19,8),EDC=(a,b)=>-sdRR(a,b,133,27,10.5,7),EDE=(a,b)=>-sdRR(a,b,135.5,52.2,19,10);
+const EDA=(a,b)=>-sdRR(a,b,31.5,31.5,32,9),EDB=(a,b)=>-sdRR(a,b,101,26,19,8),EDC=(a,b)=>-sdRR(a,b,133,27,10.5,7),EDE=(a,b)=>typeof kdist==='function'?-kdist(a,b):-sdRR(a,b,135.5,52.2,19,10);
 // where the rope bridge hangs between the isles
 const RB={a0:62.3,a1:83.7,b:19.5,sag:12};
 const RB2={a0:118.4,a1:124.0,b:30,sag:7};

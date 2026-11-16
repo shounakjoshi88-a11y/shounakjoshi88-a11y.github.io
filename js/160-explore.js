@@ -8,7 +8,7 @@ const LOOKS=[[[172,68,46],[222,204,154],[44,42,50],[228,186,150],[70,48,36]]];
 const SOLSPEC={oak:4,pine:4,bamboo:3,reed:3,corn:3,sunflower:3,tomato:3,pumpkinS:3,stump:4,logS:4,bush:3,
  cottage:0,barn:0,boathouse:0,coop:0,teahouse:0,stall:0,lookout:0,shrine:0,
  windmill:[-10,0,30,9],pagoda:[-16,-4,32,10],observatory:[-16,0,32,10],dish:5,signalMast:4,
- standingStone:4,tripod:4,wellS:[2,0,20,8],hermit:[-17,1,17,13],torii:[-1,2,31,13],bench:[-1,0,16,6],
+ standingStone:4,tripod:4,wellS:[2,0,20,8],hermit:[-17,1,17,13],bench:[-1,0,16,6],
  cart:[8,1,29,8],crates:[3,1,23,9],barrel:[1,0,11,5],millWheel:{c:[-22,5,20]},woodpile:[17,4,43,11],
  pole:3,lamp:3,postbox:4,signpost:3,stoneLantern:4,RS:[-15,-1,15,9],windmill:{c:[0,-8,15]},pagoda:{c:[0,-12,18]},observatory:{c:[0,-16,24]},
  dish:{c:[-6,-6,11]},tripod:{c:[0,-7,7]},standingStone:5};
@@ -29,7 +29,7 @@ function blocked(a,b){
    continue}
   if(typeof s==='number'){if(dx*dx+dy*dy<s*s)return 1;continue}
   if(s.c){const ox=dx-s.c[0],oy=dy-s.c[1];if(ox*ox+oy*oy<s.c[2]*s.c[2])return 1;continue}
-  if(dx>=s[0]-1&&dx<=s[1]+1&&dy>=s[2]-1&&dy<=s[3]+1)return 1}
+  if(dx>=s[0]-1&&dx<=s[0]+s[2]+1&&dy>=s[1]-1&&dy<=s[1]+s[3]+1)return 1}
  return 0}
 const mkSpr=p=>({front:[charArt(villager(p,0,'front')),charArt(villager(p,1,'front'))],back:[charArt(villager(p,0,'back')),charArt(villager(p,1,'back'))],side:[charArt(villager(p,0,'side')),charArt(villager(p,1,'side'))]});
 let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
