@@ -14,17 +14,26 @@
 // ends at the drop. Smooth-joined, welted with noise that dies at the king's chair on the lip.
 const kdist=(a,b)=>{
  const smin=(p,q,k)=>{const h=clamp(.5+.5*(q-p)/k,0,1);return q+(p-q)*h-k*h*(1-h)};
- const dN=Math.hypot(a-124.5,b-48.5)-5.0;                 // the north-west lobe
- const dSW=Math.hypot(a-124.5,b-59.5)-4.6;                // the south-west lobe
+ const dN=Math.hypot(a-124.5,b-48.5)-5.4;                 // the north-west lobe
+ const dSW=Math.hypot(a-119.5,b-59.5)-9.0;                // the west bailey, the yard and the postern
  const dM=Math.hypot(a-134.0,b-52.0)-10.6;                // the drum the kingdom grew from
- const dE=Math.hypot(a-146.8,b-49.2)-7.6;                 // the eastern lobe: the dry garden court
- const dSE=Math.hypot(a-149.5,b-58.5)-4.8;                // the south-east corner
- const dS=Math.hypot(a-137.8,b-58.4)-7.0;                 // the southern lobe, ending at the drop
+ const dE=Math.hypot(a-151.5,b-49.0)-9.4;                 // the eastern garden wing
+ const dSE=Math.hypot(a-150.5,b-60.0)-7.0;                // the south-east corner, swallowing the postern
+ const dS=Math.hypot(a-137.8,b-58.4)-7.8;                 // the southern lobe
+ const dLOW=Math.hypot(a-137.5,b-68.5)-10.0;               // the lower town and the avenue
+ const dSWT=Math.hypot(a-126.5,b-71.0)-6.2;               // the south-west tip
+ const dSET=Math.hypot(a-150.5,b-69.5)-6.8;               // the south-east tip
+ const dEW=Math.hypot(a-160.5,b-54.5)-5.8;                // the pagoda terrace
+ const dEW2=Math.hypot(a-167.5,b-52.5)-5.2;             // the far east rim, where the pines stand
+ const dWN=Math.hypot(a-127.5,b-61.5)-5.2;                // the west postern neck, guaranteed solid
+ const dEN=Math.hypot(a-158.5,b-58.5)-5.2;                // the east postern neck, guaranteed solid
  let d=smin(smin(smin(dN,smin(dM,dSW,2.0),2.4),smin(dSE,dS,2.0),2.2),dE,2.6);
- const dc=Math.hypot(a-140.2,b-62.6);                     // the noise frays out at the chair's lip
- return d+vn(a*.31+83,b*.31)*1.7*clamp((dc-1.4)/3.4,0,1)};
+ d=smin(d,smin(dLOW,smin(dSET,dSWT,2.2),2.3),2.6);
+ d=smin(d,dEW,2.0);d=smin(d,dEW2,2.2);d=smin(smin(d,dWN,2.4),dEN,2.4);
+ const dc=Math.hypot(a-140.2,b-73.2);                     // the noise frays out at the balcony's lip
+ return d+vn(a*.31+83,b*.31)*.95*clamp((dc-1.4)/3.4,0,1)};
 // the rock itself: whatever the field admits, inside the canvas, welded to nothing
-const LANDE=(a,b)=>{if(a<108||a>160||b<38.5||b>67)return 0;return kdist(a,b)<0};
+const LANDE=(a,b)=>{if(a<96||a>178||b<33.5||b>80.5)return 0;return kdist(a,b)<0};
 
 // the ground: weathered flagstone, a paved ring for the court, a straight approach walk to the door,
 // castle moss in the joints, and pale pebbles in the corners
@@ -38,7 +47,7 @@ function groundE(fi,fj,x,y,n,dirt){
  if(e<.55)k=mixc(k,[88,88,76],.42);
  // the court: a ring of big flat slabs under the keep, and a straight walk from the bridge door
  const dc=Math.hypot(fi-136.5,fj-55.4),rd=3.7+(vn(fi*2,fj*2)-.5)*.35,ring=rd-.45;
- const inWalk=Math.abs(fi-136.5)<1.1&&fj>43.5&&fj<53.6;
+ const inWalk=Math.abs(fi-136.5)<1.15&&fj>43.5&&fj<64.9;
  if(dc<rd||inWalk){
   const gxi=Math.floor(fi*1.35),gyi=Math.floor(fj*1.35),fx=(fi*1.35)%1,fy=(fj*1.35)%1;
   const grout=fx<.09||fy<.09;
@@ -48,14 +57,28 @@ function groundE(fi,fj,x,y,n,dirt){
   const kk=lt*.94;
   if(grout)return[126,122,110];
   return[sc[t][0]*kk,sc[t][1]*kk,sc[t][2]*kk]}
- // the wall shadow: the two walls north throw a long band across the ward floor
- const wN=Math.abs(fj-46.3),wW=Math.abs(fi-126.6),wE=Math.abs(fi-147.4);
- if(wN<.6&&fi>124&&fi<150)k=mixc(k,[62,60,52],.55);
- if(wW<.6&&fj>45&&fj<63)k=mixc(k,[62,60,52],.5);
- if(wE<.6&&fj>45&&fj<63)k=mixc(k,[62,60,52],.5);
- // the dry garden in the east lobe: raked gravel under one great stone
- const dg=Math.hypot(fi-149.7,fj-48.9);
- if(dg<3.3){const rake=Math.sin(dg*2.15+vn(fi*1.4,fj*1.4)*.9)*.5+.5;k=mixc([182,173,143],[143,135,110],rake*.72);if(vn(fi*2.2+5,fj*2.2)>.84)k=mixc(k,[218,210,186],.45)}
+ // the wall shadows: the curtain bands throw long shade across the ward and the town
+ const wN=Math.abs(fj-46.3),wW=Math.abs(fi-126.6),wE=Math.abs(fi-155.0),wS=Math.abs(fj-64.8);
+ if(wN<.6&&fi>124&&fi<157)k=mixc(k,[62,60,52],.55);
+ if(wW<.6&&fj>45&&fj<58)k=mixc(k,[62,60,52],.5);
+ if(wE<.6&&fj>45&&fj<58)k=mixc(k,[62,60,52],.5);
+ if(wS<.6&&fi>124&&fi<156)k=mixc(k,[62,60,52],.5);
+ // the dry garden gravel: one raked circle inside the wall, one bigger garden beyond the postern
+ const dg=Math.hypot(fi-151.0,fj-49.5);
+ if(dg<3.1){const rake=Math.sin(dg*2.15+vn(fi*1.4,fj*1.4)*.9)*.5+.5;k=mixc([182,173,143],[143,135,110],rake*.72);if(vn(fi*2.2+5,fj*2.2)>.84)k=mixc(k,[218,210,186],.45)}
+ const tg=Math.hypot(fi-159.5,fj-52.0);
+ if(tg<5.2){const rake=Math.sin(tg*2.05+vn(fi*1.4+9,fj*1.4)*.9)*.5+.5;k=mixc([176,167,136],[138,130,104],rake*.7);if(vn(fi*2.2+11,fj*2.2)>.82)k=mixc(k,[214,206,182],.45)}
+ // the lower town plaza: pale cobbles under the stalls, worn between the lanes
+ const pl=Math.hypot(fi-139.6,fj-68.6);
+ if(pl<3.7){const gx=Math.floor(fi*1.5),gy=Math.floor(fj*1.5),fx=(fi*1.5)%1,fy=(fj*1.5)%1;
+  const grout=fx<.12||fy<.12;const tv=hh(gx,gy);
+  k=mixc(k,grout?[118,114,102]:[196+tv*22,190+tv*20,168+tv*14],.78)}
+ // the balcony apron: the last slabs before the avenue ends at the drop
+ const ba=Math.hypot(fi-140.2,fj-72.4);
+ if(ba<2.6)k=mixc(k,[204,198,178],.55);
+ // the training yard: packed sand under the targets
+ const ty=Math.hypot(fi-121.8,fj-57.3);
+ if(ty<3.6&&vn(fi*2.6+3,fj*2.6)>.28)k=mixc(k,[166,152,114],.5);
  // parade sand on the south apron, where the court gives way to the drop
  if(fj>56.5&&fj<61.8&&fi>128.5&&fi<145.5&&vn(fi*2.3+9,fj*2.3)>.3)k=mixc(k,[164,150,112],.4);
  if(hh(x,y)>.955&&vn(fi*1.7,fj*1.7)>.5)k=mixc(k,[234,228,206],.7);
@@ -310,6 +333,66 @@ function smithyHut(){if(SPR.smh)return SPR.smh;
  const sp={c,ox:ax+W/2,oy:by,sh:[-30,-1,60,8],hgt:36,sol:{c:[0,0,20]}};
  SPR.smh=sp;return sp}
 
+// ---- the hedge: a clipped cube of dark green, the garden keep's own topiary
+function hedge(){if(SPR.hedg)return SPR.hedg;
+ const c=mk(40,30),x=c.getContext('2d'),cx=20,by=27;
+ const G=[[38,74,44],[56,102,60],[84,136,86],[116,162,116]];
+ cyl(x,cx,by,15,5,16,[G[1],G[2],G[0]],[140,178,126],(dx,v)=>{if(v%6==0)return G[0];if(hh(dx>>1,v)>.88)return G[0];return null});
+ x.fillStyle=rgb([26,52,32]);x.fillRect(cx-15,by-2,30,3);
+ x.fillStyle=rgb(G[3]);x.fillRect(cx-11,by-17,22,2);
+ const sp={c,ox:cx,oy:by,sh:[-13,0,26,5],hgt:20,sol:{c:[0,0,13]}};
+ SPR.hedg=sp;return sp}
+
+// ---- the flowerbed: one elliptical bed of turned earth and five bright heads
+function flowerbed(){if(SPR.flbd)return SPR.flbd;
+ const c=mk(34,18),x=c.getContext('2d'),cx=17,cy=12;
+ x.fillStyle=rgb([58,42,28]);x.beginPath();x.ellipse(cx,cy,15,6,0,0,6.283);x.fill();
+ x.fillStyle=rgb([102,76,48]);x.beginPath();x.ellipse(cx,cy-1,13,4.5,0,0,6.283);x.fill();
+ const F=[[214,84,74],[240,196,84],[178,110,196],[238,238,226],[240,140,60]];
+ for(let i=0;i<5;i++){const dx=[-10,-5,0,5,10][i],dy=[-2,1,-3,1,-2][i];
+  x.fillStyle=rgb([52,84,52]);x.fillRect(cx+dx,cy+dy-2,1,3);
+  x.fillStyle=rgb(F[i]);x.fillRect(cx+dx-2,cy+dy-6,5,4);x.fillStyle=rgb([255,240,190]);x.fillRect(cx+dx,cy+dy-5,1,1)}
+ const sp={c,ox:cx,oy:cy+5,sh:[-12,0,24,4],hgt:10};
+ SPR.flbd=sp;return sp}
+
+// ---- the target: a straw boss with two rings, standing on the yard wall
+function target(){if(SPR.tgt2)return SPR.tgt2;
+ const c=mk(26,34),x=c.getContext('2d'),cx=13,by=31;
+ x.fillStyle=rgb([72,52,32]);x.fillRect(cx-2,by-14,4,14);
+ x.fillStyle=rgb([98,74,46]);x.fillRect(cx-8,by-1,16,2);
+ x.fillStyle=rgb([176,140,84]);x.beginPath();x.arc(cx,by-18,9,0,6.283);x.fill();
+ x.fillStyle=rgb([214,80,56]);x.beginPath();x.arc(cx,by-18,6.4,0,6.283);x.fill();
+ x.fillStyle=rgb([238,232,214]);x.beginPath();x.arc(cx,by-18,3.6,0,6.283);x.fill();
+ x.fillStyle=rgb([190,60,44]);x.beginPath();x.arc(cx,by-18,1.4,0,6.283);x.fill();
+ const sp={c,ox:cx,oy:by,sh:[-7,0,14,3],hgt:22,sol:{c:[0,0,7]}};
+ SPR.tgt2=sp;return sp}
+
+// ---- the rack: two uprights and a crossed brace, the yard's armoury outdoors
+function rack(){if(SPR.rack)return SPR.rack;
+ const c=mk(40,32),x=c.getContext('2d'),by=29;
+ x.fillStyle=rgb([82,60,36]);
+ x.fillRect(4,6,4,23);x.fillRect(32,6,4,23);
+ x.fillRect(2,4,8,3);x.fillRect(30,4,8,3);
+ ln(x,6,26,34,8,rgb([104,78,46]));ln(x,34,26,6,8,rgb([104,78,46]));
+ x.fillStyle=rgb([150,150,142]);
+ x.fillRect(11,10,2,16);x.fillRect(19,12,2,14);x.fillRect(26,10,2,16);
+ x.fillStyle=rgb([110,110,104]);
+ x.fillRect(10,9,4,2);x.fillRect(18,11,4,2);x.fillRect(25,9,4,2);
+ const sp={c,ox:20,oy:by,sh:[-14,0,28,4],hgt:20,sol:{c:[0,0,13]}};
+ SPR.rack=sp;return sp}
+
+// ---- the dummy: the yard's teacher, a crossed-post strawman with a pale head
+function dummy(){if(SPR.dm)return SPR.dm;
+ const c=mk(30,38),x=c.getContext('2d'),cx=15,by=35;
+ x.fillStyle=rgb([84,60,36]);x.fillRect(cx-2,by-26,4,26);
+ x.fillStyle=rgb([104,78,46]);x.fillRect(cx-12,by-18,24,3);
+ x.fillStyle=rgb([72,52,32]);x.fillRect(cx-9,by,18,2);
+ x.fillStyle=rgb([176,150,96]);x.beginPath();x.ellipse(cx,by-28,7,6.4,0,0,6.283);x.fill();
+ x.fillStyle=rgb([146,120,70]);x.fillRect(cx-7,by-27,14,2);
+ x.fillStyle=rgb([52,44,32]);x.fillRect(cx-3,by-30,1,1);x.fillRect(cx+2,by-30,1,1);
+ const sp={c,ox:cx,oy:by,sh:[-9,0,18,4],hgt:26,sol:{c:[0,0,9]}};
+ SPR.dm=sp;return sp}
+
 // ---- the king's chair: one seat at the edge, facing the drop, nothing behind it
 function kingChair(){
  if(SPR.kchr)return SPR.kchr;
@@ -333,22 +416,34 @@ function buildCastle(){
  window.RB4=B4;
  objs.push({d:B4.a0+B4.b0+.02,x:Math.round(PF(B4.a0,(B4.b0+B4.b1)/2)[0]),y:Math.round(PF(B4.a0,(B4.b0+B4.b1)/2)[1]),ph:0,t:0,sp:null,
   draw:c=>ropeSegB(c,B4.b0,B4.b1,B4)});
- // ---- THE WALL RING: two crenellated walls on the north reach, one on each flank
+ // ---- THE WALL RING: the keep ward, enclosed. The flanks end in open posterns, the way
+ // in and out for everything that is not a king. Two arches hold the whole thing up.
  put(130.15,46.3,wallPiece(1),1);
  put(142.85,46.3,wallPiece(1),1);
- put(126.6,50.2,wallPiece(-1),1);
- put(126.6,58.0,wallPiece(-1),1);
- put(147.4,46.3,wallPiece(-1),1);
- put(147.4,58.0,wallPiece(-1),1);
+ put(150.6,46.3,wallPiece(1),1);
+ put(126.6,49.7,wallPiece(-1),1);
+ put(126.6,55.0,wallPiece(-1),1);
+ put(155.0,49.7,wallPiece(-1),1);
+ put(155.0,55.0,wallPiece(-1),1);
+ put(129.9,64.8,wallPiece(1),1);
+ put(143.35,64.8,wallPiece(1),1);
+ put(150.8,64.8,wallPiece(1),1);
  const wallLine=(a0,b0,a1,b1,r)=>{const n=Math.ceil(Math.hypot(a1-a0,b1-b0)*16/(r*1.4));
   for(let k=0;k<=n;k++){const t=k/n;addSolid(a0+(a1-a0)*t,b0+(b1-b0)*t,{c:[0,0,r]},{sol:1})}};
- wallLine(126.6,46.3,133.6,46.3,7);wallLine(139.4,46.3,147.4,46.3,7);
- wallLine(126.6,46.3,126.6,62.2,7);wallLine(147.4,46.3,147.4,62.2,7);
- // the corner bastions and the gatehouse on the bridge walk
- put(126.6,45.7,bastion(),3,.05);put(147.4,45.7,bastion(),3,.05);
- put(126.6,62.2,bastion(),3,.05);put(147.4,62.2,bastion(),3,.05);
+ wallLine(126.6,46.3,133.6,46.3,7);wallLine(139.4,46.3,155.0,46.3,7);
+ wallLine(126.6,46.3,126.6,57.2,7);wallLine(155.0,46.3,155.0,57.2,7);
+ wallLine(126.6,64.8,133.6,64.8,7);wallLine(139.4,64.8,155.0,64.8,7);
+ // the corner bastions, the postern caps, and the north gatehouse on the bridge walk
+ put(126.6,45.7,bastion(),3,.05);put(155.0,45.7,bastion(),3,.05);
+ put(126.6,57.4,bastion(),3,.05);put(155.0,57.4,bastion(),3,.05);
+ put(126.6,64.8,bastion(),3,.05);put(155.0,64.8,bastion(),3,.05);
  put(133.0,46.3,gateTower(),3,.05);put(140.0,46.3,gateTower(),3,.05);
  put(136.5,46.3,gateArch(),0,.05);
+ // the south gate: the town side, open to the lower town and the avenue
+ put(133.0,64.8,gateTower(),3,.05);put(140.0,64.8,gateTower(),3,.05);
+ put(136.5,64.8,gateArch(),0,.05);
+ // the postern lamps, the honest gaps at the flanks
+ put(126.4,60.3,lamp(),0,.05);put(155.2,60.3,lamp(),0,.05);
  // ---- THE WARD: the barracks west, the library tower north-east, the smithy south-west
  put(129.9,51.0,longHall(),3,.05);
  put(143.3,49.7,libraryTower(),3,.05);
@@ -361,13 +456,56 @@ function buildCastle(){
  put(139.6,48.15,lamp(),0,.05);
  put(132.9,52.2,bannerPole(),0,.05);
  put(139.9,52.3,bannerPole(),0,.05);
- for(let i=115;i<160;i++)for(let j=42;j<64;j++){
+ // ---- THE KEEP SHRINE: the yard keeps one, facing the drop
+ put(122.6,63.3,shrine(),3,.05);
+ // ---- THE WEST BAILEY: the yard, the targets, the rack, and the one who never misses
+ put(121.3,55.4,target(),1);
+ put(124.8,52.9,target(),1);
+ put(119.6,59.6,rack(),1);
+ put(124.3,60.9,dummy(),1);
+ put(152.2,49.6,RS(2,2,ST,29),0);        // the court stone, inside the walls
+ // ---- THE GARDEN TERRACE: beyond the east postern, raked gravel and the pagoda over the drop
+ put(156.8,55.0,torii(),1);
+ put(163.6,54.6,pagoda(),3,.05);
+ put(159.2,58.6,teahouse(),3,.05);
+ put(157.5,52.6,stoneLantern(),3);
+ put(166.0,57.6,stoneLantern(),3);
+ put(153.9,52.3,hedge(),0);
+ put(161.6,51.3,hedge(),0);
+ put(163.0,51.4,flowerbed(),0);
+ put(152.6,56.6,flowerbed(),0);
+ put(158.4,49.4,RS(3,3,ST,5),0);        // the garden's great stone
+ put(155.0,48.9,cairn(),0);put(166.8,51.5,cairn(),0);
+ // ---- THE LOWER TOWN: the plaza, three stalls, the market house, two cottages
+ put(136.2,66.4,signpost(),0);
+ put(135.6,68.6,stall([196,72,52],[240,232,214]),1);
+ put(143.2,66.8,stall([58,92,140],[232,228,214]),1);
+ put(141.8,71.5,stall([58,120,72],[244,238,206]),1);
+ put(149.3,67.6,cottage([[58,74,104],[84,106,146],[126,152,190]]),3,.05);   // the market house
+ put(146.4,69.4,cart(),1);
+ put(132.9,70.6,crates(),0);
+ put(137.9,72.0,lamp(),0,.05);
+ put(142.6,65.7,lamp(),0,.05);
+ put(130.4,68.8,cottage(),3,.05);                                          // the west cottage
+ put(151.2,70.0,cottage([[60,82,52],[86,112,70],[124,152,104]]),3,.05);     // the east cottage
+ // ---- THE BALCONY: the avenue ends here, at the drop, with one chair
+ put(133.3,73.1,brazier(),2,.05);
+ put(143.5,72.3,brazier(),2,.05);
+ put(129.0,73.2,stoneLantern(),3);
+ put(145.4,71.4,stoneLantern(),3);
+ put(140.2,73.2,kingChair(),2,.05);
+ // ---- the wild: broken slabs and dry pines, the way a keep that old settles
+ for(let i=115;i<170;i++)for(let j=42;j<79;j++){
   const fi=i+hh(i*7,j*5)-.5,fj=j+hh(j*11,i*3)-.5;
   if(!LANDE(fi,fj)||WD(fi,fj)>-.6)continue;
   if(fi>124.5&&fi<135.5&&fj>46.0&&fj<55.0)continue;   // the barracks and the gate walk
   if(fi>140.5&&fi<146.5&&fj>46.0&&fj<54.0)continue;   // the library tower
-  if(fi>140.0&&fi<150.0&&fj>54.0&&fj<62.0)continue;   // the stalls and the smithy way
-  if(Math.abs(fj-46.3)<.9||Math.abs(fi-126.6)<.9||Math.abs(fi-147.4)<.9)continue;   // the wall band
+  if(fi>150.0&&fi<165.0&&fj>44.0&&fj<60.5)continue;   // the garden terrace
+  if(fi>117.0&&fi<127.0&&fj>51.0&&fj<63.0)continue;   // the west bailey yard
+  if(fi>130.0&&fi<149.0&&fj>65.0&&fj<74.0)continue;   // the market square and the avenue
+  if(fi>128.0&&fi<162.0&&fj>70.5&&fj<77.0)continue;   // the balcony
+  if(Math.abs(fj-46.3)<.9||Math.abs(fi-126.6)<.9||Math.abs(fi-155.0)<.9)continue;   // the wall bands
+  if(Math.abs(fj-64.8)<.9&&fi>124&&fi<156)continue;   // the south wall
   const q=hh(i*5,j*7);
   if(q>.90)put(fi,fj,bush('g',seed1(i,j),false),0);
   else if(q>.84)put(fi,fj,RS(2,2,RK,seed1(i,j)),0)}
@@ -375,11 +513,12 @@ function buildCastle(){
  put(151.5,53.0,pine('g',7,1),1);
  put(151.8,56.3,RS(3,3,RK,2),0);
  put(121.6,58.7,RS(4,4,RK,1),0);
- put(151.6,50.9,pine('g',7,3),1);
+ put(151.3,51.0,pine('g',7,3),1);
  put(123.5,55.3,pine('g',8,2),1);
- // broken slabs and dry pines at the rim, the way a keep that old settles
- put(120.6,48.4,RS(3,2,ST,9),0);put(152.0,47.9,RS(2,2,ST,11),0);put(123.4,61.8,RS(2,2,RK,13),0);
+ put(120.6,48.4,RS(3,2,ST,9),0);put(152.0,47.6,RS(2,2,ST,11),0);put(123.4,61.8,RS(2,2,RK,13),0);
  put(151.6,59.2,RS(3,2,ST,17),0);put(127.2,44.6,pine('g',7,1),1);put(144.2,60.9,pine('g',8,4),1);
+ put(127.8,69.8,RS(2,2,RK,21),0);put(154.0,70.5,RS(2,2,ST,23),0);
+ put(163.5,51.0,pine('g',6,5),1);put(167.0,55.0,pine('g',7,6),1);
  // a pair of coals burning at the bridge mouth, where the path arrives
  put(133.0,45.1,brazier(),2,.05);
  put(140.2,45.1,brazier(),2,.05);
@@ -392,11 +531,6 @@ function buildCastle(){
  put(141.4,59.3,brazier(),2,.05);
  // a bench set to face the keep from across the court
  put(131.8,58.5,bench(0,0),0);
- // the dry garden in the east lobe: one great stone, two cairns, a stone lantern
- put(149.7,48.9,RS(3,3,ST,5),0);
- put(147.4,51.6,cairn(),0);put(153.0,47.1,cairn(),0);
- put(145.9,46.7,stoneLantern(),3);
- // the chair at the edge, facing the drop
- put(140.2,62.6,kingChair(),2,.05);
+ // the court stone was placed with the garden terrace above; the last word:
  objs.sort((a,b)=>a.d-b.d);
 }

@@ -6,7 +6,7 @@
    the sea under it, with the rock drawn falling away beneath its south edge, exactly
    the way this world draws a cliff face it has no intention of admitting to.
    ------------------------------------------------------------------ */
-const CHM={FX:180,FY:20,FW:3140,FH:1700};
+const CHM={FX:180,FY:20,FW:3140,FH:2120};
 const CH_G=[[146,186,116],[126,166,104],[184,214,132]];
 const chTile=(x,y,W,H)=>{const wx=CHM.FX+x/W*CHM.FW,wy=CHM.FY+y/(H-56)*CHM.FH;
  const a=((wx-OX)/16+(wy-OY)/8)/2,b=((wy-OY)/8-(wx-OX)/16)/2;return[a,b]};

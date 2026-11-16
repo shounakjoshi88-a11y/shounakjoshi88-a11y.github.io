@@ -73,7 +73,7 @@ function drawGL(){
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,cv);
     GL.scDone=1}
   else{gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,GL.tS)}
-  gl.uniform2f(GL.U.WD,typeof Wd==='number'?Wd:3200,typeof Ht==='number'?Ht:1760);
+  gl.uniform2f(GL.U.WD,typeof Wd==='number'?Wd:3200,typeof Ht==='number'?Ht:2400);
   gl.drawArrays(gl.TRIANGLES,0,3)}
 
 /* ---- the things that float on top of the water ---- */

@@ -35,7 +35,7 @@ const mkSpr=p=>({front:[charArt(villager(p,0,'front')),charArt(villager(p,1,'fro
 let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
 let SPECTATE=0,PANLOCK=0,PANDRAG=null,WAKET=0,ISLB=null;
 const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.45)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.5)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=.55&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<.5))||(typeof RB4!=='undefined'&&RB4&&Math.abs(a-RB4.a0)<=.55&&b>=RB4.b0-.4&&b<=RB4.b1)||ARCH.some(A=>Math.abs(a-A.i)<=.5&&b>=A.j0-.25&&b<=A.j1+.25)||(Math.abs(a-26.2)<=.34&&b>=17.4&&b<=22.12);
-const walkable=(a,b)=>{if(a<1||a>160||b<2||b>68)return 0;if(blocked(a,b))return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b)))||WD(a,b)>-.2)return 0;return 1};
+const walkable=(a,b)=>{if(a<1||a>176||b<2||b>82)return 0;if(blocked(a,b))return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b)))||WD(a,b)>-.2)return 0;return 1};
 function nearestPath(a,b){let best=null,bd=1e9;
  for(const line of PATHS)for(let i=0;i<line.length-1;i++){const[x1,y1]=line[i],[x2,y2]=line[i+1],dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy||1,
   t=Math.max(0,Math.min(1,((a-x1)*dx+(b-y1)*dy)/L2)),x=x1+dx*t,y=y1+dy*t,d=Math.hypot(a-x,b-y);
@@ -43,7 +43,7 @@ function nearestPath(a,b){let best=null,bd=1e9;
  return best}
 let WALKLIST=null;
 function walkList(){if(WALKLIST)return WALKLIST;WALKLIST=[];
- for(let a=1;a<161;a+=.5)for(let b=2;b<68;b+=.5)if(walkable(a,b))WALKLIST.push([a,b]);
+ for(let a=1;a<179;a+=.5)for(let b=2;b<82;b+=.5)if(walkable(a,b))WALKLIST.push([a,b]);
  return WALKLIST}
 function nearWalk(i,j){
  for(let r=0;r<12;r+=.5)for(let t=0;t<(r?16:1);t++){const q=t/16*6.283,a=i+Math.cos(q)*r,b=j+Math.sin(q)*r;if(walkable(a,b))return[a,b]}
@@ -56,7 +56,7 @@ function mkWalker(a,b,look,name,me){const pal=LOOKS[look%LOOKS.length],P={pal,ro
 const START_CAM=[[31.5,31.5],[73,19.5],[101,26],[133,27],[137,53]];
 function startCam(){const n=START_CAM.length,per=15,tt=T%(per*n),k=Math.floor(tt/per),u=(tt%per)/per,e=sm(.45,1,u),A=START_CAM[k],B=START_CAM[(k+1)%n];return[lerp(A[0],B[0],e),lerp(A[1],B[1],e)]}
 // the spyglass: a spectate view that pulls back to frame the whole rock you are standing on
-const ISLEBOX=[[-2,66,-2,66],[76,126,1,51],[115,153,7,49],[84,106,47,69],[111,161,39,66]];
+const ISLEBOX=[[-2,66,-2,66],[76,126,1,51],[115,153,7,49],[84,106,47,69],[97,180,33,81]];
 function isleBounds(){
  if(ISLB)return ISLB;ISLB=[];
  const F=[LANDA,LANDB,LANDC,LANDD,(a,b)=>typeof LANDE!=='undefined'&&LANDE(a,b)];
@@ -132,7 +132,7 @@ function playerTick(){
   else hint.hidden=true}
 }
 // ---- the minimap: three rocks, the glints you found, and where you are standing
-const MMW=180,MMH=96,MMX0=180,MMX1=3320,MMY0=20,MMY1=1720;let MMBG=null;
+const MMW=180,MMH=96,MMX0=180,MMX1=3320,MMY0=20,MMY1=2120;let MMBG=null;
 const mmx=(X,Y)=>[(X-MMX0)/(MMX1-MMX0)*MMW,(Y-MMY0)/(MMY1-MMY0)*MMH];
 function bakeMM(){return typeof bakeChartMM==='function'?bakeChartMM():(m=>{const b=mk(MMW,MMH);return b})()}
 function drawMM(){
