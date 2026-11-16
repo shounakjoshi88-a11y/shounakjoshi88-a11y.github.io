@@ -506,6 +506,14 @@ function rimLight(c){const w=c.width,h=c.height,x=c.getContext('2d'),id=x.getIma
   if(up||ur){o[i]=d[i]*1.16+12;o[i+1]=d[i+1]*1.14+9;o[i+2]=d[i+2]*1.04+2}
   else if(dn||lf){o[i]=d[i]*.7;o[i+1]=d[i+1]*.72;o[i+2]=d[i+2]*.78}}
  x.putImageData(new ImageData(o,w,h),0,0)}
+// a one-pixel silhouette ring, the way a game sprite carries its own horizon
+function outline(c,col){const w=c.width,h=c.height,x=c.getContext('2d'),id=x.getImageData(0,0,w,h),d=id.data,o=new Uint8ClampedArray(d);
+ const A=(X,Y)=>X<0||Y<0||X>=w||Y>=h?0:d[(Y*w+X)*4+3];
+ for(let y=0;y<h;y++)for(let X=0;X<w;X++){const i=(y*w+X)*4;if(d[i+3]>4)continue;
+  if(A(X-1,y)>20||A(X+1,y)>20||A(X,y-1)>20||A(X,y+1)>20||A(X-1,y-1)>20||A(X+1,y-1)>20||A(X-1,y+1)>20||A(X+1,y+1)>20){o[i]=col[0];o[i+1]=col[1];o[i+2]=col[2];o[i+3]=255}}
+ x.putImageData(new ImageData(o,w,h),0,0)}
+// every person in the village gets the outline and the rim light, so they read at a glance
+function charArt(sp){outline(sp.c,[54,40,28]);rimLight(sp.c);return sp}
 function buildTown(){
  const H=(a,b,p)=>put(a,b,cottage(PALS[p]),2,.05);
  // north quarter: a market street running from the farm lane down to the pond road

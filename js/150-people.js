@@ -18,10 +18,10 @@ const CAST=[
 ];
 function initPeople(){
   for(const q of CAST){const s=q.seg||0,P={pal:q.pal,route:q.route,spd:q.spd,seg:s,a:q.route[s][0],b:q.route[s][1],anim:0,vx:1,vy:0,wait:0,cd:0,mv:1,talk:0};
-    P.spr={front:[villager(q.pal,0,'front'),villager(q.pal,1,'front')],back:[villager(q.pal,0,'back'),villager(q.pal,1,'back')],side:[villager(q.pal,0,'side'),villager(q.pal,1,'side')]};
+    P.spr={front:[charArt(villager(q.pal,0,'front')),charArt(villager(q.pal,1,'front'))],back:[charArt(villager(q.pal,0,'back')),charArt(villager(q.pal,1,'back'))],side:[charArt(villager(q.pal,0,'side')),charArt(villager(q.pal,1,'side'))]};
     PEOPLE.push({d:P.a+P.b,P})}
   for(const ch of CH){const P={pal:ch.pal,route:[ch.at,ch.at],spd:0,seg:0,a:ch.at[0],b:ch.at[1],anim:0,vx:.7,vy:.7,wait:1e9,cd:1e9,mv:0,talk:0};
-    P.spr={front:[villager(ch.pal,0,'front'),villager(ch.pal,1,'front')],back:[villager(ch.pal,0,'back'),villager(ch.pal,1,'back')],side:[villager(ch.pal,0,'side'),villager(ch.pal,1,'side')]};
+    P.spr={front:[charArt(villager(ch.pal,0,'front')),charArt(villager(ch.pal,1,'front'))],back:[charArt(villager(ch.pal,0,'back')),charArt(villager(ch.pal,1,'back'))],side:[charArt(villager(ch.pal,0,'side')),charArt(villager(ch.pal,1,'side'))]};
     PEOPLE.push({d:P.a+P.b,P})}
 }
 function stepPeople(dt){
@@ -40,7 +40,7 @@ function stepPeople(dt){
 function drawPerson(ctx,P){if(P.hid)return;
   const[X,Y0]=PF(P.a,P.b),Y=Y0-bridgeLift(P.a,P.b),sx=P.vx-P.vy,sy=P.vx+P.vy,idle=P.wait>0;
   if(P.jmp>0){
-   if(!P.spr.jmp)P.spr.jmp={front:[villagerJump(P.pal,0,'front'),villagerJump(P.pal,1,'front')],back:[villagerJump(P.pal,0,'back'),villagerJump(P.pal,1,'back')],side:[villagerJump(P.pal,0,'side'),villagerJump(P.pal,1,'side')]};
+   if(!P.spr.jmp)P.spr.jmp={front:[charArt(villagerJump(P.pal,0,'front')),charArt(villagerJump(P.pal,1,'front'))],back:[charArt(villagerJump(P.pal,0,'back')),charArt(villagerJump(P.pal,1,'back'))],side:[charArt(villagerJump(P.pal,0,'side')),charArt(villagerJump(P.pal,1,'side'))]};
    const pose=Math.abs(sy)>Math.abs(sx)*1.1?(sy>0?'front':'back'):'side';
    const sp2=P.spr.jmp[pose][0],flip=pose==='side'&&sx<0;
    const lift=Math.sin(Math.PI*Math.min(1,P.jmp/.62))*9;
@@ -52,7 +52,7 @@ function drawPerson(ctx,P){if(P.hid)return;
    else ctx.drawImage(sp2.c,px_,py);
    return}
   if(P.sit){
-   if(!P.spr.sit)P.spr.sit={front:[villagerSit(P.pal,0,'front'),villagerSit(P.pal,1,'front')],back:[villagerSit(P.pal,0,'back'),villagerSit(P.pal,1,'back')],side:[villagerSit(P.pal,0,'side'),villagerSit(P.pal,1,'side')]};
+   if(!P.spr.sit)P.spr.sit={front:[charArt(villagerSit(P.pal,0,'front')),charArt(villagerSit(P.pal,1,'front'))],back:[charArt(villagerSit(P.pal,0,'back')),charArt(villagerSit(P.pal,1,'back'))],side:[charArt(villagerSit(P.pal,0,'side')),charArt(villagerSit(P.pal,1,'side'))]};
    const pose=Math.abs(sy)>Math.abs(sx)*1.1?(sy>0?'front':'back'):'side';
    const sp2=P.spr.sit[pose][0],flip=pose==='side'&&sx<0,px_=Math.round(X)-sp2.ox,py=Math.round(Y)-sp2.oy;
    ctx.fillStyle='rgba(12,28,20,.28)';
