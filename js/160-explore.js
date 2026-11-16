@@ -34,7 +34,7 @@ function blocked(a,b){
 const mkSpr=p=>({front:[charArt(villager(p,0,'front')),charArt(villager(p,1,'front'))],back:[charArt(villager(p,0,'back')),charArt(villager(p,1,'back'))],side:[charArt(villager(p,0,'side')),charArt(villager(p,1,'side'))]});
 let MODE='start',PL=null,NEAR=-1,GOAL=null,KEYS={},CK=null,PLT=performance.now(),CF=[31.5,31.5],ZBASE=1,mmT=0;
 let SPECTATE=0,PANLOCK=0,PANDRAG=null,WAKET=0,ISLB=null;
-const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.45)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.5)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=.55&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<.5))||(typeof RB4!=='undefined'&&RB4&&Math.abs(a-RB4.a0)<=.55&&b>=RB4.b0-.4&&b<=RB4.b1)||ARCH.some(A=>Math.abs(a-A.i)<=.5&&b>=A.j0-.25&&b<=A.j1+.25);
+const onBr=(a,b)=>(a>=RB.a0-.2&&a<=RB.a1+.2&&Math.abs(b-RB.b)<.45)||(a>=RB2.a0-.5&&a<=RB2.a1+.5&&Math.abs(b-RB2.b)<.5)||(typeof RB3!=='undefined'&&RB3&&(RB3.v?Math.abs(a-RB3.a0)<=.55&&b>=RB3.b0&&b<=RB3.b1:a>=RB3.a0-.2&&a<=RB3.a1+.2&&Math.abs(b-RB3.b)<.5))||(typeof RB4!=='undefined'&&RB4&&Math.abs(a-RB4.a0)<=.55&&b>=RB4.b0-.4&&b<=RB4.b1)||ARCH.some(A=>Math.abs(a-A.i)<=.5&&b>=A.j0-.25&&b<=A.j1+.25)||(Math.abs(a-26.2)<=.34&&b>=17.4&&b<=22.12);
 const walkable=(a,b)=>{if(a<1||a>160||b<2||b>68)return 0;if(blocked(a,b))return 0;if(onBr(a,b))return 1;if(!(LANDA(a,b)||LANDB(a,b)||LANDC(a,b)||LANDD(a,b)||(typeof LANDE!=='undefined'&&LANDE(a,b)))||WD(a,b)>-.2)return 0;return 1};
 function nearestPath(a,b){let best=null,bd=1e9;
  for(const line of PATHS)for(let i=0;i<line.length-1;i++){const[x1,y1]=line[i],[x2,y2]=line[i+1],dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy||1,

@@ -1,5 +1,5 @@
 /* ================= ANGLING =================
-   The pier at the village pond, and the rim of the sakura pond where the lotus
+   The pier at the village pond - shore, steps, or out on the deck over the water - and the rim of the sakura pond where the lotus
    stand. Stand near the water and you can put a line in. Most of what comes up
    is ordinary. Once in a while it is not.
    ------------------------------------------------------------------ */
@@ -41,6 +41,7 @@ function nearWaterline(){
 function anglingNear(){
  if(MODE!=='explore'||!PL)return false;
  if(Math.hypot(PL.P.a-PIER[0],PL.P.b-PIER[1])<.9){ANG_LOC='village';return true}
+ if(Math.abs(PL.P.a-26.2)<=.5&&PL.P.b>=17.4&&PL.P.b<=22.3){ANG_LOC='village';return true}
  const w=nearWaterline();
  if(w){ANG_LOC=w;return true}
  return false}

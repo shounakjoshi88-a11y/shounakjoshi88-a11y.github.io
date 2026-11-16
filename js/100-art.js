@@ -107,7 +107,7 @@ const ZONE=(a,b)=>{
   if(a>15.5&&a<22.5&&b>15&&b<21.5)return 'clearing';
   return 'forest'};
 const RES=[[51.0,15.6,3.1],[50.3,17.7,1.4],[22.4,3.8,2.7],[28.2,3.6,2.7],[23.2,10.8,2.7],[29.6,11.0,2.7],[23.0,15.0,2.7],[30.2,15.2,2.7],[26.5,12.6,3.2],[17.6,26.0,2.7],[9.6,22.4,2.7],[16.8,30.4,2.7],[9.0,28.8,2.7],[11.8,35.2,2.6],[18.6,36.6,2.4],[13.4,31.8,2.4],[14.2,11.8,3.6],[19.8,9.5,3.6],[16.6,12.0,1.5],[17.9,13.0,1.5],[11.9,12.3,1.3],[10.4,10.9,1.8],[12.0,7.6,3.2],[7.4,6.8,2.4],[15.9,9.4,3.0],[24.2,19.2,2.4],[33.0,9.4,2.2],[35.4,37.2,2.2],[16.7,17.4,1.6]];
-const okp=(a,b)=>{if(!landIn(a,b,1.3)||WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<.55)return 0;return 1};
+const okp=(a,b)=>{if(!landIn(a,b,1.3)||WD(a,b)>-1.05)return 0;for(const r of RES)if(Math.hypot(a-r[0],b-r[1])<r[2])return 0;if(a>10&&a<15&&b>13&&b<17.7)return 0;if(pathD(a,b)<1.15)return 0;return 1};
 
 // ---- shaded sphere (5 tone) ----
 function bl(c,cx,cy,rx,ry,T5,sd){for(let y=-ry;y<=ry;y++)for(let x=-rx;x<=rx;x++){const nx=x/rx,ny=y/ry,q=nx*nx+ny*ny;if(q>1)continue;const nz=Math.sqrt(1-q);let t=clamp(Math.floor((-nx*.5-ny*.6+nz*.62+.25)*3.4+(hh(x+sd,y)-.5)),0,4);if(nz<.25)t=0;c.fillStyle=rgb(T5[t]);c.fillRect(cx+x,cy+y,1,1)}}

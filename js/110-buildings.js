@@ -83,7 +83,7 @@ function coop(){
   let col=u%3==0?[138,96,54]:[186,138,82];if(hh(u,v>>3)>.8)col=col.map(z=>z*.9);return col.map(z=>z*k)};
  return box({a,wh,H,wall,roof:[[132,48,32],[170,62,38],[206,88,48]],rowH:3,colW:4.5,moss:0,sh:[8,3,22,9],top:20,bot:8,ov:3,
   after:(x,res,cx,cy,a,ah)=>{for(let k=0;k<12;k++){const X=cx+8+k,Y=cy+ah-Math.floor(8*ah/a)+2+(k>>1);px(x,X,Y,rgb([186,138,82]),1,2);px(x,X,Y+2,rgb([102,70,42]),1,1);if(k%3==0)px(x,X,Y-1,rgb([130,90,52]))}}})}
-function pier(){const Lt=4.4,Wt=.8,e1=[-Lt*16,Lt*8],e2=[Wt*16,Wt*8],c=mk(104,78),x=c.getContext('2d'),p0=[84,22];
+function pier(){const Lt=4.4,Wt=.8,e1=[-Lt*16,Lt*8],e2=[Wt*16,Wt*8],c=mk(109,78),x=c.getContext('2d'),p0=[84,22];
  const at=(s,t)=>[Math.round(p0[0]+s*e1[0]+t*e2[0]),Math.round(p0[1]+s*e1[1]+t*e2[1])];
  // piles standing in the water under the deck
  for(const s of[.06,.36,.66,.96])for(const t of[.05,.95]){const[X,Y]=at(s,t);px(x,X-1,Y+3,rgb([46,32,22]),3,11);px(x,X,Y+3,rgb([76,54,36]),1,11)}
@@ -91,6 +91,13 @@ function pier(){const Lt=4.4,Wt=.8,e1=[-Lt*16,Lt*8],e2=[Wt*16,Wt*8],c=mk(104,78)
  para(x,[p0[0],p0[1]+4],e1,e2,()=>rgb([52,34,22]));
  para(x,[p0[0],p0[1]+2],e1,e2,()=>rgb([86,60,38]));
  para(x,p0,e1,e2,(s,t)=>{const m=s*Lt*6,q=hh(Math.floor(m),5);let k=q>.6?[198,152,96]:q>.3?[176,130,80]:[154,112,66];if(m%1<.14)k=[98,68,42];if(t<.07)k=[132,94,58];if(t>.93)k=[116,80,48];return rgb(k)});
+ // the lip stands on a low step frame above the sand: one riser, capped with a pale edge
+ {const CA=[p0[0],p0[1]],CB=[p0[0]+e2[0],p0[1]+e2[1]];
+  para(x,[Math.round(CA[0]),Math.round(CA[1])],[0,5],[CB[0]-CA[0],CB[1]-CA[1]],()=>rgb([96,64,38]));
+  ln(x,Math.round(CA[0]),Math.round(CA[1]),Math.round(CB[0]),Math.round(CB[1]),rgb([190,148,96]));
+  ln(x,Math.round(CA[0]),Math.round(CA[1])+1,Math.round(CB[0]),Math.round(CB[1])+1,rgb([140,102,62]));
+  ln(x,Math.round(CA[0]),Math.round(CA[1])+3,Math.round(CB[0]),Math.round(CB[1])+3,rgb([52,34,22]));
+  ln(x,Math.round(CA[0]),Math.round(CA[1])+4,Math.round(CB[0]),Math.round(CB[1])+4,rgb([122,82,48]))}
  // rail posts and rope along both edges
  for(const t of[.04,.96]){let prev=null;for(const s of[.02,.34,.66,.98]){const[X,Y]=at(s,t);px(x,X-1,Y-8,rgb([84,56,36]),2,9);px(x,X-1,Y-9,rgb([170,124,76]),2,1);if(prev)ln(x,prev[0],prev[1]-7,X,Y-7,rgb([206,176,126]));prev=[X,Y]}}
  // a lantern on the tallest post at the far end

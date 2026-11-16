@@ -573,11 +573,12 @@ function build(){
  // a muddy verge where the road shoulders meet the grass, and a damp bank by the water
  const verge=(a,b)=>{
   const d=pathD(a,b);
-  if(d<.62||d>.86)return null;
-  const v=(d-.62)/.24, ltq=relief(a,b)*.9;
+  if(d<.62||d>1.3)return null;
+  const v=(d-.62)/.68, ltq=relief(a,b)*.9;
   // a bare earth shoulder that fades into the grass, mottled so it is not a stripe
   const n=vn(a*4.6+3,b*4.4+8);
-  const k=mixc([126,106,76],[148,128,90],n*.7+v*.15);
+  let k=mixc([126,106,76],[148,128,90],n*.7+v*.15);
+  k=mixc(k,[96,116,74],v*v*.6);
   const wd=WD(a,b); if(wd>-1.1)return mixc(k,[88,74,54],.5);
   return[k[0]*ltq,k[1]*ltq,k[2]*ltq]};
 
@@ -676,6 +677,9 @@ function build(){
   else if(q>.62){const a=pal[4],b=pal[1];px(c,X,Y,rgb(b),1,2);px(c,X-1,Y-1,rgb(a),1,2);px(c,X+1,Y-1,rgb(a),1,2);px(c,X,Y-2,rgb(a),1,1)}
   else if(q>.3){px(c,X,Y-1,rgb(q>.5?pal[4]:pal[0]),1,2)}}
  moreDetailA(c,dirt);
+ // three flat step-stones on the sand in front of the pier lip: the way up onto the deck
+ for(const[pa,pb,rr] of[[26.42,17.32,3],[26.8,17.42,4],[26.6,16.82,3]]){const[RX,RY]=PF(pa,pb),X=Math.round(RX),Y=Math.round(RY);
+  c.fillStyle='rgba(30,22,12,.35)';c.fillRect(X-5,Y+1,11,3);bl(c,X,Y,rr,2,ST,((pa*7)|0)+((pb*13)|0))}
  // stepping stones
  const stones=p=>{for(let k=0;k<p.length-1;k++){const L=Math.hypot(p[k+1][0]-p[k][0],p[k+1][1]-p[k][1]),n=Math.floor(L/.48);for(let m=0;m<=n;m++){const t=m/Math.max(1,n),fi=lerp(p[k][0],p[k+1][0],t)+(hh(m,k+1)-.5)*.16,fj=lerp(p[k][1],p[k+1][1],t)+(hh(k+2,m)-.5)*.16,[X,Y]=PF(fi,fj);c.fillStyle='rgba(30,22,12,.38)';c.fillRect(Math.round(X)-5,Math.round(Y)+1,10,3);bl(c,Math.round(X),Math.round(Y),4+(m%2),2,ST,m+k*9)}}};
  // the roads are laid stone now; no stepping stones over cobbles
@@ -742,7 +746,7 @@ function build(){
  const PR=[[16.5,10.6,barrel,0],[16.9,10.9,barrel,0],[16.2,10.1,crates,0],[17.2,9.4,hay,0],[17.6,9.0,hay,0],[10.0,12.3,wellS,0],[15.5,13.6,lamp,3],[18.2,11.4,lamp,3],[12.4,13.3,pumpkinS,0],
   [9.3,10.0,()=>logS(1),0],[11.0,11.5,()=>logS(2),0],[10.0,10.5,campfire,5],[9.6,14.6,hive,0],[10.2,14.8,hive,0],[14.55,16.9,scarecrow,0],[15.8,13.9,signpost,0],[13.0,18.4,laundry,4],[16.55,12.55,cat,0],[17.2,17.9,()=>bench(0),0],[26.2,17.7,pier,0],[14.1,13.2,flowerPot,0],[12.9,13.2,flowerPot,0],[16.0,13.0,flowerPot,0],[18.3,10.2,woodpile,0],
   [12.6,8.9,barrel,0],[11.0,8.6,churn,0],[11.6,8.9,churn,0],[13.9,8.9,crates,0],[9.2,6.2,hay,0],[9.9,6.0,hay,0],[7.0,8.4,woodpile,0],[13.6,9.9,()=>bench(0),0],[17.4,10.9,crates,0],[15.0,10.9,flowerPot,0],
-  [24.6,20.4,()=>logS(2),0],[25.4,19.4,barrel,0],[21.2,23.0,boat,0],[26.0,19.0,lamp,3],[28.8,19.4,lamp,3],[31.0,27.6,lamp,3],[33.4,22.6,lamp,3],[37.0,22.4,lamp,3],[42.0,22.9,lamp,3],[47.0,23.4,lamp,3],
+  [24.6,20.4,()=>logS(2),0],[25.4,19.4,barrel,0],[21.2,23.0,boat,0],[26.0,19.0,lamp,3],[28.8,19.4,lamp,3],[31.0,27.6,lamp,3],[34.8,21.1,lamp,3],[38.7,21.2,lamp,3],[42.0,21.35,lamp,3],[47.0,21.85,lamp,3],
   [33.9,22.5,barrel,0],[36.0,21.6,crates,0],[32.6,21.4,churn,0],[30.6,20.4,()=>bench(0),0],[34.9,10.1,birdhouse,0],[32.0,12.4,birdhouse,0],[35.2,39.0,()=>bench(0),0],[33.0,38.6,churn,0],
   [30.2,32.4,barrel,0],[29.0,33.6,hay,0],[31.6,34.4,hay,0],[22.0,26.4,()=>bench(1),0],[24.0,28.6,lamp,3],[28.4,30.2,()=>bench(0,1),0],[26.8,30.8,lamp,3],[20.0,23.4,()=>logS(1),0]];
  for(const[a0,b0,f,t]of PR){let a=a0,b=b0;
