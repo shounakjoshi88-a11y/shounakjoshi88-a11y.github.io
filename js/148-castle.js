@@ -409,15 +409,12 @@ function keep(){
  if(SPR.keep)return SPR.keep;
  const c=mk(190,180),x=c.getContext('2d'),cx=95,by=172;
  const STN=[[72,70,62],[106,104,90],[144,140,126],[178,176,158],[212,210,194]];
- // the dais, three steps out, so the whole thing reads as built and not grown
- x.fillStyle=rgb(STN[0]);x.fillRect(cx-84,by-2,168,5);
- x.fillStyle=rgb(STN[4]);x.fillRect(cx-84,by-4,168,2);
- x.fillStyle=rgb(STN[1]);x.fillRect(cx-71,by-11,142,7);
- x.fillStyle=rgb(STN[4]);x.fillRect(cx-71,by-13,142,2);
- x.fillStyle=rgb(STN[2]);x.fillRect(cx-58,by-22,116,9);
- x.fillStyle=rgb(STN[4]);x.fillRect(cx-58,by-24,116,2);
+ // the dais: three round steps out of the court, so the keep stands on a drum and not a plinth
+ cyl(x,cx,by,84,10,5,[STN[0],STN[1],STN[0]],[STN[1]],null);
+ cyl(x,cx,by-5,71,9,6,[STN[1],STN[2],STN[1]],[STN[3]],null);
+ cyl(x,cx,by-11,58,8,6,[STN[2],STN[3],STN[2]],[STN[4]],null);
  // the drum: ashlar courses, a tall portcullis arch with an aisle of light inside
- cyl(x,cx,by-27,56,16,30,[STN[2],STN[3],STN[1]],[222,220,206],(dx,v)=>{
+ cyl(x,cx,by-17,56,16,30,[STN[2],STN[3],STN[1]],[222,220,206],(dx,v)=>{
    if(v%9==0)return STN[1];
    if(hh(dx>>1,v)>.9)return STN[1];
    return null});
@@ -464,7 +461,7 @@ function keep(){
  // the ring of fallen stones at the foot, because a castle this old is honest about it
  x.fillStyle=rgb([106,104,90]);x.fillRect(cx-82,by-8,10,5);x.fillRect(cx+66,by-7,11,4);
  x.fillStyle=rgb([144,140,126]);x.fillRect(cx-82,by-9,10,1);x.fillRect(cx+68,by-8,6,1);
- const sp={c,ox:cx,oy:by,sh:[-60,0,120,16],sol:[-60,0,120,15],gl:[[cx-34,by0+19,24],[cx+36,by0+19,24],[cx,by-50,30]],hgt:138};
+ const sp={c,ox:cx,oy:by,sh:[-84,0,168,16],sol:[-80,-2,160,17],gl:[[cx-34,by0+19,24],[cx+36,by0+19,24],[cx,by-50,30]],hgt:138};
  SPR.keep=sp;return sp}
 
 // ---- the outer towers: shorter than the keep, tall enough to be remembered
