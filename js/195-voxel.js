@@ -10,7 +10,7 @@
 'use strict';
 let TGT=null;
 let built=false, loading=false, overlay=null, lbl=null, renderer=null, scene=null, camera=null, raf=0, waterMat=null, seaTex=null;
-let az=Math.PI/4, el=.52, rad=132;
+let az=Math.PI/4, el=.55, rad=174;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 let THREE=null;
 
@@ -29,19 +29,35 @@ function buildTextures(){
  TEX.stoneA=blockTex(g=>{tint(g,'#716f68',.3);g.fillStyle='rgba(28,28,27,.42)';g.fillRect(0,7,16,1);g.fillStyle='rgba(28,28,27,.3)';g.fillRect(11,0,1,7);g.fillRect(4,8,1,8);g.fillStyle='rgba(28,28,27,.3)';if(h2(3,7)>.7)g.fillRect(h2(9,4)*14+1|0,2+(h2(5,5)*3|0),1,2)});
  TEX.stoneB=blockTex(g=>{tint(g,'#4e4d49',.3);g.fillStyle='rgba(22,22,22,.42)';g.fillRect(0,6,16,1);g.fillStyle='rgba(22,22,22,.3)';g.fillRect(5,0,1,6);g.fillRect(12,7,1,9);if(h2(6,2)>.7)g.fillRect((h2(8,8)*14+1)|0,9+(h2(2,6)*4|0),1,3)});
  TEX.grassSide=blockTex(g=>{g.fillStyle='#4d7a45';g.fillRect(0,0,16,4);g.fillStyle='#3c5f36';for(let x=0;x<16;x++)if(h2(x,3)>.4)g.fillRect(x,4+(h2(x,8)*2|0),1,1);g.fillStyle='#6b4c30';g.fillRect(0,5,16,11);speck(g,23)});
- TEX.mossSide=blockTex(g=>{g.fillStyle='#5d7260';g.fillRect(0,0,16,3);g.fillStyle='#4a5c52';g.fillRect(0,3,16,2);g.fillStyle='#5f615a';g.fillRect(0,5,16,11);speck(g,29)})}
+ TEX.mossSide=blockTex(g=>{g.fillStyle='#5d7260';g.fillRect(0,0,16,3);g.fillStyle='#4a5c52';g.fillRect(0,3,16,2);g.fillStyle='#5f615a';g.fillRect(0,5,16,11);speck(g,29)});
+ TEX.wood=blockTex(g=>{tint(g,'#6b4c30',.38);g.fillStyle='rgba(46,28,14,.5)';for(const x of[3,9,13])g.fillRect(x,0,1,16);g.fillStyle='rgba(255,235,190,.16)';for(const x of[6,11])g.fillRect(x,0,1,16)});
+ const leaf=(base,hi,lo,seed)=>blockTex(g=>{tint(g,base,.42);speck(g,seed);g.fillStyle=hi;for(let i=0;i<10;i++){const x=h2(i,seed+3)*15|0,y=h2(i+7,seed*2)*15|0;g.fillRect(x,y,2,1)}g.fillStyle=lo;for(let i=0;i<8;i++){const x=h2(i+13,seed)*15|0,y=h2(i+21,seed+9)*15|0;g.fillRect(x,y,1,2)}});
+ TEX.leafGreen=leaf('#28522d','#3a6b40','#19371f',37);
+ TEX.leafPink=leaf('#c4788f','#dc9aae','#9a6078',41);
+ TEX.leafOrange=leaf('#b96d20','#d48c30','#825017',43);
+ TEX.leafDark=leaf('#1e3c22','#2d5230','#101d14',47);
+ const wall=(base,seed)=>blockTex(g=>{tint(g,base,.22);speck(g,seed);g.fillStyle='rgba(60,45,30,.25)';g.fillRect(0,0,1,16);g.fillRect(15,0,1,16)});
+ TEX.wallWhite=wall('#ded9c8',53);TEX.wallRed=wall('#933d32',57);TEX.wallBlue=wall('#3c5472',59);TEX.wallOchre=wall('#a88242',61);
+ const roof=(base,seed)=>blockTex(g=>{tint(g,base,.25);g.fillStyle='rgba(16,18,26,.4)';for(let y=3;y<16;y+=6)g.fillRect(0,y,16,1);g.fillStyle='rgba(255,255,255,.1)';for(let x=2;x<16;x+=5)g.fillRect(x,0,1,3);speck(g,seed)});
+ TEX.roofDark=roof('#2f3646',63);TEX.roofBlue=roof('#3d5167',67);TEX.roofRed=roof('#843c30',71);TEX.roofMoss=roof('#455a42',73);
+ TEX.window=blockTex(g=>{g.fillStyle='#241c14';g.fillRect(0,0,16,16);g.fillStyle='#e8bd72';g.fillRect(2,3,12,10);g.fillStyle='#ffe0a0';g.fillRect(4,4,6,5);g.fillStyle='#241c14';g.fillRect(7,3,2,10)});
+ TEX.gold=blockTex(g=>{tint(g,'#c9a44a',.28);speck(g,79)})}
 function buildMaterials(){
  const M=(t,n)=>{const m=new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide});m.name=n;return m};
  return {grassTop:M(TEX.grassTop,'grassTop'),mossTop:M(TEX.mossTop,'mossTop'),gravel:M(TEX.gravel,'gravel'),dirtTop:M(TEX.dirt,'dirtTop'),
   sideDirt:M(TEX.grassSide,'sideDirt'),mossSide:M(TEX.mossSide,'mossSide'),stoneA:M(TEX.stoneA,'stoneA'),stoneB:M(TEX.stoneB,'stoneB'),
-  water:(()=>{const m=new THREE.MeshLambertMaterial({color:0x2b7a8c,transparent:true,opacity:.84,side:THREE.DoubleSide});m.name='water';return m})()}}
+  water:(()=>{const m=new THREE.MeshLambertMaterial({color:0x2b7a8c,transparent:true,opacity:.84,side:THREE.DoubleSide});m.name='water';return m})(),
+  wood:M(TEX.wood,'wood'),leafGreen:M(TEX.leafGreen,'leafGreen'),leafPink:M(TEX.leafPink,'leafPink'),leafOrange:M(TEX.leafOrange,'leafOrange'),leafDark:M(TEX.leafDark,'leafDark'),
+  wallWhite:M(TEX.wallWhite,'wallWhite'),wallRed:M(TEX.wallRed,'wallRed'),wallBlue:M(TEX.wallBlue,'wallBlue'),wallOchre:M(TEX.wallOchre,'wallOchre'),
+  roofDark:M(TEX.roofDark,'roofDark'),roofBlue:M(TEX.roofBlue,'roofBlue'),roofRed:M(TEX.roofRed,'roofRed'),roofMoss:M(TEX.roofMoss,'roofMoss'),
+  window:M(TEX.window,'window'),gold:M(TEX.gold,'gold')}}
 
 // ---------- the voxel volume ----------
-const X0=-8,Z0=-10,X1=184,Z1=116,Y0=-46,Y1=4;
+const X0=-8,Z0=-10,X1=184,Z1=116,Y0=-46,Y1=48;
 const SX=X1-X0+1,SY=Y1-Y0+1,SZ=Z1-Z0+1;
 const VOX=new Int8Array(SX*SY*SZ);
 const VI=(x,y,z)=>(y-Y0)*SX*SZ+(z-Z0)*SX+(x-X0);
-const TOP_GRASS=1,TOP_MOSS=2,TOP_GRAVEL=3,TOP_DIRT=4,SIDE_DIRT=5,SIDE_STONEA=6,SIDE_STONEB=7,SIDE_MOSS=8,TOP_WATER=9;
+const TOP_GRASS=1,TOP_MOSS=2,TOP_GRAVEL=3,TOP_DIRT=4,SIDE_DIRT=5,SIDE_STONEA=6,SIDE_STONEB=7,SIDE_MOSS=8,TOP_WATER=9,WOOD=10,LEAF_GREEN=11,LEAF_PINK=12,LEAF_ORANGE=13,LEAF_DARK=14,WALL_WHITE=15,WALL_RED=16,WALL_BLUE=17,WALL_OCHRE=18,ROOF_DARK=19,ROOF_BLUE=20,ROOF_RED=21,ROOF_MOSS=22,WINDOW=23,GOLD=24;
 function setV(x,y,z,id){if(x<X0||x>X1||y<Y0||y>Y1||z<Z0||z>Z1)return;VOX[VI(x,y,z)]=id}
 function islandKey(a,b){
  if(typeof LANDE!=='undefined'&&LANDE(a,b))return 5;
@@ -77,10 +93,104 @@ function buildVoxels(){
    else if(depthBelowTop<=2)setV(a,y,b,key===3?SIDE_MOSS:SIDE_DIRT);
    else if(key===3)setV(a,y,b,(y%5<2)?SIDE_STONEA:SIDE_MOSS);
    else setV(a,y,b,(y%5<2)?SIDE_STONEA:SIDE_STONEB)}}}
+// ---------- the voxel trees: rounded blob canopies on chunky trunks, species per island ----------
+function colTop(a,b){if(!LAND(a,b))return null;if(WD(a,b)>0.3)return null;return Math.round(vn(a*.17+3,b*.17)*3-1.5)}
+function puff(cx,cy,cz,r,id,seed){
+ for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++)for(let dz=-r;dz<=r;dz++){
+  const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+  if(d<r+(h2(cx+dx*3,cy*7+dz*5+seed)-.5)*1.25)setV(cx+dx,cy+dy,cz+dz,id)}}
+function buildTree(ax,az,top,key,seed){
+ const s1=h2(seed*91+3,7);
+ if(key===3){ // a pine: chunky diamond tiers, the sakura-isle-observatory conifer
+  const h=3+Math.floor(s1*3);
+  for(let y=top+1;y<=top+h;y++)setV(ax,y,az,WOOD);
+  const base=top+h;
+  for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){if(Math.abs(dx)+Math.abs(dz)<=3){setV(ax+dx,base+1,az+dz,LEAF_DARK);setV(ax+dx,base+2,az+dz,LEAF_DARK)}}
+  for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)setV(ax+dx,base+3,az+dz,LEAF_DARK);
+  setV(ax,base+4,az,LEAF_DARK);setV(ax,base+5,az,LEAF_DARK);
+  return}
+ const h=3+Math.floor(s1*2);
+ for(let y=top+1;y<=top+h;y++)setV(ax,y,az,WOOD);
+ const R=s1>.62?2:1;
+ let id=LEAF_GREEN;
+ if(key===2)id=s1>.25?LEAF_PINK:LEAF_ORANGE;
+ else if(key===5)id=s1>.7?LEAF_ORANGE:LEAF_GREEN;
+ puff(ax,top+h+1,az,R+1,id,h2(ax+9,az+5)*997);
+ puff(ax,top+h+2,az,R,id,h2(ax+4,az+8)*991)}
+function plantTrees(){
+ const quota={1:26,2:9,3:7,4:5,5:6}, planted={1:0,2:0,3:0,4:0,5:0}, spots=[];
+ for(let a=X0;a<=X1;a+=2)for(let b=Z0;b<=Z1;b+=2){
+  const key=islandKey(a,b);if(!key)continue;
+  if(planted[key]>=quota[key])continue;
+  if(h2(a*13+7,b*17+3)<.42)continue;
+  const ax=a+Math.round((h2(a,b*3+11)-.5)*1.5),az=b+Math.round((h2(a*5+1,b+7)-.5)*1.5);
+  const top=colTop(ax,az);if(top===null)continue;
+  if(spots.some(p=>Math.abs(p[0]-ax)<4&&Math.abs(p[1]-az)<4))continue;
+  if(!(LAND(ax+1,az)&&LAND(ax-1,az)&&LAND(ax,az+1)&&LAND(ax,az-1)))continue;
+  buildTree(ax,az,top,key,h2(ax,az)*973);
+  spots.push([ax,az]);
+  planted[key]++}}
+// ---------- the built world: cottages at the town's real coordinates, and the three-tier keep ----------
+function box(a0,b0,a1,b1,y0,y1,id){
+ for(let a=a0;a<=a1;a++)for(let b=b0;b<=b1;b++)for(let y=y0;y<=y1;y++)setV(a,y,b,id)}
+function siteTop(a0,b0,a1,b1){
+ let hi=-99,lo=99;
+ for(let a=a0;a<=a1;a++)for(let b=b0;b<=b1;b++){const t=colTop(a,b);if(t===null)return null;hi=Math.max(hi,t);lo=Math.min(lo,t)}
+ return {hi,lo}}
+function hipRoof(cx,cz,y,r,id,kick){
+ for(let k=0;k<3;k++){const rr=r-k;box(cx-rr,cz-rr,cx+rr,cz+rr,y+k,y+k,id)}
+ if(kick)for(const sx of[-1,1])for(const sz of[-1,1]){setV(cx+sx*(r+1),y,cz+sz*r,id);setV(cx+sx*r,y,cz+sz*(r+1),id);setV(cx+sx*(r+1),y+1,cz+sz*(r+1),id)}}
+function voxelCottage(ax,az,seed){
+ const st=siteTop(ax-2,az-2,ax+2,az+2);if(!st)return;
+ const wall=[WALL_WHITE,WALL_RED,WALL_BLUE,WALL_OCHRE][seed%4], roof=[ROOF_DARK,ROOF_BLUE,ROOF_RED,ROOF_MOSS][(seed>>1)%4];
+ box(ax-2,az-2,ax+2,az+2,st.lo,st.hi,SIDE_STONEA);            // the footing follows the slope
+ box(ax-2,az-2,ax+2,az+2,st.hi+1,st.hi+3,wall);               // walls
+ for(const sx of[-2,2])for(const sz of[-2,2])box(ax+sx,az+sz,ax+sx,az+sz,st.hi+1,st.hi+3,WOOD);
+ setV(ax,st.hi+2,az-2,WINDOW);setV(ax-1,st.hi+2,az-2,WINDOW);  // two lit windows on the near face
+ setV(ax+1,st.hi+2,az-2,WINDOW);
+ hipRoof(ax,az,st.hi+4,3,roof,false)}
+function voxelKeep(){
+ const ax=137,az=53,st=siteTop(ax-6,az-6,ax+6,az+6);if(!st)return;
+ const y=st.hi+1;
+ box(ax-6,az-5,ax+6,az+5,st.lo,y,SIDE_STONEA);                 // ishigaki: a wide hill of stone
+ box(ax-5,az-4,ax+5,az+4,y+1,y+6,SIDE_STONEB);                 // the drum, stepped in
+ box(ax-4,az-4,ax+4,az+4,y+7,y+11,WALL_WHITE);                 // tier one: white plaster
+ for(const sx of[-4,4])for(const sz of[-4,4])box(ax+sx,az+sz,ax+sx,az+sz,y+7,y+11,WOOD);
+ box(ax-1,az-4,ax+1,az-4,y+8,y+9,WINDOW);                      // the great arch's light
+ box(ax-2,az-2,ax+2,az+2,y+12,y+12,ROOF_DARK);                 // the eave course
+ hipRoof(ax,az,y+13,5,ROOF_DARK,true);                         // first dark tiled roof, corners kicked up
+ box(ax-3,az-3,ax+3,az+3,y+17,y+21,WALL_WHITE);                // tier two
+ for(const sx of[-3,3])for(const sz of[-3,3])box(ax+sx,az+sz,ax+sx,az+sz,y+17,y+21,WOOD);
+ setV(ax-1,y+19,az-3,WINDOW);setV(ax+1,y+19,az-3,WINDOW);
+ hipRoof(ax,az,y+22,4,ROOF_DARK,true);
+ box(ax-2,az-2,ax+2,az+2,y+26,y+29,WALL_WHITE);                // tier three
+ setV(ax,y+28,az-2,WINDOW);
+ hipRoof(ax,az,y+30,3,ROOF_DARK,true);
+ box(ax-1,az-1,ax+1,az+1,y+34,y+34,GOLD);                      // the gold finial nobody rings
+ setV(ax,y+35,az,GOLD)}
+function buildStructures(){
+ voxelKeep();
+ const town=[[22,4],[28,4],[23,11],[30,11],[23,15],[30,15],[18,26],[10,22],[17,30],[9,29],[12,35]];
+ town.forEach(([a,b],i)=>voxelCottage(a,b,i))}
 // ---------- greedy meshing ----------
 function faceId(id,axis,up){return id*10+(axis===1?(up?1:6):(axis===0?2:3))}
 function faceMatKey(f){const id=(f/10)|0,o=f%10;
  if(id===TOP_WATER)return 'water';
+ if(id===WOOD)return 'wood';
+ if(id===LEAF_GREEN)return 'leafGreen';
+ if(id===LEAF_PINK)return 'leafPink';
+ if(id===LEAF_ORANGE)return 'leafOrange';
+ if(id===LEAF_DARK)return 'leafDark';
+ if(id===WALL_WHITE)return 'wallWhite';
+ if(id===WALL_RED)return 'wallRed';
+ if(id===WALL_BLUE)return 'wallBlue';
+ if(id===WALL_OCHRE)return 'wallOchre';
+ if(id===ROOF_DARK)return 'roofDark';
+ if(id===ROOF_BLUE)return 'roofBlue';
+ if(id===ROOF_RED)return 'roofRed';
+ if(id===ROOF_MOSS)return 'roofMoss';
+ if(id===WINDOW)return 'window';
+ if(id===GOLD)return 'gold';
  if(o===1){if(id===TOP_GRASS||id===TOP_DIRT)return 'grassTop';if(id===TOP_MOSS)return 'mossTop';return 'gravel'}
  if(o===6)return 'stoneB';
  if(id===SIDE_DIRT)return 'sideDirt';
@@ -95,7 +205,7 @@ function greedyMesh(){
   const R=(axis===0?SZ:(axis===1?SX:SX)),C=(axis===0?SY:(axis===1?SZ:SY));
   const sliceA=(axis===0?X0:(axis===1?Y0:Z0)),sliceB=(axis===0?X1:(axis===1?Y1:Z1));
   for(let slice=sliceA;slice<=sliceB;slice++){
-   const mask=new Int8Array(R*C);
+   const mask=new Uint8Array(R*C);
    for(let u=0;u<R;u++)for(let v=0;v<C;v++){
     let x,y,z;
     if(axis===0){x=slice;y=Y0+v;z=Z0+u}else if(axis===1){x=X0+u;y=slice;z=Z0+v}else{x=X0+u;y=Y0+v;z=slice}
@@ -135,7 +245,7 @@ function faceCorners(q){
  const xx=X0+q.u,yy=Y0+q.v,s=q.slice;return[[xx,yy,s],[xx+q.w,yy,s],[xx+q.w,yy+1,s],[xx,yy+1,s]]}
 // ---------- scene ----------
 function buildScene(){
- TGT=new THREE.Vector3(86,0,46);
+ TGT=new THREE.Vector3(104,0,56);
  buildTextures();
  const MATS=buildMaterials();
  scene=new THREE.Scene();
@@ -152,8 +262,10 @@ function buildScene(){
  scene.add(sun);scene.add(sun.target);
  scene.add(new THREE.AmbientLight(0x8fa4ac,.3));
  buildVoxels();
+ plantTrees();
+ buildStructures();
  for(const{geo,mat}of greedyMesh()){
-  const mesh=new THREE.Mesh(geo,MATS[mat]);mesh.receiveShadow=true;scene.add(mesh);if(mat==='water')waterMat=mesh.material}
+  const mesh=new THREE.Mesh(geo,MATS[mat]);mesh.receiveShadow=true;mesh.castShadow=mat!=='water';scene.add(mesh);if(mat==='water')waterMat=mesh.material}
  const sc=document.createElement('canvas');sc.width=sc.height=256;const sg=sc.getContext('2d');
  const grad=sg.createRadialGradient(128,128,16,128,128,128);
  grad.addColorStop(0,'rgba(255,255,255,.98)');grad.addColorStop(.5,'rgba(238,244,247,.88)');grad.addColorStop(1,'rgba(198,212,220,0)');
