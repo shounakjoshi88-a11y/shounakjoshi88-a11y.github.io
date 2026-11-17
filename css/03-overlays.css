@@ -139,6 +139,11 @@ body.exp #fx,body.exp #fx2,body.exp #gl{touch-action:none}
 .slink:hover,.slink:focus-visible{color:var(--amber)}
 .skeys{margin:1.35rem 0 0;font:.66rem var(--mono);letter-spacing:.08em;color:#a8c4b4;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.95)}
 .skeys span{color:var(--amber)}
+.viewpick{display:flex;align-items:center;gap:.45rem;margin:0 0 1.15rem;font:700 .64rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:#bcd4c4}
+.viewpick>span{margin-right:.35rem;color:#8fb3a2}
+.vp{border:1px solid rgba(225,238,218,.34);background:rgba(7,26,24,.62);color:#e6efd9;padding:.45rem .85rem;font:700 .68rem var(--mono);letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.vp:hover{border-color:var(--amber)}
+.vp[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#2b1a08;box-shadow:2px 2px 0 #7a3f0c}
 #walkhud{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:12px;z-index:6;display:none;align-items:center;gap:.55rem;background:rgba(8,30,28,.74);color:#f1e6c8;padding:.36rem .68rem;clip-path:var(--notch);font:700 .68rem var(--mono);letter-spacing:.07em;pointer-events:none}
 #walkhud b{color:#ffe3a0;letter-spacing:.1em}
 #walkhud i{font-style:normal;color:#8fae9e}
