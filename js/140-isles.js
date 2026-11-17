@@ -520,6 +520,16 @@ function rimLight(c){const w=c.width,h=c.height,x=c.getContext('2d'),id=x.getIma
   if(up||ur){o[i]=d[i]*1.16+12;o[i+1]=d[i+1]*1.14+9;o[i+2]=d[i+2]*1.04+2}
   else if(dn||lf){o[i]=d[i]*.7;o[i+1]=d[i+1]*.72;o[i+2]=d[i+2]*.78}}
  x.putImageData(new ImageData(o,w,h),0,0)}
+// the dungeon-texture pass: 2-pixel speckle cells, values pulled gently toward 32-step bands,
+// and a saturation lift — hand-cut texture, not smooth gradient. runs after rimLight, skips soft glow pixels
+function mcify(c){const w=c.width,h=c.height,x=c.getContext('2d'),id=x.getImageData(0,0,w,h),d=id.data;
+ for(let y=0;y<h;y++)for(let X=0;X<w;X++){const i=(y*w+X)*4;if(d[i+3]<160)continue;
+  let r=d[i],g=d[i+1],b=d[i+2];
+  const sp=hh((X>>1)+57,(y>>1)+31),j=(sp-.5)*16;
+  const band=v=>v+(Math.round(v/32)*32-v)*.16;
+  r=band(r);g=band(g);b=band(b);
+  const l=(r*.2126+g*.7152+b*.0722),s=1.17;
+  d[i]=l+(r-l)*s+j;d[i+1]=l+(g-l)*s+j;d[i+2]=l+(b-l)*s+j}}
 // a one-pixel silhouette ring, the way a game sprite carries its own horizon
 function outline(c,col){const w=c.width,h=c.height,x=c.getContext('2d'),id=x.getImageData(0,0,w,h),d=id.data,o=new Uint8ClampedArray(d);
  const A=(X,Y)=>X<0||Y<0||X>=w||Y>=h?0:d[(Y*w+X)*4+3];
@@ -527,7 +537,7 @@ function outline(c,col){const w=c.width,h=c.height,x=c.getContext('2d'),id=x.get
   if(A(X-1,y)>20||A(X+1,y)>20||A(X,y-1)>20||A(X,y+1)>20||A(X-1,y-1)>20||A(X+1,y-1)>20||A(X-1,y+1)>20||A(X+1,y+1)>20){o[i]=col[0];o[i+1]=col[1];o[i+2]=col[2];o[i+3]=255}}
  x.putImageData(new ImageData(o,w,h),0,0)}
 // every person in the village gets the outline and the rim light, so they read at a glance
-function charArt(sp){outline(sp.c,[54,40,28]);rimLight(sp.c);return sp}
+function charArt(sp){outline(sp.c,[54,40,28]);rimLight(sp.c);mcify(sp.c);return sp}
 function buildTown(){
  const H=(a,b,p)=>put(a,b,cottage(PALS[p]),2,.05);
  // north quarter: a market street running from the farm lane down to the pond road
@@ -561,7 +571,7 @@ function build(){
   const d=pathD(a,b);
   const onRim=d>.44;
   // the sett grid: alternate rows offset, joints across the direction of travel
-  const g=1.62, gx=a*g, gy=b*g, ix=Math.floor(gx), iy=Math.floor(gy), fx=gx-ix, fy=gy-iy;
+  const g=2.35, gx=a*g, gy=b*g, ix=Math.floor(gx), iy=Math.floor(gy), fx=gx-ix, fy=gy-iy;
   const off=(iy&1)?.5:0, u=fx-off<0?fx-off+1:fx-off;
   const grout=u<.115||fy<.105;
   const h=hh(ix*3+(iy&1)*7,iy*5+11), sq=[136,131,121];
@@ -666,14 +676,14 @@ function build(){
     else if(isl<=3&&(vg0=verge(fi,fj)))k=vg0;
    else if(isl<=3&&pathD(fi,fj)<.62)k=cobble(fi,fj,relief(fi,fj));
     else if(dirt(fi,fj)){const pk=Math.floor(n*2.7)%3;k=DI[pk];if(hh(x,y)>.96)k=[154,132,92]}
-   else{const rg=RG(fi,fj),zone=ZONE(fi,fj),gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);
+   else{const rg=RG(fi,fj),zone=ZONE(fi,fj);const cw=1.12,ci=Math.floor(fi/cw),cj=Math.floor(fj/cw),fx=fi/cw-ci,fy=fj/cw-cj,cq=hh(ci*11+5,cj*7+3)*.66+vn(fi*.9,fj*.9)*.34;const gi=clamp(Math.floor(cq*4.8+.1),0,4);const cell=(fx<.085||fy<.085)?.62:(fx>.915||fy>.915)?1.09:.9+cq*.28;
      if(zone==='field'){const row=Math.floor(fj*2.4),ck=Math.floor(hh(row,Math.floor(fi*3.2))*3);
       let col=[[226,198,120],[208,180,104],[240,216,142]][ck%3];
       if(hh(Math.floor(fi*3.2),row)>.86)col=mixc(col,[150,124,64],.35);
       if(Math.abs((fi*2)%1)<.13)col=mixc(col,[164,138,70],.45);
       k=col}
-     else if(zone==='river'){k=GP[rg][gi];if(hh(x,y)>.93)k=mixc(k,[174,166,148],.5)}
-     else{const lt=relief(fi,fj),g0=GP[rg][gi];k=[g0[0]*lt,g0[1]*lt,g0[2]*lt]}}}
+     else if(zone==='river'){k=GP[rg][gi].map(v=>v*cell);if(hh(x,y)>.93)k=mixc(k,[174,166,148],.5)}
+     else{const lt=relief(fi,fj),g0=GP[rg][gi].map(v=>v*cell);k=[g0[0]*lt,g0[1]*lt,g0[2]*lt]}}}
   d[o]=k[0];d[o+1]=k[1];d[o+2]=k[2];d[o+3]=al}c.putImageData(id,0,0);wb=[x0,y0,x1-x0+1,y1-y0+1];wc=mk(wb[2],wb[3]);wi=wc.getContext('2d').createImageData(wb[2],wb[3]);
  // keep a copy of the pond floor so the water can bend light through it
  FLD=wc.getContext('2d').createImageData(wb[2],wb[3]);FLD.data.set(c.getImageData(wb[0],wb[1],wb[2],wb[3]).data);

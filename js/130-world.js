@@ -10,8 +10,11 @@ function rockCol(x,v,s,D,k){
  if(v<1)col=hh(x,5)>.6?[100,156,64]:[70,126,48];
  else if(v<3)col=[116,82,46];
  else if(v<7){col=hh(x>>1,v)>.5?[124,90,52]:[104,74,42];if(hh(x,v*3)>.88)col=[66,92,42]}
- else{const o=Math.floor(vn(x*.035,k*3)*9),band=Math.floor((v+o)/10),T0=RCT[band&3];col=T0.map(q=>q*(.8+n*.38));
-  if((v+o)%10==0)col=col.map(q=>q*1.14);
+ else{const o=Math.floor(vn(x*.035,k*3)*9),band=Math.floor((v+o)/5),T0=RCT[band&3];
+  const blk=.8+hh(Math.floor(x/9+band*2.3)*31+7,band*13+k)*.4;
+  col=T0.map(q=>q*(.8+n*.38)*blk);
+  if((v+o)%5<1)col=col.map(q=>q*.55);
+  else if((((x+((band&1)*7))%9)+9)%9<1)col=col.map(q=>q*.6);
   if(vn(x*.07,v*.45+k)>.8&&hh(x,v)>.25)col=col.map(q=>q*.68);
   if(v<30&&vn(x*.16,v*.35+k*7)>.64+v*.007)col=mixc(col,k==2?[96,140,78]:[84,134,60],.6);
   if(v>D*.72)col=mixc(col,[188,204,214],clamp((v-D*.72)/(D*.28),0,1)*.5)}
@@ -60,15 +63,18 @@ function groundB(fi,fj,x,y,n,isDirt){
  const tedz=Math.hypot(fi-91.7,fj-32.5);
  if(tedz<2.45+(vn(fi*2.3,fj*2.3)-.5)*.3){const rr=Math.sin(tedz*8.5+Math.sin(fj*1.9+.8)*.6);return rr>.35?[214,206,190]:rr<-.38?[136,128,114]:GRV[Math.floor(n*2.7)%3]}
  if(isDirt){let k=GRV[Math.floor(n*2.7)%3];if(hh(x,y)>.93)k=[214,206,190];if(hh(x,y*3)<.05)k=[118,112,100];return k}
- const gi=clamp(Math.floor(n*4.4+(vn(fi*.55,fj*.55)-.5)*1.5),0,4);let k=MB[gi];const lt=relief(fi,fj);k=[k[0]*lt,k[1]*lt,k[2]*lt];
+ const cw=1.12,ci=Math.floor(fi/cw),cj=Math.floor(fj/cw),fx=fi/cw-ci,fy=fj/cw-cj,cq=hh(ci*11+5,cj*7+3)*.66+vn(fi*.9,fj*.9)*.34;
+  const gi=clamp(Math.floor(cq*4.8+.1),0,4);const cell=(fx<.085||fy<.085)?.62:(fx>.915||fy>.915)?1.09:.9+cq*.28;
+  let k=MB[gi];const lt=relief(fi,fj);k=[k[0]*lt*cell,k[1]*lt*cell,k[2]*lt*cell];
  const gr=Math.max(0,1-Math.hypot(fi-113,fj-33)/11)+Math.max(0,1-Math.hypot(fi-94,fj-24)/6);
  if(hh(x,y)>.93-gr*.16&&vn(fi*1.7,fj*1.7)>.4)k=mixc(k,hh(x+1,y)>.5?[255,214,226]:[246,160,190],.72);
  return k}
 // ---- ground of the observatory rock: cold lichen, weathered stone, a paved disc under the dome ----
 const MC=PP({m:['#263a34','#334c42','#40604f','#517a5f','#6b9877']}).m;
 function groundC(fi,fj,x,y,n,isDirt){
- const gi=clamp(Math.floor(n*4.2+(vn(fi*.55,fj*.55)-.5)*1.4),0,4);
- const lt=relief(fi,fj);let k=MC[gi];k=[k[0]*lt,k[1]*lt,k[2]*lt];
+ const cw=1.12,ci=Math.floor(fi/cw),cj=Math.floor(fj/cw),fx=fi/cw-ci,fy=fj/cw-cj,cq=hh(ci*11+5,cj*7+3)*.66+vn(fi*.9,fj*.9)*.34;
+  const gi=clamp(Math.floor(cq*4.6+.1),0,4);const cell=(fx<.085||fy<.085)?.62:(fx>.915||fy>.915)?1.09:.9+cq*.28;
+  const lt=relief(fi,fj);let k=MC[gi];k=[k[0]*lt*cell,k[1]*lt*cell,k[2]*lt*cell];
   const dz=Math.hypot(fi-133.4,fj-26.2),rd=4.7+(vn(fi*2,fj*2)-.5)*.45;
  if(dz<rd){
   if(dz>rd-.4)return [126,122,110];

@@ -50,7 +50,8 @@ const inMeadow=(a,b)=>Math.hypot(a-118.5,b-63)<6.2;
 // the star inlaid in the square, fine cobble in the streets, soil rows in the orchard, moss in the joints
 function groundE(fi,fj,x,y,n,dirt){
  const lt=relief(fi,fj);
- const GG=GP.g,gi=clamp(Math.floor(n*3.6+(vn(fi*.6,fj*.6)-.5)*1.7),0,4);
+ const GG=GP.g;const cw2=1.12,ci2=Math.floor(fi/cw2),cj2=Math.floor(fj/cw2),fx2=(fi/cw2)%1,fy2=(fj/cw2)%1,cq2=hh(ci2*11+5,cj2*7+3)*.66+vn(fi*.9,fj*.9)*.34;
+ const gi=clamp(Math.floor(cq2*4.8+.1),0,4);const cell2=(fx2<.085||fy2<.085)?.62:(fx2>.915||fy2>.915)?1.09:.9+cq2*.28;
  const PL=PP({m:['#6e685c','#87816f','#a49d86','#bcb49c','#d0c8ae']}).m;
  const e=EDE(fi,fj);
  const dc=Math.hypot(fi-136.5,fj-55.4),rd=3.7+(vn(fi*2,fj*2)-.5)*.35,ring=rd-.45;
@@ -77,7 +78,7 @@ function groundE(fi,fj,x,y,n,dirt){
  // the streets: fine setts with a pale kerb and a dust lane
  const rdd=roadD(fi,fj);
  if(rdd<1){
-  const g=1.7,gx=fi*g,gy=fj*g,ix=Math.floor(gx),iy=Math.floor(gy),off=(iy&1)?.5:0,u=((gx-off)%1+1)%1,fy=gy-iy;
+  const g=2.3,gx=fi*g,gy=fj*g,ix=Math.floor(gx),iy=Math.floor(gy),off=(iy&1)?.5:0,u=((gx-off)%1+1)%1,fy=gy-iy;
   if(rdd>.82)return[(158+hh(ix,iy)*26)*lt,(152+hh(ix,iy)*24)*lt,(138+hh(ix,iy)*22)*lt];     // kerb
   if(u<.1||fy<.1)return[92*lt,88*lt,80*lt];
   const h=hh(ix*3+(iy&1)*7,iy*5+11);let v=.72+h*.5;
@@ -112,7 +113,7 @@ function groundE(fi,fj,x,y,n,dirt){
   let k=[(132+q*34)*lt,(98+q*26)*lt,(62+q*18)*lt];if((fj*2.4)%1<.1)k=[70*lt,50*lt,34*lt];
   if(vn(fi*1.1,fj*1.1)>.74)k=mixc(k,[46,40,34],.4);return k}
  // the lawns: clipped grass, flower beds in the town, wild verge in the ward
- let k=GG[gi];k=[k[0]*lt,k[1]*lt,k[2]*lt];
+ let k=GG[gi];k=[k[0]*lt*cell2,k[1]*lt*cell2,k[2]*lt*cell2];
  const bed=vn(fi*.45+11,fj*.45+3);
  if(bed>.7&&hh(x,y)>.93){const pal=[[236,84,92],[255,208,74],[246,246,236],[170,128,255],[255,150,60]];k=pal[Math.floor(hh(x*2,y*3)*5)]}
  else if(hh(x,y)>.985&&vn(fi*1.7,fj*1.7)>.55)k=mixc(k,[234,228,206],.7);
