@@ -407,61 +407,61 @@ function chairDais(){if(SPR.kcd)return SPR.kcd;const c=mk(70,40),g=c.getContext(
 // ---- the keep: dais, drum, ashlar body, bell chamber, one empty finial
 function keep(){
  if(SPR.keep)return SPR.keep;
- const c=mk(190,180),x=c.getContext('2d'),cx=95,by=172;
+ const c=mk(236,238),x=c.getContext('2d'),cx=118,by=232;
  const STN=[[72,70,62],[106,104,90],[144,140,126],[178,176,158],[212,210,194]];
  // the dais: three round steps out of the court, so the keep stands on a drum and not a plinth
- cyl(x,cx,by,84,10,5,[STN[0],STN[1],STN[0]],[STN[1]],null);
- cyl(x,cx,by-5,71,9,6,[STN[1],STN[2],STN[1]],[STN[3]],null);
- cyl(x,cx,by-11,58,8,6,[STN[2],STN[3],STN[2]],[STN[4]],null);
+ cyl(x,cx,by,98,11,7,[STN[0],STN[1],STN[0]],[STN[1]],null);
+ cyl(x,cx,by-7,84,10,8,[STN[1],STN[2],STN[1]],[STN[3]],null);
+ cyl(x,cx,by-15,70,9,8,[STN[2],STN[3],STN[2]],[STN[4]],null);
  // the drum: ashlar courses, a tall portcullis arch with an aisle of light inside
- cyl(x,cx,by-17,56,16,30,[STN[2],STN[3],STN[1]],[222,220,206],(dx,v)=>{
+ cyl(x,cx,by-23,68,17,62,[STN[2],STN[3],STN[1]],[222,220,206],(dx,v)=>{
    if(v%9==0)return STN[1];
    if(hh(dx>>1,v)>.9)return STN[1];
    return null});
- x.fillStyle='#191512';x.fillRect(cx-17,by-67,34,26);
- x.fillStyle='#3a2c20';x.fillRect(cx-16,by-66,32,25);
- x.fillStyle='#4a3a30';for(let k=-13;k<=13;k+=5)x.fillRect(cx+k,by-66,2,25);
- x.fillStyle='#241c14';x.fillRect(cx-16,by-43,32,2);
- x.fillStyle='#ffd88a';x.fillRect(cx-10,by-47,20,6);x.fillStyle='#ffdca0';x.fillRect(cx-6,by-46,12,5);
- for(const sx of[-34,28]){x.fillStyle='#191512';x.fillRect(cx+sx,by-60,6,12);x.fillStyle='#ffdca0';x.fillRect(cx+sx+2,by-56,2,5)}
+ x.fillStyle='#191512';x.fillRect(cx-21,by-92,42,33);
+ x.fillStyle='#3a2c20';x.fillRect(cx-20,by-91,40,32);
+ x.fillStyle='#4a3a30';for(let k=-16;k<=16;k+=6)x.fillRect(cx+k,by-91,2,32);
+ x.fillStyle='#241c14';x.fillRect(cx-20,by-61,40,2);
+ x.fillStyle='#ffd88a';x.fillRect(cx-13,by-65,26,8);x.fillStyle='#ffdca0';x.fillRect(cx-8,by-64,18,7);
+ for(const sx of[-43,35]){x.fillStyle='#191512';x.fillRect(cx+sx,by-82,7,15);x.fillStyle='#ffdca0';x.fillRect(cx+sx+2,by-78,3,7)}
  // tier two, the great hall: a squared tower with a corbelled mouth and two windows
- const bx0=cx-48,by0=by-92,bh=66;
- x.fillStyle=rgb(STN[3]);x.fillRect(bx0,by0,96,bh);
- x.fillStyle=rgb(STN[4]);x.fillRect(bx0,by0,96,8);
- x.fillStyle=rgb(STN[1]);x.fillRect(bx0,by0+bh-8,96,8);
- for(let v=12;v<bh-9;v+=11){x.fillStyle=rgb(STN[1]);x.fillRect(bx0,by0+v,96,1);
+ const bx0=cx-64,by0=by-162,bh=90;
+ x.fillStyle=rgb(STN[3]);x.fillRect(bx0,by0,128,bh);
+ x.fillStyle=rgb(STN[4]);x.fillRect(bx0,by0,128,9);
+ x.fillStyle=rgb(STN[1]);x.fillRect(bx0,by0+bh-9,128,9);
+ for(let v=13;v<bh-10;v+=11){x.fillStyle=rgb(STN[1]);x.fillRect(bx0,by0+v,128,1);
   const off=((v/11)|0)%2?7:0;
-  for(let u=-8;u<96;u+=13){if(u+off>=0&&u+off<96)x.fillRect(bx0+u+off,by0+v,1,11)}}
- for(let u=bx0;u<bx0+96;u+=12){x.fillStyle=rgb(STN[4]);x.fillRect(u,by0-9,7,9);x.fillStyle=rgb([156,152,138]);x.fillRect(u,by0-10,7,1)}
+  for(let u=-8;u<128;u+=13){if(u+off>=0&&u+off<128)x.fillRect(bx0+u+off,by0+v,1,11)}}
+ for(let u=bx0;u<bx0+128;u+=12){x.fillStyle=rgb(STN[4]);x.fillRect(u,by0-10,7,10);x.fillStyle=rgb([156,152,138]);x.fillRect(u,by0-11,7,1)}
  // two tall windows either side of the portcullis
- for(const wx of[16,58]){
-  x.fillStyle='#191512';x.fillRect(wx,by0+16,13,28);
-  x.fillStyle='#3a2c20';x.fillRect(wx+1,by0+17,11,27);
-  x.fillStyle='#ffd88a';x.fillRect(wx+4,by0+20,5,17);
-  x.fillStyle='#ffdca0';x.fillRect(wx+5,by0+21,3,11);
-  x.fillStyle='#191512';x.fillRect(wx+4,by0+32,5,1)}
+ for(const wx of[bx0+16,bx0+99]){
+  x.fillStyle='#191512';x.fillRect(wx,by0+18,15,36);
+  x.fillStyle='#3a2c20';x.fillRect(wx+1,by0+19,13,35);
+  x.fillStyle='#ffd88a';x.fillRect(wx+4,by0+22,7,23);
+  x.fillStyle='#ffdca0';x.fillRect(wx+5,by0+23,5,15);
+  x.fillStyle='#191512';x.fillRect(wx+4,by0+40,7,1)}
  // two banners hung off the front: dark red, a gold star, the tail notched
- for(const bx of[cx-31,cx+17]){
-  x.fillStyle=rgb([114,32,26]);x.fillRect(bx,by0+15,17,46);
-  x.fillStyle=rgb([146,44,32]);x.fillRect(bx,by0+15,3,46);
-  for(let v=0;v<5;v++)x.fillStyle=rgb([114,32,26]),x.fillRect(bx+v*2,by0+61,17-v*4,2);
+ for(const bx of[cx-42,cx+22]){
+  x.fillStyle=rgb([114,32,26]);x.fillRect(bx,by0+17,22,58);
+  x.fillStyle=rgb([146,44,32]);x.fillRect(bx,by0+17,3,58);
+  for(let v=0;v<6;v++)x.fillStyle=rgb([114,32,26]),x.fillRect(bx+v*2,by0+75,22-v*4,2);
   x.fillStyle=rgb([228,182,72]);
-  [[6,17],[5,19],[7,19],[4,21],[8,21],[6,23]].forEach(([dx,dy])=>x.fillRect(bx+dx,by0+dy,2,2));
+  [[7,20],[6,22],[9,22],[5,24],[10,24],[7,26]].forEach(([dx,dy])=>x.fillRect(bx+dx,by0+dy,2,2));
  }
  // the bell chamber: three open arches, one bell, and a finial nobody rings
- const tx0=cx-22,ty0=by0-40;
- x.fillStyle=rgb(STN[2]);x.fillRect(tx0,ty0,44,34);
- x.fillStyle=rgb(STN[4]);x.fillRect(tx0,ty0-4,44,4);
- for(let u=tx0;u<tx0+44;u+=9){x.fillStyle=rgb(STN[3]);x.fillRect(u,ty0-10,5,6)}
- for(let k=0;k<3;k++){const ax=tx0+5+k*14;
-  x.fillStyle='#141110';x.fillRect(ax,ty0+7,10,19);x.fillStyle='#241c14';x.fillRect(ax+1,ty0+8,8,18);
-  if(k===1){x.fillStyle=rgb([222,182,92]);x.fillRect(ax+1,ty0+19,8,3);x.fillStyle='#c9a25a';x.fillRect(ax+2,ty0+10,6,9)}}
- x.fillStyle=rgb([74,56,36]);x.fillRect(cx-2,ty0-24,4,14);
- x.fillStyle=rgb([228,182,72]);x.fillRect(cx-5,ty0-28,10,2);x.fillRect(cx-2,ty0-31,4,9);
+ const tx0=cx-29,ty0=by0-52;
+ x.fillStyle=rgb(STN[2]);x.fillRect(tx0,ty0,58,46);
+ x.fillStyle=rgb(STN[4]);x.fillRect(tx0,ty0-5,58,5);
+ for(let u=tx0;u<tx0+58;u+=10){x.fillStyle=rgb(STN[3]);x.fillRect(u,ty0-12,6,7)}
+ for(let k=0;k<3;k++){const ax=tx0+6+k*17;
+  x.fillStyle='#141110';x.fillRect(ax,ty0+9,13,26);x.fillStyle='#241c14';x.fillRect(ax+1,ty0+10,11,25);
+  if(k===1){x.fillStyle=rgb([222,182,92]);x.fillRect(ax+1,ty0+24,11,4);x.fillStyle='#c9a25a';x.fillRect(ax+3,ty0+12,7,13)}}
+ x.fillStyle=rgb([74,56,36]);x.fillRect(cx-2,ty0-30,5,18);
+ x.fillStyle=rgb([228,182,72]);x.fillRect(cx-7,ty0-34,14,3);x.fillRect(cx-2,ty0-40,4,12);
  // the ring of fallen stones at the foot, because a castle this old is honest about it
- x.fillStyle=rgb([106,104,90]);x.fillRect(cx-82,by-8,10,5);x.fillRect(cx+66,by-7,11,4);
- x.fillStyle=rgb([144,140,126]);x.fillRect(cx-82,by-9,10,1);x.fillRect(cx+68,by-8,6,1);
- const sp={c,ox:cx,oy:by,sh:[-84,0,168,16],sol:[-80,-2,160,17],gl:[[cx-34,by0+19,24],[cx+36,by0+19,24],[cx,by-50,30]],hgt:138};
+ x.fillStyle=rgb([106,104,90]);x.fillRect(cx-96,by-8,12,6);x.fillRect(cx+80,by-8,12,5);
+ x.fillStyle=rgb([144,140,126]);x.fillRect(cx-96,by-9,12,1);x.fillRect(cx+82,by-9,9,1);
+ const sp={c,ox:cx,oy:by,sh:[-88,0,176,18],sol:[-84,-2,168,18],gl:[[cx-42,by0+22,28],[cx+44,by0+22,28],[cx,by-58,34]],hgt:190};
  SPR.keep=sp;return sp}
 
 // ---- the outer towers: shorter than the keep, tall enough to be remembered
@@ -558,8 +558,8 @@ function buildCastle(){
  // the old pair of coals at the bridge mouth, outside the gate
  put(134.4,43.2,brazier(),2,.05);put(138.6,43.2,brazier(),2,.05);
  // ---------- inside the ward: the keep, the court, the towers that were always here
- put(134.2,51.3,lamp(),0,.05);put(139.3,51.4,lamp(),0,.05);
- put(132.9,52.2,bannerPole(),0,.05);put(139.9,52.3,bannerPole(),0,.05);
+ put(131.4,50.4,lamp(),0,.05);put(141.6,50.5,lamp(),0,.05);
+ put(128.6,51.2,bannerPole(),0,.05);put(144.3,51.3,bannerPole(),0,.05);
  put(126.8,57.4,keepTower(),3,.05);put(144.2,57.6,keepTower(),3,.05);
  put(136.5,53.3,keep(),3,.05);
  put(131.6,59.2,brazier(),2,.05);put(141.4,59.3,brazier(),2,.05);
