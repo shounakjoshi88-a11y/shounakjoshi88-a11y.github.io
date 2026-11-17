@@ -41,7 +41,14 @@ function buildTextures(){
  const roof=(base,seed)=>blockTex(g=>{tint(g,base,.25);g.fillStyle='rgba(16,18,26,.4)';for(let y=3;y<16;y+=6)g.fillRect(0,y,16,1);g.fillStyle='rgba(255,255,255,.1)';for(let x=2;x<16;x+=5)g.fillRect(x,0,1,3);speck(g,seed)});
  TEX.roofDark=roof('#2f3646',63);TEX.roofBlue=roof('#3d5167',67);TEX.roofRed=roof('#843c30',71);TEX.roofMoss=roof('#455a42',73);
  TEX.window=blockTex(g=>{g.fillStyle='#241c14';g.fillRect(0,0,16,16);g.fillStyle='#e8bd72';g.fillRect(2,3,12,10);g.fillStyle='#ffe0a0';g.fillRect(4,4,6,5);g.fillStyle='#241c14';g.fillRect(7,3,2,10)});
- TEX.gold=blockTex(g=>{tint(g,'#c9a44a',.28);speck(g,79)})}
+ TEX.gold=blockTex(g=>{tint(g,'#c9a44a',.28);speck(g,79)});
+ const cloth=(base,seed)=>blockTex(g=>{tint(g,base,.3);speck(g,seed);g.fillStyle='rgba(255,255,255,.1)';g.fillRect(2,2,3,2)});
+ TEX.cloth0=cloth('#9a3a32',83);TEX.cloth1=cloth('#3d5b82',89);TEX.cloth2=cloth('#3e7042',97);
+ TEX.cloth3=cloth('#a8813e',101);TEX.cloth4=cloth('#6e4268',103);TEX.cloth5=cloth('#2f6e6a',107);
+ TEX.skin=blockTex(g=>{tint(g,'#d6a078',.2);speck(g,109)});
+ TEX.hair=blockTex(g=>{tint(g,'#3a2a20',.25);speck(g,113)});
+ TEX.fire=blockTex(g=>{g.fillStyle='#ff7a24';g.fillRect(0,0,16,16);g.fillStyle='#ffd27a';g.fillRect(4,2,8,12);g.fillStyle='#fff0b8';g.fillRect(6,5,4,7)});
+ TEX.plank=blockTex(g=>{tint(g,'#8a6238',.35);g.fillStyle='rgba(52,34,18,.5)';for(let y=4;y<16;y+=5)g.fillRect(0,y,16,1);speck(g,127)})}
 function buildMaterials(){
  const M=(t,n)=>{const m=new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide});m.name=n;return m};
  return {grassTop:M(TEX.grassTop,'grassTop'),mossTop:M(TEX.mossTop,'mossTop'),gravel:M(TEX.gravel,'gravel'),dirtTop:M(TEX.dirt,'dirtTop'),
@@ -50,14 +57,19 @@ function buildMaterials(){
   wood:M(TEX.wood,'wood'),leafGreen:M(TEX.leafGreen,'leafGreen'),leafPink:M(TEX.leafPink,'leafPink'),leafOrange:M(TEX.leafOrange,'leafOrange'),leafDark:M(TEX.leafDark,'leafDark'),
   wallWhite:M(TEX.wallWhite,'wallWhite'),wallRed:M(TEX.wallRed,'wallRed'),wallBlue:M(TEX.wallBlue,'wallBlue'),wallOchre:M(TEX.wallOchre,'wallOchre'),
   roofDark:M(TEX.roofDark,'roofDark'),roofBlue:M(TEX.roofBlue,'roofBlue'),roofRed:M(TEX.roofRed,'roofRed'),roofMoss:M(TEX.roofMoss,'roofMoss'),
-  window:M(TEX.window,'window'),gold:M(TEX.gold,'gold')}}
+  window:M(TEX.window,'window'),gold:M(TEX.gold,'gold'),
+  cloth0:M(TEX.cloth0,'cloth0'),cloth1:M(TEX.cloth1,'cloth1'),cloth2:M(TEX.cloth2,'cloth2'),
+  cloth3:M(TEX.cloth3,'cloth3'),cloth4:M(TEX.cloth4,'cloth4'),cloth5:M(TEX.cloth5,'cloth5'),
+  skin:M(TEX.skin,'skin'),hair:M(TEX.hair,'hair'),
+  fire:(()=>{const m=new THREE.MeshBasicMaterial({map:TEX.fire,side:THREE.DoubleSide});m.name='fire';return m})(),
+  plank:M(TEX.plank,'plank')}}
 
 // ---------- the voxel volume ----------
 const X0=-8,Z0=-10,X1=184,Z1=116,Y0=-46,Y1=48;
 const SX=X1-X0+1,SY=Y1-Y0+1,SZ=Z1-Z0+1;
 const VOX=new Int8Array(SX*SY*SZ);
 const VI=(x,y,z)=>(y-Y0)*SX*SZ+(z-Z0)*SX+(x-X0);
-const TOP_GRASS=1,TOP_MOSS=2,TOP_GRAVEL=3,TOP_DIRT=4,SIDE_DIRT=5,SIDE_STONEA=6,SIDE_STONEB=7,SIDE_MOSS=8,TOP_WATER=9,WOOD=10,LEAF_GREEN=11,LEAF_PINK=12,LEAF_ORANGE=13,LEAF_DARK=14,WALL_WHITE=15,WALL_RED=16,WALL_BLUE=17,WALL_OCHRE=18,ROOF_DARK=19,ROOF_BLUE=20,ROOF_RED=21,ROOF_MOSS=22,WINDOW=23,GOLD=24;
+const TOP_GRASS=1,TOP_MOSS=2,TOP_GRAVEL=3,TOP_DIRT=4,SIDE_DIRT=5,SIDE_STONEA=6,SIDE_STONEB=7,SIDE_MOSS=8,TOP_WATER=9,WOOD=10,LEAF_GREEN=11,LEAF_PINK=12,LEAF_ORANGE=13,LEAF_DARK=14,WALL_WHITE=15,WALL_RED=16,WALL_BLUE=17,WALL_OCHRE=18,ROOF_DARK=19,ROOF_BLUE=20,ROOF_RED=21,ROOF_MOSS=22,WINDOW=23,GOLD=24,CLOTH0=25,CLOTH1=26,CLOTH2=27,CLOTH3=28,CLOTH4=29,CLOTH5=30,SKIN=31,HAIR=32,FIRE=33,PLANK=34;
 function setV(x,y,z,id){if(x<X0||x>X1||y<Y0||y>Y1||z<Z0||z>Z1)return;VOX[VI(x,y,z)]=id}
 function islandKey(a,b){
  if(typeof LANDE!=='undefined'&&LANDE(a,b))return 5;
@@ -172,9 +184,66 @@ function buildStructures(){
  voxelKeep();
  const town=[[22,4],[28,4],[23,11],[30,11],[23,15],[30,15],[18,26],[10,22],[17,30],[9,29],[12,35]];
  town.forEach(([a,b],i)=>voxelCottage(a,b,i))}
+// ---------- the living world: people, lamps, boats, torii, the ward and the market square ----------
+const CLOTH=[CLOTH0,CLOTH1,CLOTH2,CLOTH3,CLOTH4,CLOTH5];
+function voxelPerson(a,b,seed){
+ const top=colTop(a,b);if(top===null)return;
+ const y=top+1,c=CLOTH[Math.floor(h2(seed,7)*6)];
+ setV(a,y,b,HAIR);setV(a+1,y,b,HAIR);                       // feet
+ box(a,b,a+1,b,y+1,y+2,c);                                  // torso
+ setV(a,y+3,b,SKIN);setV(a,y+4,b,HAIR)}
+function lampPost(a,b){
+ const top=colTop(a,b);if(top===null)return;
+ for(let y=top+1;y<=top+3;y++)setV(a,y,b,WOOD);
+ setV(a,top+4,b,FIRE);setV(a-1,top+4,b,PLANK);setV(a+1,top+4,b,PLANK)}
+function torii(a,b){
+ const top=colTop(a,b);if(top===null)return;
+ for(const sx of[-1,1])for(let y=top+1;y<=top+5;y++)setV(a+sx,y,b,WALL_RED);
+ box(a-2,b,a+2,b,top+5,top+5,WALL_RED);
+ box(a-3,b,a+3,b,top+6,top+6,WALL_RED)}
+function boat(a,b){
+ const top=colTop(a,b);if(top===null||WD(a,b)<0.2)return;
+ const y=-2;
+ box(a-2,b-1,a+2,b-1,y,y,PLANK);box(a-2,b+1,a+2,b+1,y,y,PLANK);
+ box(a-2,b-1,a-2,b+1,y,y,WOOD);box(a+2,b-1,a+2,b+1,y,y,WOOD);
+ setV(a,y,b,WOOD);setV(a+1,y,b,WOOD)}
+function wardWalls(){
+ const b0=47,b1=65,west=127,east=146;
+ for(let b=b0;b<=b1;b++)for(const a of[west,east]){
+  const t=colTop(a,b);if(t===null)continue;setV(a,t+1,b,WALL_WHITE);setV(a,t+2,b,ROOF_DARK)}
+ for(let a=west;a<=east;a++){
+  if(a>=134&&a<=139)continue;                               // the two gate arches stay open
+  for(const b of[b0,b1]){const t=colTop(a,b);if(t===null)continue;setV(a,t+1,b,WALL_WHITE);setV(a,t+2,b,ROOF_DARK)}}
+ for(const[a,b]of[[west,b0],[east,b0],[west,b1],[east,b1],[west,56],[east,56]]){
+  const t=colTop(a,b);if(t===null)continue;
+  box(a-1,b-1,a+1,b+1,t+1,t+3,SIDE_STONEB);                // round towers
+  box(a-1,b-1,a+1,b+1,t+4,t+6,WALL_WHITE);
+  hipRoof(a,b,t+7,2,ROOF_DARK,false)}
+ // braziers on the bridge mouth, outside the north gate
+ for(const a of[134,139]){const t=colTop(a,43);if(t===null)continue;setV(a,t+1,43,SIDE_STONEB);setV(a,t+2,43,FIRE)}}
+function marketSquare(){
+ const a=26,b=13,t=colTop(a,b);if(t===null)return;
+ for(let x=a-2;x<=a+2;x++)for(let z=b-2;z<=b+2;z++){
+  if(Math.abs(x-a)===2||Math.abs(z-b)===2){const q=colTop(x,z);if(q!==null)setV(x,q+1,z,SIDE_STONEA)}
+  else{const q=colTop(x,z);if(q!==null)setV(x,q+1,z,TOP_WATER)}}
+ for(const[x,z,id]of[[24,12,WALL_RED],[29,13,WALL_BLUE],[26,15,WALL_OCHRE]]){
+  const q=colTop(x,z);if(q===null)continue;
+  for(const sx of[-1,1])for(const sz of[-1,1])setV(x+sx,q+1,z+sz,WOOD);
+  box(x-2,z-2,x+2,z+2,q+3,q+3,id)}}
+function populate(){
+ wardWalls();marketSquare();
+ for(const[a,b]of[[25,8],[27,8],[25,11],[28,12],[25,16],[27,16],[24,6],[29,6]])lampPost(a,b);
+ torii(104,35);torii(25,19);
+ boat(25,25);boat(28,23);
+ // the villagers from the game's own roster, plus anyone currently walking
+ try{
+  if(typeof CH!=='undefined')for(const ch of CH)if(ch&&ch.at)voxelPerson(Math.round(ch.at[0]),Math.round(ch.at[1]),h2(Math.round(ch.at[0]*7),Math.round(ch.at[1]*3))*1000);
+  if(typeof CAST!=='undefined')for(const q of CAST)if(q&&q.a!==undefined)voxelPerson(Math.round(q.a),Math.round(q.b),h2(Math.round(q.a*11),Math.round(q.b*5))*1000);
+  if(typeof PL!=='undefined'&&PL&&PL.P)voxelPerson(Math.round(PL.P.a),Math.round(PL.P.b),7);
+ }catch(e){}}
 // ---------- greedy meshing ----------
-function faceId(id,axis,up){return id*10+(axis===1?(up?1:6):(axis===0?2:3))}
-function faceMatKey(f){const id=(f/10)|0,o=f%10;
+function faceId(id,axis,up){return id*4+(axis===1?(up?0:1):(axis===0?2:3))}
+function faceMatKey(f){const id=f>>2,o=f&3;
  if(id===TOP_WATER)return 'water';
  if(id===WOOD)return 'wood';
  if(id===LEAF_GREEN)return 'leafGreen';
@@ -191,8 +260,18 @@ function faceMatKey(f){const id=(f/10)|0,o=f%10;
  if(id===ROOF_MOSS)return 'roofMoss';
  if(id===WINDOW)return 'window';
  if(id===GOLD)return 'gold';
- if(o===1){if(id===TOP_GRASS||id===TOP_DIRT)return 'grassTop';if(id===TOP_MOSS)return 'mossTop';return 'gravel'}
- if(o===6)return 'stoneB';
+ if(id===CLOTH0)return 'cloth0';
+ if(id===CLOTH1)return 'cloth1';
+ if(id===CLOTH2)return 'cloth2';
+ if(id===CLOTH3)return 'cloth3';
+ if(id===CLOTH4)return 'cloth4';
+ if(id===CLOTH5)return 'cloth5';
+ if(id===SKIN)return 'skin';
+ if(id===HAIR)return 'hair';
+ if(id===FIRE)return 'fire';
+ if(id===PLANK)return 'plank';
+ if(o===0){if(id===TOP_GRASS||id===TOP_DIRT)return 'grassTop';if(id===TOP_MOSS)return 'mossTop';return 'gravel'}
+ if(o===1)return 'stoneB';
  if(id===SIDE_DIRT)return 'sideDirt';
  if(id===SIDE_MOSS)return 'mossSide';
  if(id===SIDE_STONEB)return 'stoneB';
@@ -264,6 +343,7 @@ function buildScene(){
  buildVoxels();
  plantTrees();
  buildStructures();
+ populate();
  for(const{geo,mat}of greedyMesh()){
   const mesh=new THREE.Mesh(geo,MATS[mat]);mesh.receiveShadow=true;mesh.castShadow=mat!=='water';scene.add(mesh);if(mat==='water')waterMat=mesh.material}
  const sc=document.createElement('canvas');sc.width=sc.height=256;const sg=sc.getContext('2d');
