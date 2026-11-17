@@ -134,34 +134,40 @@ const KBAN=(x,y,w,h,g)=>{g.fillStyle=rgb([114,32,26]);g.fillRect(x,y,w,h);g.fill
  g.fillStyle=rgb([228,182,72]);g.fillRect(x+(w>>1)-1,y+3,2,2);g.fillRect(x+(w>>1)-2,y+4,4,1);g.fillRect(x+(w>>1)-1,y+5,2,2)};
 
 // ---- one two-tile length of curtain wall, with a walkway and merlons. axis 0 runs along i, 1 along j
+// ---- one two-tile length of dobei: white plaster, a sama loophole, and a curved dark tile cap with lifted ends. axis 0 runs along i, 1 along j
 function wallSeg(axis){const key='kw'+axis;if(SPR[key])return SPR[key];
  const c=mk(52,66),g=c.getContext('2d'),o=[26,52],L=16,Tn=4,H=26;
- const slit=(f)=>(s,t)=>{const u=(s*32)%16;if(Math.abs(u-8)<1&&t>.3&&t<.52)return[30,26,22];return f(s,t)};
+ const slit=(f)=>(s,t)=>{const u=(s*32)%16;if(Math.abs(u-8)<1.1&&t>.33&&t<.56)return[16,16,20];return f(s,t)};
  const i0=axis?-Tn:-L,i1=axis?Tn:L,j0=axis?-L:-Tn,j1=axis?L:Tn;
- const fl=slit(ash(32,H,1,axis)),fr=axis?slit(ash(32,H,.72,3)):ash(8,H,.72,3);
- const top=(s,t,X,Y)=>{const q=hh(X>>1,Y);return[(184+q*20)|0,(180+q*18)|0,(162+q*16)|0]};
- ibox(g,o,i0,i1,j0,j1,0,H,[196,192,174],[150,146,132],[108,104,94],top,axis?ash(8,H,1,5):fl,axis?slit(ash(32,H,.72,3)):fr);
- const mer=(iA,iB,jA,jB)=>ibox(g,o,iA,iB,jA,jB,H,H+5,[206,202,184],[160,156,142],[116,112,102],null,ash(5,5,1,1),ash(5,5,.72,2));
- for(let k=0;k<4;k++){if(axis){const jA=-L+2+k*8;mer(i0,i0+2,jA,jA+4)}else{const iA=-L+2+k*8;mer(iA,iA+4,j0,j0+2)}}
- for(let k=0;k<4;k++){if(axis){const jA=-L+2+k*8;mer(i1-2,i1,jA,jA+4)}else{const iA=-L+2+k*8;mer(iA,iA+4,j1-2,j1)}}
- return SPR[key]={c,ox:o[0],oy:o[1],sh:[0,2,24,5],sol:[-20,-6,40,12],hgt:31}}
+ const pl=(s,t)=>{const v=(1-t)*H,q=hh((s*40)>>1,v>>1);let m=.94+q*.09;if(t>.9)m*=.6;return[246*m,246*m,240*m]};
+ const pls=(s,t)=>{const v=(1-t)*H,q=hh((s*10)>>1,v>>1);let m=.7*(.94+q*.09);if(t>.9)m*=.6;return[246*m,246*m,240*m]};
+ const fl=slit(pl),fr=slit(pls);
+ ibox(g,o,i0,i1,j0,j1,0,H,[196,192,174],[150,146,132],[108,104,94],null,axis?pls:fl,axis?fl:pls);
+ // the tiled cap: dark curved rows, a pale ridge line, and the ends kicked up
+ const cap=(iA,iB,jA,jB)=>ibox(g,o,iA,iB,jA,jB,H,H+6,[30,34,50],[54,62,88],[18,20,32],null,(s,t)=>{const u=s*36,k=(((u>>2)%5)+5)%5<1?.62:1;const q=hh(u>>1,2);return[(52+q*12)*k,(60+q*12)*k,(88+q*14)*k]},(s,t)=>{const u=s*9,k=(((u>>1)%5)+5)%5<1?.6:.78;return[44*k,50*k,72*k]});
+ cap(i0-1,i1+1,j0-1,j1+1);
+ const capTip=(ii,jj)=>{const[X,Y]=IP(o,ii,jj,H+6);g.fillStyle=rgb([150,160,190]);g.fillRect(Math.round(X)-1,Math.round(Y)-4,3,4);g.fillStyle=rgb([178,188,212]);g.fillRect(Math.round(X)-1,Math.round(Y)-4,3,1)};
+ if(axis){capTip(0,-L-1);capTip(0,L+1)}else{capTip(-L-1,0);capTip(L+1,0)}
+ return SPR[key]={c,ox:o[0],oy:o[1],sh:[0,2,24,5],sol:[-20,-6,40,12],hgt:33}}
 
-// ---- a round tower: kind 0 open crown with a flag, 1 red cone, 2 slate cone, tall and thin
+// ---- a round tower: dark ishigaki drum, white plaster band under the eaves, dark tiled cone, shachihoko on the finial
 function roundTower(kind){const key='krt'+kind;if(SPR[key])return SPR[key];
  const tall=kind==2,R=tall?10:14,Hh=tall?58:40,c=mk(54,tall?136:118),x=c.getContext('2d'),cx=27,by=tall?126:108;
- cyl(x,cx,by,R,5,Hh,[KST[2],KST[3],KST[1]],[206,204,190],(dx,v)=>{if(v%8==0)return KST[1];if(hh(dx>>1,v)>.9)return KST[1];
+ // the drum: dark bulging boulders in mortar, not cut stone
+ cyl(x,cx,by,R,5,Hh,[[58,56,50],[78,76,68],[96,94,84]],[186,182,170],(dx,v)=>{if(v%8==0)return[38,36,32];if(hh(dx>>1,v)>.9)return[38,36,32];
   if((v==Hh-14||v==Hh-30)&&Math.abs(dx)<1)return[26,22,20];return null});
- x.fillStyle='#191512';x.fillRect(cx-1,by-Hh+12,2,7);x.fillStyle='#ffdca0';x.fillRect(cx,by-Hh+14,1,3);
- if(!tall)x.fillStyle='#191512',x.fillRect(cx-1,by-Hh+30,2,6),x.fillStyle='#ffdca0',x.fillRect(cx,by-Hh+32,1,2);
- cyl(x,cx,by-Hh,R+3,5,5,[KST[3],KST[4],KST[2]],[224,222,208],null);
- const top=by-Hh-5;
- if(kind==0){for(let a=0;a<12;a++){const th=a/12*6.283,mx=Math.round(cx+Math.cos(th)*(R+2)),my=Math.round(top+Math.sin(th)*4.5);
-   x.fillStyle=rgb(KST[3]);x.fillRect(mx-1,my-5,3,5);x.fillStyle=rgb(KST[4]);x.fillRect(mx-1,my-5,3,1)}
-  x.fillStyle=rgb([60,52,44]);x.fillRect(cx,top-26,1,22);KBAN(cx+1,top-26,10,8,x)}
- else{const pal=kind==1?KTILE.red:KTILE.blue,hgt=kind==1?22:30,rr=R+3;
-  for(let v=0;v<=hgt;v++){const hw=Math.round(rr*(1-v/(hgt+1)));for(let dx=-hw;dx<=hw;dx++){const sh=(dx<0?.72:dx>3?.86:1.05)*(1-.04*v),
-    col=(((dx+v*2)%6+6)%6<1)?pal.d:pal.m;x.fillStyle=rgb(col.map(q=>Math.min(255,q*sh)));x.fillRect(cx+dx,top-v,1,1)}}
-  x.fillStyle=rgb([222,182,92]);x.fillRect(cx-1,top-hgt-9,2,9);x.fillRect(cx-3,top-hgt-11,6,2);x.fillRect(cx-1,top-hgt-13,2,2)}
+ // the white plaster band the eaves rest on
+ cyl(x,cx,by-Hh,R+2,4,9,[[214,214,208],[246,246,240],[238,238,232]],[255,255,248],null);
+ x.fillStyle='#191512';x.fillRect(cx-1,by-Hh+3,2,5);x.fillStyle='#ffdca0';x.fillRect(cx,by-Hh+5,1,2);
+ // the tiled cone: concave profile, vertical seams, upturned rim
+ const hgt=tall?27:20,rr=R+4;
+ for(let v=0;v<=hgt;v++){const q=Math.pow(1-v/(hgt+1),.8),hw=Math.max(1,Math.round(rr*q));
+  for(let dx=-hw;dx<=hw;dx++){const sh=(dx<0?.7:dx>3?.88:1.05)*(1-.05*v),seam=(((dx+v*2)%6)+6)%6<1;
+   const base=seam?[22,25,38]:[44,52,74];x.fillStyle=rgb(base.map(q2=>Math.min(255,Math.round(q2*sh))));x.fillRect(cx+dx,by-Hh-9-v,1,1)}}
+ for(const sd of[-1,1])for(let k=0;k<4;k++){x.fillStyle=rgb(k<2?[178,188,212]:[70,80,110]);x.fillRect(cx+sd*(rr+1+k),by-Hh-9-k,2,1)}
+ // the finial: two gold horns facing each other, and a flag for the watch on kind 0
+ x.fillStyle=rgb([228,182,72]);x.fillRect(cx-1,by-Hh-9-hgt-7,2,8);x.fillRect(cx-3,by-Hh-9-hgt-9,6,2);x.fillRect(cx-2,by-Hh-9-hgt-11,4,2);
+ if(kind==0){x.fillStyle=rgb([40,36,32]);x.fillRect(cx,by-Hh-9-hgt-26,1,16);KBAN(cx+1,by-Hh-9-hgt-24,9,7,x)}
  return SPR[key]={c,ox:cx,oy:by,sh:[0,2,R+4,7],sol:[-R-2,2,2*R+4,10],gl:[[cx,by-Hh+16,14]],hgt:Hh+30}}
 
 // ---- the gatehouse: a long wall with a round arch, a portcullis, banners, and a square tower at each end
@@ -179,16 +185,17 @@ function gateHouse(pal){const key='kgh'+pal;if(SPR[key])return SPR[key];
  const faceL=(s,t,X,Y)=>{const u=s*60-30,v=(1-t)*H;
   const a=arch(s,t);if(a)return a;
   if(Math.abs(Math.abs(u)-20)<3.2&&v>6&&v<27)return[(114)|0,32,26];             // banners
-  if(v>H-5&&v<H-3)return[104,100,90];
-  return ash(60,H,1,7)(s,t)};
- ibox(g,o,-30,30,-6,6,0,H,[196,192,174],[150,146,132],[108,104,94],(s,t,X,Y)=>{const q=hh(X>>1,Y);return[(184+q*20)|0,(180+q*18)|0,(162+q*16)|0]},faceL,ash(12,H,.72,9));
+  if(v>H-3)return[16,16,20];
+  const q=hh((u>>2)+3,v>>1);let m=.95+q*.09;if(t>.88)m*=.6;return[246*m,246*m,240*m]};
+ ibox(g,o,-30,30,-6,6,0,H,[246,246,240],[208,208,202],[160,160,154],null,faceL,(s,t)=>{const q=hh((s*20)>>1,((1-t)*H)>>1);let m=.68*(.95+q*.09);if(t>.88)m*=.6;return[246*m,246*m,240*m]});
+ // one long dark tile roof over the whole lintel, its ends kicked up, a navy disc over the arch
+ hipRoof(g,o,H,17,3,8,4,KTILE.blue,11);
+ const[hxd,hyd]=IP(o,0,6,H+8);g.fillStyle=rgb([26,40,72]);g.fillRect(Math.round(hxd)-3,Math.round(hyd)-14,6,5);g.fillStyle=rgb([228,182,72]);g.fillRect(Math.round(hxd)-1,Math.round(hyd)-12,2,2);
  for(const sd of[-1,1]){const iA=sd<0?-46:30,iB=sd<0?-30:46,ic=(iA+iB)/2,oc=[o[0]+ic,o[1]+ic/2];
-  ibox(g,o,iA,iB,-8,8,0,TH,[204,200,182],[150,146,132],[108,104,94],null,(s,t)=>{const v=(1-t)*TH;if(Math.abs(s-.5)<.07&&v>22&&v<34)return[28,24,22];if(Math.abs(s-.5)<.05&&v>22&&v<34)return[255,220,150];return ash(16,TH,1,sd+4)(s,t)},(s,t)=>{const v=(1-t)*TH;if(Math.abs(s-.5)<.1&&v>26&&v<40)return[28,24,22];return ash(16,TH,.72,sd+6)(s,t)});
+  ibox(g,o,iA,iB,-8,8,0,TH,[246,246,240],[208,208,202],[160,160,154],null,(s,t)=>{const v=(1-t)*TH;if(Math.abs(s-.5)<.07&&v>22&&v<34)return[28,24,22];if(Math.abs(s-.5)<.05&&v>22&&v<34)return[255,220,150];const q=hh((s*16)>>1,v>>1);let m=.95+q*.09;if(t>.9)m*=.6;return[246*m,246*m,240*m]},(s,t)=>{const v=(1-t)*TH;if(Math.abs(s-.5)<.1&&v>26&&v<40)return[28,24,22];const q=hh((s*16)>>1,v>>1);let m=.68*(.95+q*.09);if(t>.9)m*=.6;return[246*m,246*m,240*m]});
   hipRoof(g,oc,TH,12,4,13,3,P,sd+3)}
  // portcullis lamp and a pair of crest stars over the arch
  px(g,o[0]-1+0,o[1]+3-(18)-0,rgb([236,186,84]),2,2);
- // merlons along the lintel
- for(let k=0;k<6;k++){const iA=-26+k*9;ibox(g,o,iA,iA+5,4,6,H,H+5,[206,202,184],[160,156,142],[116,112,102],null,ash(5,5,1,1),ash(5,5,.72,2))}
  return SPR[key]={c,ox:o[0],oy:o[1],sh:[0,4,56,9],sol:[-54,-8,36,16],sol2:[18,-8,36,16],hgt:TH+30,
   gl:[[o[0],o[1]-12,28],[o[0]-38,o[1]-27-8,16],[o[0]+38,o[1]-27-8,16]]}}
 
@@ -403,88 +410,115 @@ function chairDais(){if(SPR.kcd)return SPR.kcd;const c=mk(70,40),g=c.getContext(
  g.fillStyle=rgb([228,182,72]);g.fillRect(34,20,2,5);g.fillRect(31,22,8,1);
  return SPR.kcd={c,ox:35,oy:24}}
 
-// ================= the old keep, kept as it was (the chapters stand around it) =================
-// ---- the keep: dais, drum, ashlar body, bell chamber, one empty finial
+// ================= the keep: ishigaki drum, three white tiers, dark tile roofs, shachihoko on the ridge =================
+// head-on, the way the painted scrolls show it: a hill of dark stone, white plaster above, roofs that lift at the corners
 function keep(){
  if(SPR.keep)return SPR.keep;
- const c=mk(236,238),x=c.getContext('2d'),cx=118,by=232;
- const STN=[[72,70,62],[106,104,90],[144,140,126],[178,176,158],[212,210,194]];
- // the dais: three round steps out of the court, so the keep stands on a drum and not a plinth
+ const c=mk(236,284),x=c.getContext('2d'),cx=118,by=276;
+ const STN=[[56,54,48],[74,72,64],[92,90,80],[112,110,98],[136,134,120]];
+ // a head-on Japanese hip roof: concave profile, seams, upturned eave tips, fascia with rafters, ridge cap
+ const jroof=(cx2,y,rh,hw,sd)=>{
+  const m=[46,54,78],hi=[178,188,212];
+  for(let v=0;v<rh;v++){
+   const t=v/rh,q=Math.pow(t,.68),w=Math.round(hw*(.24+.76*q));
+   for(let X=cx2-w;X<=cx2+w;X++){
+    const nd=(X-cx2)/hw,hhval=hh(X>>1,v+sd*31);
+    let k=(X<cx2?1.06:.72)*(.9+hhval*.2);
+    if(v%4===3)k*=.7;
+    if((((X+((v/4|0)*2))%5)+5)%5===0)k*=.6;
+    let col=[m[0]*k,m[1]*k,m[2]*k];
+    if(v===0)col=[hi[0]*.85,hi[1]*.85,hi[2]*.9];
+    if(Math.abs(nd)>.93)col=[hi[0]*(X<cx2?.8:.6),hi[1]*(X<cx2?.8:.6),hi[2]*(X<cx2?.8:.6)];
+    x.fillStyle=rgb(col);x.fillRect(X,y+v,1,1)}
+   if(v===rh-1){for(let X=cx2-w;X<=cx2+w;X++){x.fillStyle=rgb([13,15,22]);x.fillRect(X,y+rh,1,2);if(X%3===0){x.fillStyle=rgb([190,150,96]);x.fillRect(X,y+rh+1,1,1)}}}
+  }
+  for(const sd2 of[-1,1])for(let k=0;k<5;k++){const X=cx2+sd2*(hw+1+k),Y=y+rh-2-k;x.fillStyle=rgb(k<2?hi:[52,60,86]);x.fillRect(X,Y,2,1)}
+  const rw=Math.round(hw*.3);x.fillStyle=rgb(hi);for(let X=cx2-rw;X<=cx2+rw;X++)x.fillRect(X,y-2,1,2)};
+ // the chidori gable: white face, dark bargeboards, one navy disc with a gold heart
+ const hafu=(cx2,baseY,w,h)=>{
+  for(let v=0;v<h;v++){const t=v/h,w2=Math.max(1,Math.round(w*(1-t)));
+   for(let X=cx2-w2;X<=cx2+w2;X++){const edge=Math.abs(X-cx2)>=w2-2;x.fillStyle=rgb(edge?[34,36,46]:[242,242,236]);x.fillRect(X,baseY-v,1,1)}}
+  x.fillStyle=rgb([26,40,72]);x.fillRect(cx2-3,baseY-h+2,7,5);x.fillRect(cx2-2,baseY-h+1,5,1);x.fillRect(cx2-2,baseY-h+7,5,1);
+  x.fillStyle=rgb([228,182,72]);x.fillRect(cx2-1,baseY-h+4,2,2)};
+ const post=(X,Y0,h)=>{x.fillStyle=rgb([36,30,24]);x.fillRect(X,Y0,3,h)};
+ const slatWin=(X,Y,lit,w,h)=>{w=w||8;h=h||12;
+  x.fillStyle=rgb(lit?[255,216,128]:[18,20,28]);x.fillRect(X,Y,w,h);
+  x.fillStyle=rgb(lit?[140,96,48]:[58,60,74]);for(let u=2;u<w-1;u+=2)x.fillRect(X+u,Y,1,h);
+  x.fillStyle=rgb([208,204,190]);x.fillRect(X-1,Y-1,w+2,1);x.fillRect(X-1,Y+h+1,w+2,1)};
+ // the dais: three round steps out of the court
  cyl(x,cx,by,98,11,7,[STN[0],STN[1],STN[0]],[STN[1]],null);
  cyl(x,cx,by-7,84,10,8,[STN[1],STN[2],STN[1]],[STN[3]],null);
  cyl(x,cx,by-15,70,9,8,[STN[2],STN[3],STN[2]],[STN[4]],null);
- // the drum: ashlar courses, a tall portcullis arch with an aisle of light inside
- cyl(x,cx,by-23,68,17,62,[STN[2],STN[3],STN[1]],[222,220,206],(dx,v)=>{
-   if(v%9==0)return STN[1];
-   if(hh(dx>>1,v)>.9)return STN[1];
-   return null});
- x.fillStyle='#191512';x.fillRect(cx-21,by-92,42,33);
- x.fillStyle='#3a2c20';x.fillRect(cx-20,by-91,40,32);
- x.fillStyle='#4a3a30';for(let k=-16;k<=16;k+=6)x.fillRect(cx+k,by-91,2,32);
- x.fillStyle='#241c14';x.fillRect(cx-20,by-61,40,2);
- x.fillStyle='#ffd88a';x.fillRect(cx-13,by-65,26,8);x.fillStyle='#ffdca0';x.fillRect(cx-8,by-64,18,7);
- for(const sx of[-43,35]){x.fillStyle='#191512';x.fillRect(cx+sx,by-82,7,15);x.fillStyle='#ffdca0';x.fillRect(cx+sx+2,by-78,3,7)}
- // tier two, the great hall: a squared tower with a corbelled mouth and two windows
- const bx0=cx-64,by0=by-162,bh=90;
- x.fillStyle=rgb(STN[3]);x.fillRect(bx0,by0,128,bh);
- x.fillStyle=rgb(STN[4]);x.fillRect(bx0,by0,128,9);
- x.fillStyle=rgb(STN[1]);x.fillRect(bx0,by0+bh-9,128,9);
- for(let v=13;v<bh-10;v+=11){x.fillStyle=rgb(STN[1]);x.fillRect(bx0,by0+v,128,1);
-  const off=((v/11)|0)%2?7:0;
-  for(let u=-8;u<128;u+=13){if(u+off>=0&&u+off<128)x.fillRect(bx0+u+off,by0+v,1,11)}}
- for(let u=bx0;u<bx0+128;u+=12){x.fillStyle=rgb(STN[4]);x.fillRect(u,by0-10,7,10);x.fillStyle=rgb([156,152,138]);x.fillRect(u,by0-11,7,1)}
- // two tall windows either side of the portcullis
- for(const wx of[bx0+16,bx0+99]){
-  x.fillStyle='#191512';x.fillRect(wx,by0+18,15,36);
-  x.fillStyle='#3a2c20';x.fillRect(wx+1,by0+19,13,35);
-  x.fillStyle='#ffd88a';x.fillRect(wx+4,by0+22,7,23);
-  x.fillStyle='#ffdca0';x.fillRect(wx+5,by0+23,5,15);
-  x.fillStyle='#191512';x.fillRect(wx+4,by0+40,7,1)}
- // two banners hung off the front: dark red, a gold star, the tail notched
- for(const bx of[cx-42,cx+22]){
-  x.fillStyle=rgb([114,32,26]);x.fillRect(bx,by0+17,22,58);
-  x.fillStyle=rgb([146,44,32]);x.fillRect(bx,by0+17,3,58);
-  for(let v=0;v<6;v++)x.fillStyle=rgb([114,32,26]),x.fillRect(bx+v*2,by0+75,22-v*4,2);
-  x.fillStyle=rgb([228,182,72]);
-  [[7,20],[6,22],[9,22],[5,24],[10,24],[7,26]].forEach(([dx,dy])=>x.fillRect(bx+dx,by0+dy,2,2));
- }
- // the bell chamber: three open arches, one bell, and a finial nobody rings
- const tx0=cx-29,ty0=by0-52;
- x.fillStyle=rgb(STN[2]);x.fillRect(tx0,ty0,58,46);
- x.fillStyle=rgb(STN[4]);x.fillRect(tx0,ty0-5,58,5);
- for(let u=tx0;u<tx0+58;u+=10){x.fillStyle=rgb(STN[3]);x.fillRect(u,ty0-12,6,7)}
- for(let k=0;k<3;k++){const ax=tx0+6+k*17;
-  x.fillStyle='#141110';x.fillRect(ax,ty0+9,13,26);x.fillStyle='#241c14';x.fillRect(ax+1,ty0+10,11,25);
-  if(k===1){x.fillStyle=rgb([222,182,92]);x.fillRect(ax+1,ty0+24,11,4);x.fillStyle='#c9a25a';x.fillRect(ax+3,ty0+12,7,13)}}
- x.fillStyle=rgb([74,56,36]);x.fillRect(cx-2,ty0-30,5,18);
- x.fillStyle=rgb([228,182,72]);x.fillRect(cx-7,ty0-34,14,3);x.fillRect(cx-2,ty0-40,4,12);
- // the ring of fallen stones at the foot, because a castle this old is honest about it
- x.fillStyle=rgb([106,104,90]);x.fillRect(cx-96,by-8,12,6);x.fillRect(cx+80,by-8,12,5);
- x.fillStyle=rgb([144,140,126]);x.fillRect(cx-96,by-9,12,1);x.fillRect(cx+82,by-9,9,1);
- const sp={c,ox:cx,oy:by,sh:[-88,0,176,18],sol:[-84,-2,168,18],gl:[[cx-42,by0+22,28],[cx+44,by0+22,28],[cx,by-58,34]],hgt:190};
+ // the drum: ishigaki, big sloped boulders in dark mortar, the hill of stone the castle grew from
+ const ish=(dx,v)=>{const r=Math.floor(v/6),u=Math.floor((dx+(r&1)*6)/7),q=hh(u+3,r+7);
+  let m=.82+q*.4;if(v%6===0)m*=.5;if((((dx+(r&1)*6)%7)+7)%7===0)m*=.5;return[Math.round(113*m),Math.round(110*m),Math.round(99*m)]};
+ cyl(x,cx,by-23,66,16,54,[STN[1],STN[2],STN[0]],[148,146,136],ish);
+ // the great gate arch in the stone, warm from the inside
+ x.fillStyle='#191512';x.fillRect(cx-22,by-64,44,41);
+ x.fillStyle='#3a2c20';x.fillRect(cx-21,by-63,42,40);
+ x.fillStyle='#4a3a30';for(let k=-16;k<=16;k+=6)x.fillRect(cx+k,by-63,2,40);
+ x.fillStyle='#241c14';x.fillRect(cx-21,by-25,42,2);
+ x.fillStyle='#ffd88a';x.fillRect(cx-13,by-30,26,9);x.fillStyle='#ffdca0';x.fillRect(cx-8,by-29,18,7);
+ for(const sx of[-46,39]){x.fillStyle='#191512';x.fillRect(cx+sx,by-47,7,14);x.fillStyle='#ffdca0';x.fillRect(cx+sx+2,by-43,3,6)}
+ // ===== tier one: white plaster, dark posts, slat windows, the red star banners
+ const T1Y=by-88,T1H=34;
+ x.fillStyle=rgb([246,246,240]);x.fillRect(cx-52,T1Y-T1H,104,T1H);
+ x.fillStyle=rgb([214,214,208]);x.fillRect(cx+49,T1Y-T1H,3,T1H);
+ for(let v=0;v<T1H;v++){x.fillStyle=rgb([246,246,240].map(q=>q*(1-(v/T1H)*.06)));x.fillRect(cx-52,T1Y-T1H+v,3,1)}
+ post(cx-52,T1Y-T1H,T1H);post(cx+49,T1Y-T1H,T1H);
+ slatWin(cx-31,T1Y-T1H+11,1,8,13);slatWin(cx+23,T1Y-T1H+11,1,8,13);slatWin(cx-4,T1Y-T1H+13,0,8,11);
+ for(const bx of[cx-46,cx+32]) KBAN(bx,T1Y-T1H+4,15,30,x);
+ jroof(cx,T1Y-T1H-17,17,64,3);
+ hafu(cx,T1Y-T1H-14,14,13);
+ // ===== tier two: smaller white tier, one dark window, one round window
+ const T2Y=T1Y-T1H-15,T2H=29;
+ x.fillStyle=rgb([246,246,240]);x.fillRect(cx-38,T2Y-T2H,76,T2H);
+ x.fillStyle=rgb([214,214,208]);x.fillRect(cx+35,T2Y-T2H,3,T2H);
+ post(cx-38,T2Y-T2H,T2H);post(cx+35,T2Y-T2H,T2H);
+ slatWin(cx-13,T2Y-T2H+9,0,9,13);
+ x.fillStyle=rgb([18,20,28]);x.fillRect(cx+8,T2Y-T2H+9,7,7);x.fillStyle=rgb([58,60,74]);x.fillRect(cx+9,T2Y-T2H+10,1,5);x.fillRect(cx+13,T2Y-T2H+10,1,5);
+ jroof(cx,T2Y-T2H-15,15,50,5);
+ hafu(cx,T2Y-T2H-12,11,11);
+ // ===== tier three: the smallest, with the golden ridge
+ const T3Y=T2Y-T2H-13,T3H=26;
+ x.fillStyle=rgb([246,246,240]);x.fillRect(cx-26,T3Y-T3H,52,T3H);
+ x.fillStyle=rgb([214,214,208]);x.fillRect(cx+23,T3Y-T3H,3,T3H);
+ post(cx-26,T3Y-T3H,T3H);post(cx+23,T3Y-T3H,T3H);
+ slatWin(cx-4,T3Y-T3H+8,1,8,11);
+ jroof(cx,T3Y-T3H-12,12,35,7);
+ // the ridge: two shachihoko horns and the star of the house between them
+ for(const sd2 of[-1,1]){const bx2=cx+sd2*11;
+  x.fillStyle=rgb([228,182,72]);x.fillRect(bx2-1,T3Y-T3H-15,3,5);x.fillRect(bx2+(sd2>0?1:-2),T3Y-T3H-18,2,3);x.fillRect(bx2+(sd2>0?2:-3),T3Y-T3H-20,1,2);
+  x.fillStyle=rgb([255,240,170]);x.fillRect(bx2,T3Y-T3H-16,1,1)}
+ x.fillStyle=rgb([228,182,72]);x.fillRect(cx-1,T3Y-T3H-22,2,7);x.fillRect(cx-3,T3Y-T3H-20,6,2);x.fillRect(cx-1,T3Y-T3H-24,2,2);
+ // fallen stones at the foot, because a castle this old is honest about it
+ x.fillStyle=rgb([88,86,76]);x.fillRect(cx-98,by-8,12,6);x.fillRect(cx+82,by-8,12,5);
+ x.fillStyle=rgb([128,124,110]);x.fillRect(cx-98,by-9,12,1);x.fillRect(cx+84,by-9,9,1);
+ const sp={c,ox:cx,oy:by,sh:[-86,0,172,16],sol:[-82,-2,164,17],gl:[[cx-27,T1Y-22,20],[cx+27,T1Y-22,20],[cx,T3Y-T3H-16,22]],hgt:212};
  SPR.keep=sp;return sp}
 
 // ---- the outer towers: shorter than the keep, tall enough to be remembered
 function keepTower(){
  if(SPR.tower)return SPR.tower;
  const c=mk(54,116),x=c.getContext('2d'),cx=27,by=110;
- const STN=[[64,62,54],[98,96,84],[136,132,120],[174,170,154],[210,208,192]];
+ const STN=[[56,54,48],[74,72,64],[92,90,80],[112,110,98],[136,134,120]];
  // the lower drum: ashlar courses, one slit window, half a door's worth of shadow
- cyl(x,cx,by,19,9,46,[STN[1],STN[2],STN[0]],[206,204,190],(dx,v)=>{
-   if(v%11==0)return STN[0];
-   if(hh(dx>>1,v)>.9)return STN[0];
+ cyl(x,cx,by,19,9,46,[[58,56,50],[78,76,68],[96,94,84]],[186,182,170],(dx,v)=>{
+   if(v%7==0)return[38,36,32];
+   if(hh(dx>>1,v)>.9)return[38,36,32];
    return null});
  x.fillStyle='#191512';x.fillRect(cx-5,by-36,10,8);x.fillStyle='#ffdca0';x.fillRect(cx-3,by-34,6,4);
  // the corbelled crown and the upper drum with a corbelled crown of its own
- cyl(x,cx,by-46,24,4,8,[STN[2],STN[3],STN[1]],[222,220,206],null);
+ cyl(x,cx,by-46,24,4,8,[[214,214,208],[246,246,240],[238,238,232]],[255,255,248],null);
  for(let u=cx-22;u<cx+22;u+=9){x.fillStyle=rgb(STN[3]);x.fillRect(u,by-59,5,8);x.fillStyle=rgb([158,154,140]);x.fillRect(u,by-60,5,1)}
- cyl(x,cx,by-60,15,6,20,[STN[1],STN[2],STN[0]],[210,208,194],(dx,v)=>v%7==0?STN[0]:null);
+ cyl(x,cx,by-60,15,6,20,[[214,214,208],[244,244,238],[236,236,230]],[252,252,246],(dx,v)=>v%7==0?[196,196,190]:null);
  for(let u=cx-14;u<cx+14;u+=8){x.fillStyle=rgb(STN[2]);x.fillRect(u,by-74,4,5)}
- // the cap roof: a dark cone and a gilt finial nobody has ever rung
- for(let v=0;v<=20;v++){const hw=Math.round(15*(1-v/21));
-   for(let dx=-hw;dx<=hw;dx++){const sh=(dx<0?.7:dx>5?.84:1)*(1-.055*v);
-     x.fillStyle=rgb([166,64,44].map(q=>Math.min(255,q*sh)));x.fillRect(cx+dx,by-79-v,1,1)}}
- x.fillStyle=rgb([222,182,92]);x.fillRect(cx-1,by-103,2,7);x.fillRect(cx-4,by-105,8,2);x.fillRect(cx-2,by-107,4,2);
+ // the cap roof: dark curved tiles, upturned rim, and a gilt finial nobody has ever rung
+ for(let v=0;v<=20;v++){const q=Math.pow(1-v/21,.85),hw=Math.max(1,Math.round(15*q));
+   for(let dx=-hw;dx<=hw;dx++){const sh=(dx<0?.7:dx>5?.84:1.05)*(1-.05*v),seam=(((dx+v*2)%6)+6)%6<1;
+     const base=seam?[22,25,38]:[44,52,74];x.fillStyle=rgb(base.map(q2=>Math.min(255,Math.round(q2*sh))));x.fillRect(cx+dx,by-79-v,1,1)}}
+ for(const sd of[-1,1])for(let k=0;k<3;k++){x.fillStyle=rgb(k<2?[178,188,212]:[70,80,110]);x.fillRect(cx+sd*(15+1+k),by-79-k,2,1)}
+ x.fillStyle=rgb([228,182,72]);x.fillRect(cx-1,by-103,2,8);x.fillRect(cx-4,by-105,8,2);x.fillRect(cx-2,by-107,4,2);x.fillRect(cx-1,by-109,2,2);
  const sp={c,ox:cx,oy:by,sh:[-17,2,34,9],sol:[-17,2,34,11],gl:[[cx,by-46,16]],hgt:76};
  SPR.tower=sp;return sp}
 
