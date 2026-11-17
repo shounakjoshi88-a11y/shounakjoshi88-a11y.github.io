@@ -208,14 +208,14 @@ const DOORS=[
  {id:'post',house:[91.5,33],off:[-0.41,1.5],room:'post'},
  {id:'pagoda',house:[111,17],off:[0,1.4],room:'pagoda'},
  {id:'dome',house:[133.0,27.0],off:[0,1.5],room:'dome'},
- {id:'mess',house:[129.9,51.0],off:[1.3,1.2],room:'mess'},
- {id:'library',house:[143.3,49.7],off:[0,1.3],room:'library'},
- {id:'smithy',house:[130.3,58.7],off:[0,1.5],room:'smithy'},
- {id:'market',house:[149.3,67.6],off:[0,1.3],room:'market'},
- {id:'tea',house:[159.2,58.6],off:[0,-1.3],room:'tea'},
- {id:'keepshrine',house:[122.6,63.3],off:[0,-1.15],room:'keepshrine'},
- {id:'southwatch',house:[133.0,64.8],off:[0,-1.8],room:'southwatch'},
- {id:'gate',house:[136.5,46.3],off:[0,-1.2],room:'gate'},
+ {id:'gate',house:[136.5,44.8],off:[0,-1.4],room:'gate'},
+ {id:'mess',house:[150.6,93.8],off:[0,1.5],room:'mess'},
+ {id:'library',house:[143.8,99.4],off:[0,1.5],room:'library'},
+ {id:'smithy',house:[145.8,92.0],off:[0,1.5],room:'smithy'},
+ {id:'market',house:[133.0,83.4],off:[0,1.5],room:'market'},
+ {id:'tea',house:[163.6,84.6],off:[0,1.5],room:'tea'},
+ {id:'keepshrine',house:[127.6,52.6],off:[0,1.3],room:'keepshrine'},
+ {id:'southwatch',house:[136.5,66.2],off:[0,1.4],room:'southwatch'},
  {id:'starkeep',house:[136.5,53.3],off:[0,1.9],room:'keep',lock:{quests:['village','koi','far','sky']},lockMsg:'The keeper counts four promises: the village, the fish, the far ends of the road, and the sky. Keep them all and the door opens.'}];
 
 let ROOMSP=null;
@@ -280,7 +280,8 @@ function roomOpen(id){
  const R=ROOMS[id];if(!R)return;
  ROOM=id;MODE='room';RMTX=RMTY=0;RMTAKE=PASS.rooms&&PASS.rooms[id]?1:0;
  const c=R.owner?CH.find(c=>c.name===R.owner):null;
- const sp=c?villager(c.pal,0,'front'):null;
+ const pal=(c&&c.pal)||R.pal||null;
+ const sp=pal?villager(pal,0,'front'):null;
  RMTALK=0;RMREAD={};ROOMSP={owner:sp};
  $('rmname').textContent=R.name;
  $('rmcv').style.width='100%';
@@ -574,6 +575,7 @@ const RDEC={
  keepshrine:{wall:'plaster',floor:'tatami',view:'sakura',w:[['scroll',20,6],['lantern',60,6],['window',104,6],['mask',168,12],['lantern',232,6],['scroll',258,8]],f:[['incense',150,70],['cushion',52,100],['cushion',262,100],['lowtable',150,168],['screen',296,120]]},
  southwatch:{wall:'stone',floor:'stone',view:'cloud',w:[['hooks',18,8],['window',96,6],['board',168,6],['lantern',252,6],['chart',272,6]],f:[['cot',28,152],['lanternf',150,68],['stool',280,80],['armor',300,100],['bucket',22,110]]}};
 
+
 // ---- the painted backdrop: walls, floors, rug, door, built once per room ----
 const RBG={};
 function rmBack(id){
@@ -737,6 +739,45 @@ FK.easel=function(g,x,y,t,R,D){const k=D.easel||'sun',c=artCanvas(k),w=c.width,h
  rmBx(g,'#e8d8a8',x+w/2+5,y-6,5,4);rmBx(g,'#c8382c',x+w/2+6,y-7,2,1);rmBx(g,'#2a4a8a',x+w/2+8,y-7,1,1)};
 FKS.easel=13;
 
+// ---- the kingdom's rooms: four doors inside the Star Keep's walls ----
+Object.assign(FK,{
+ anvil(g,x,y){rmBx(g,'#3a2616',x-6,y-3,12,4);rmBx(g,'#2a2a30',x-8,y-7,16,4);rmBx(g,'#4a4a52',x-10,y-10,20,4);rmBx(g,'#7a7a84',x-10,y-10,20,1);rmBx(g,'#4a4a52',x+10,y-9,5,2)},
+ forge(g,x,y,t){const f=.75+.25*Math.sin(t*9);rmBx(g,'#4a3a32',x-6,y-40,12,26);rmBx(g,'#5a4a42',x-15,y-18,30,18);rmBx(g,'#3a2a24',x-15,y-18,30,3);rmBx(g,'#1a0e0a',x-10,y-14,20,11);
+  rmBx(g,'rgba(255,150,50,'+(.85*f).toFixed(2)+')',x-9,y-7,18,4);rmBx(g,'rgba(255,220,120,'+(.8*f).toFixed(2)+')',x-5,y-8,10,2);
+  for(let k=0;k<3;k++){const p=(t*.6+k/3)%1;rmBx(g,'rgba(255,200,100,'+(.7*(1-p)).toFixed(2)+')',x-6+k*5+Math.sin(p*6)*2,y-12-p*26,1,1)}
+  const gr=g.createRadialGradient(x,y-8,2,x,y-8,48);gr.addColorStop(0,'rgba(255,140,50,'+(.28*f).toFixed(2)+')');gr.addColorStop(1,'rgba(255,140,50,0)');g.fillStyle=gr;g.fillRect(x-48,y-56,96,96)},
+ bar(g,x,y){rmBx(g,'#3a2616',x-30,y-12,60,12);rmBx(g,'#4a331c',x-29,y-11,58,10);rmBx(g,'#8a6a42',x-31,y-15,62,4);rmBx(g,'#a88858',x-31,y-15,62,1);
+  for(let i=0;i<4;i++){rmBx(g,'#d8c8a0',x-22+i*9,y-20,4,5);rmBx(g,'#8a6a2a',x-22+i*9,y-19,4,2)}rmBx(g,'#4a4a52',x+22,y-24,2,9);rmBx(g,'#6a4a2a',x+20,y-27,6,3)},
+ table(g,x,y,t){rmBx(g,'#4a331c',x-2,y-8,4,9);g.fillStyle='#6a4a2a';g.beginPath();g.ellipse(x,y-10,13,5,0,0,6.283);g.fill();g.fillStyle='#8a6a42';g.beginPath();g.ellipse(x,y-11,13,4.5,0,0,6.283);g.fill();
+  rmBx(g,'#efe6cc',x-1,y-17,2,6);rmBx(g,'rgba(255,200,100,'+(.7+.3*Math.sin(t*10+x)).toFixed(2)+')',x-1,y-20,2,3);rmBx(g,'#d8c8a0',x+6,y-14,3,3)},
+ bookcase(g,x,y){rmBx(g,'#3a2616',x-15,y-46,30,46);rmBx(g,'#1e150e',x-13,y-44,26,42);
+  for(let r=0;r<4;r++){rmBx(g,'#5a3d22',x-14,y-34+r*11,28,2);for(let c=0;c<8;c++){const h=7+((hh(c,r+x)*3)|0);rmBx(g,['#8a3a2a','#3a5a6a','#c8a44a','#4a6a3a','#6a3a6a','#d8c8a0'][(c+r*3)%6],x-12+c*3,y-35+r*11+(8-h),2,h)}}},
+ pew(g,x,y){rmBx(g,'#4a331c',x-16,y-4,3,5);rmBx(g,'#4a331c',x+13,y-4,3,5);rmBx(g,'#6a4a2a',x-16,y-9,32,5);rmBx(g,'#8a6a42',x-16,y-9,32,1);rmBx(g,'#5a3d22',x-16,y-18,32,7);rmBx(g,'#7a5a34',x-16,y-18,32,1)},
+ altar(g,x,y,t){rmBx(g,'#8a8470',x-16,y-16,32,16);rmBx(g,'#bcb49c',x-16,y-16,32,3);rmBx(g,'#6a1d17',x-13,y-13,26,6);rmBx(g,'#e8c86a',x-1,y-12,2,3);
+  for(const dx of[-10,9]){rmBx(g,'#efe6cc',x+dx,y-23,2,7);rmBx(g,'rgba(255,200,100,'+(.7+.3*Math.sin(t*9+dx)).toFixed(2)+')',x+dx,y-26,2,3)}rmBx(g,'#e8c86a',x-2,y-34,4,1);rmBx(g,'#e8c86a',x-1,y-36,2,5)},
+ lectern(g,x,y){rmBx(g,'#4a331c',x-2,y-14,4,15);rmBx(g,'#6a4a2a',x-8,y-20,16,6);rmBx(g,'#e8dfc4',x-7,y-23,6,5);rmBx(g,'#e8dfc4',x+1,y-23,6,5);rmBx(g,'#8a7a5a',x-1,y-23,2,5)}});
+Object.assign(FKS,{anvil:11,forge:15,bar:30,table:13,bookcase:15,pew:16,altar:16,lectern:8});
+const KPAL={tavern:[[178,86,52],[84,60,44],[96,60,36],[226,180,142],[232,196,96]],library:[[84,104,150],[60,64,88],[200,190,170],[230,196,160],[120,150,200]],smithy:[[96,96,104],[60,44,36],[40,32,28],[214,164,126],[220,110,50]],chapel:[[220,214,200],[120,100,150],[210,200,180],[232,196,160],[228,182,72]]};
+const KROOM={
+ tavern:{name:'The Last Lantern',owner:'Brin',pal:KPAL.tavern,wall:'#6a4a30',floor:'#7a5a3a',accent:'#e8b45a',
+  lines:['Everyone who reaches the keep stops here first. The lantern is kept lit for the ones still on the road.','Eight colleges, one collective. The regulars say it began as a group chat and became a habit.','Pull up a stool. The soup is always the same and always right, which is a design principle.'],
+  item:['A tavern token','Stamped with a lantern. Good for one bowl of soup and one honest opinion.'],ox:112,oy:96,ix:240,iy:128},
+ library:{name:'The archive of unfinished things',owner:'Oriel',pal:KPAL.library,wall:'#4a4e62',floor:'#6a6a76',accent:'#9fb6e0',
+  lines:['Every shelf is a project that did not quite end. A library of those is more honest than a library of finished ones.','Fifty four attempts at P versus NP are filed under N, for Not yet. Most of them ended in no, and the next one starts anyway.','The story of the vector memory that poisoned itself is in the third drawer. Read it before you trust any assistant.'],
+  item:['A reading list','A short list of things worth learning next, in the order they scare him.'],ox:200,oy:118,ix:100,iy:130},
+ smithy:{name:'The star forge',owner:'Gantry',pal:KPAL.smithy,wall:'#4a443e',floor:'#6a645a',accent:'#e8802f',
+  lines:['You learn what a thing is by trying to break it. That is the whole of security, and most of smithing.','I forge. He tests. Between us nothing leaves this rock soft.','Security+, CEH, and a lot of quiet nights in a terminal. It is a long road and I like the look of it.'],
+  item:['A hammered brass key','Still warm. It fits nothing yet, which is the best kind of key.'],ox:210,oy:122,ix:70,iy:128},
+ chapel:{name:'The quiet hall',owner:'Sister Anu',pal:KPAL.chapel,wall:'#8a8470',floor:'#9a9480',accent:'#e8c86a',
+  lines:['Keeping promises is the price of the keeping. It is carved over the door, in case you wondered about the chair.','There is one empty seat at the end of the long table. It is not for a king. It is for whoever finishes.','Come back when you have found everything. The bell has been waiting a long time.'],
+  item:['A candle stub','Lit once for the village, the fish, the far ends of the road and the sky.'],ox:160,oy:100,ix:60,iy:150}};
+for(const k in KROOM)ROOMS[k]=Object.assign({},HOMEKIT,KROOM[k],{furn:[['rug',160,142]]});
+Object.assign(RDEC,{
+ tavern:{wall:'plank',floor:'plank',view:'cloud',w:[['window',0,6],['lantern',0,6],['jars',0,12],['fish',0,8],['map',0,8]],f:[['bar',100,78],['table',240,112],['table',252,152],['barrelb',20,80],['barrelb',32,86],['cat',150,70],['lanternf',304,90]]},
+ library:{wall:'stone',floor:'tile',view:'stars',w:[['window',0,6],['chart',0,6],['scroll',0,8],['clock',0,14],['lantern',0,6]],f:[['bookcase',26,82],['bookcase',58,82],['bookcase',298,86],['lectern',236,112],['globe',270,150],['stool',150,72],['cat',100,166]]},
+ smithy:{wall:'stone',floor:'stone',view:'cloud',w:[['tools',0,6],['window',0,6],['tools',0,6],['hooks',0,8],['lantern',0,6]],f:[['forge',270,82],['anvil',200,124],['toolbox',20,92],['bucket',240,130],['woodpile',302,152],['sack',24,126]]},
+ chapel:{wall:'plaster',floor:'tile',view:'sakura',w:[['scroll',0,6],['window',0,6],['window',0,6],['lantern',0,6],['lantern',0,6],['scroll',0,6]],f:[['altar',160,78],['pew',90,128],['pew',230,128],['pew',90,160],['pew',230,160],['incense',40,92]]}});
+
 // ---- hang them: frames out, art into every gap the wall has ----
 const WBX={window:[-6,56],clock:[-9,18],lantern:[-6,12],bell:[-7,14],calendar:[0,18],tools:[0,42],cogs:[0,30],map:[0,34],jars:[0,38],fish:[0,32],oars:[0,24],chart:[0,36],scroll:[0,16],antlers:[0,28],herbs:[0,30],board:[0,36],pigeon:[0,50],hooks:[0,36],blueprint:[0,32],tapestry:[0,24],mask:[0,14]};
 const ARTPREF={gate:['sun','waves','lilies'],mess:['lilies','sun','waves'],library:['yinyang','moon','hiroshige'],smithy:['waves','hiroshige','moon'],market:['lilies','sun','waves'],tea:['wisteria','lilies','moon'],keepshrine:['yinyang','wisteria','moon'],southwatch:['moon','waves','hiroshige'],mill:['sun','hiroshige','lilies'],workshop:['waves','lilies','moon'],barn:['lilies','wisteria','sun'],desk:['yinyang','wisteria','lilies'],office:['sun','waves','lilies'],sen:['hiroshige','wisteria','waves'],boathouse:['hiroshige','waves','moon'],bridge:['moon','waves','sun'],lookout:['moon','sun','wisteria'],hermit:['wisteria','yinyang','moon'],keep:['sun','moon','waves'],shrine:['yinyang','sun','wisteria'],post:['lilies','hiroshige','sun'],pagoda:['yinyang','wisteria','sun'],dome:['moon','hiroshige','waves']};
@@ -766,3 +807,6 @@ for(const id in ROOMS){
  cv.addEventListener('pointerdown',e=>{if(!ROOM)return;const h=at(e);if(!h)return;e.stopImmediatePropagation();
   const c=ARTINFO[h[4]];RMGOAL=null;RMTALK=0;$('rmcard').innerHTML='<span class="who">'+c[0]+'</span>'+c[1];$('rmhint').textContent='Painted in the manner of the old koi prints.'},true);
  cv.addEventListener('pointermove',e=>{cv.style.cursor=ROOM&&at(e)?'pointer':''})}
+
+// the doors of the kingdom
+if(typeof KINGDOM!=='undefined')for(const id of['tavern','library','smithy','chapel'])DOORS.push({id,house:KINGDOM[id],off:[-0.41,1.5],room:id});

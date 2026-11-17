@@ -136,6 +136,20 @@ function bamboo(seed){const key='bam'+seed;if(SPR[key])return SPR[key];
 function postbox(){if(SPR.pb)return SPR.pb;const c=mk(16,30),x=c.getContext('2d');
  cyl(x,8,24,5,2,18,[[232,74,58],[196,52,42],[142,34,30]],[240,96,74]);px(x,5,10,'#1a1412',6,1);px(x,7,14,rgb([250,236,200]),3,3);px(x,8,13,rgb([250,236,200]),1,5);px(x,3,24,rgb([60,40,32]),10,2);
  return SPR.pb={c,ox:8,oy:24,sh:[0,1,6,2]}}
+
+// ---- small additions: somewhere to sit under the cherry, and something to wind on the observatory plaza
+function picnic(){if(SPR.pic)return SPR.pic;const c=mk(46,30),x=c.getContext('2d');
+ para(x,[6,12],[24,12],[-12,6],(s,t)=>((Math.floor(s*6)+Math.floor(t*4))&1)?rgb([226,92,96]):rgb([248,236,226]));
+ para(x,[6,15],[24,12],[-12,6],()=>rgb([150,52,56]));para(x,[6,12],[24,12],[-12,6],(s,t)=>((Math.floor(s*6)+Math.floor(t*4))&1)?rgb([226,92,96]):rgb([248,236,226]));
+ cyl(x,22,16,3,1,4,[[236,232,224],[250,248,240],[190,186,176]],[250,248,240],null);px(x,26,13,rgb([236,232,224]),3,1);
+ for(const[X,Y,col]of[[15,19,[255,214,160]],[28,17,[255,176,196]],[20,21,[200,230,160]]])px(x,X,Y,rgb(col),3,2);
+ return SPR.pic={c,ox:23,oy:20,sh:[0,1,14,4]}}
+function orrery(){if(SPR.orr)return SPR.orr;const c=mk(46,62),x=c.getContext('2d'),cx=23;
+ cyl(x,cx,56,10,4,8,[[176,172,164],[210,206,198],[130,126,120]],[220,216,206],null);
+ px(x,cx-1,22,rgb([150,110,52]),2,28);
+ for(const[r,col]of[[18,[222,182,92]],[13,[196,150,70]],[8,[240,206,120]]]){for(let a=0;a<64;a++){const t=a/64*6.283;px(x,Math.round(cx+Math.cos(t)*r),Math.round(26+Math.sin(t)*r*.5),rgb(col))}}
+ disc(x,cx,26,3,3,rgb([255,236,170]));disc(x,cx+13,22,2,2,rgb([120,170,230]));disc(x,cx-8,30,2,2,rgb([230,120,100]));disc(x,cx+4,34,1,1,rgb([200,200,210]));
+ return SPR.orr={c,ox:cx,oy:56,sh:[0,2,11,4],gl:[[cx,26,18]]}}
 // a floating rock with a tree or a shrine on it, drifting in the gap between the isles
 function rockIslet(seed,kind){const key='isl'+seed+kind;if(SPR[key])return SPR[key];
  const c=mk(120,150),x=c.getContext('2d'),cx=60,top=76,R=34,ah=17;
@@ -375,7 +389,7 @@ function buildB(c){
   if(p<.12)put(fi,fj,fern('g',seed),4);else if(p<.2)put(fi,fj,RS(3+Math.floor(hh(i,j+s)*5),2+Math.floor(hh(j,i+s)*2),RK,i+j),0);else if(p<.23)put(fi,fj,stump(seed%3),0)}
  put(96.4,38.6,deer(0),0);put(99.2,39.6,deer(1),0);put(98.0,40.8,deer(2),0);put(108.0,23.2,deer(1),0);put(109.6,24.0,deer(2),0);
  // the landmarks
- put(93.8,25.6,oak('g',18,2,'cherry'),1,.05);put(111,17,pagoda(),2,.05);put(91.5,33,teahouse(),2,.05);
+ put(97.6,29.9,picnic(),0); put(93.8,25.6,oak('g',18,2,'cherry'),1,.05);put(111,17,pagoda(),2,.05);put(91.5,33,teahouse(),2,.05);
  put(85.8,19.6,torii(0),2,.05);put(104.3,40.2,torii(1),2,.05);
  // the tea garden on the open south lawn: a tsukubai with a bamboo ladle, two flat mossy
  // stones as the path to the door, and two autumn bushes holding the corners of the bed
@@ -444,7 +458,7 @@ function buildC(c){
  put(133.4,25.2,observatory(),2,.06);
  put(139.0,31.0,dish(),2,.06);
  put(136.4,31.4,signalMast(),2,.06);
- put(129.8,23.4,tripod(),0);
+ put(129.8,23.4,tripod(),0); put(130.4,29.0,orrery(),0);
  // a ring of standing stones round the back of the rock
  for(let q=0;q<7;q++){const an=q/7*6.283;put(129.7+Math.cos(an)*2.35,34.7+Math.sin(an)*1.85,standingStone(q%3),0)}
  put(135.2,35.6,bench(1),0);put(127.6,27.0,bench(0),0);
