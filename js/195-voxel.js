@@ -389,7 +389,7 @@ function ropeBridge(p,alongB){
   for(let w=-1;w<=1;w++)putAt(A+(alongB?w:0),Y,B+(alongB?0:w),BL.PLANK);          // a three-plank-wide deck
   if(k%4===0)for(const w of[-2,2]){                                                   // rail posts on both sides
    const x=A+(alongB?w:0),z=B+(alongB?0:w);
-   putAt(x,Y+1,z,BL.WOOD);putAt(x,Y+2,z,BL.WOOD);putAt(x,Y+3,z,BL.WOOD)}
+   putAt(x,Y+1,z,BL.WOOD);putAt(x,Y+2,z,BL.WOOD)}
   if(k%5===1)for(const w of[-2,2]){                                                   // the rope strands between them
    putAt(A+(alongB?w:0),Y+2,B+(alongB?0:w),BL.WOOD)}
   if(k%9===0){                                                                         // a support pillar into the cloud
@@ -833,10 +833,14 @@ function buildTrees(root){
  return TREES.length}
 
 function plantTrees(){
- const ZF=G('ZONE'),EDAF=G('EDA');let n=0;
+ const ZF=G('ZONE'),EDAF=G('EDA'),PD=G('pathD'),RD=G('roadD');let n=0;
  for(let a=X0;a<=X1;a++)for(let b=Z0;b<=Z1;b++){
   const ci=CI(a,b);if(!KEY[ci]||LAKE[ci]||RES[ci])continue;
   const bio=BIO[ci],K=KEY[ci];
+  // the walked lanes stay clear - a tree never grows across a path
+  const pd=PD?PD(a+.5,b+.5):9,rd=RD?RD(a+.5,b+.5):9;
+  if(pd<2.7||rd<2.1)continue;
+  if(K===1&&Math.hypot(a-22,b-18)<9)continue;
   let d=bio===3?.5:bio===2?.44:bio===4?.24:bio===5?.2:.4;
   if(K===1&&ZF){const z=ZF(a+.5,b+.5);
    if(z==='field'||z==='orchard'||z==='river')continue;
@@ -847,8 +851,9 @@ function plantTrees(){
   if(K===5){const EDE=G('EDE'),RD=G('roadD');
    const e=EDE?EDE(a+.5,b+.5):9;d=e<2.8?.46:.1;
    if(RD&&RD(a+.5,b+.5)<4)d*=.12}
+  if(K===1)d*=.60;
   if(d<.015)continue;
-  for(let q=0;q<2;q++){
+  for(let q=0;q<(K===1?1:2);q++){
   if(h2(a*13+q*7+5,b*17+q*3+3)>d)continue;
   const ax=a+Math.round((h2(a*3+q,b*5+q*5)-.5)*1.6),az=b+Math.round((h2(a*7+q*3,b*3+q)-.5)*1.6);
   if(!inb(ax,az))continue;const c2=CI(ax,az);
@@ -1843,7 +1848,7 @@ function enterPlay(){
  if(!AV.user||G('MODE')==='start'||(PP&&Math.hypot(PP.a-AV.user.a,PP.b-AV.user.b)>3))AV.user=avatarSpawn();
  if(AV.user){AV.a=AV.user.a;AV.b=AV.user.b;AV.goal=null}
  AV.visible=true;PLAYMODE=true;lastInput=performance.now();
- tRad=58;tEl=clamp(tEl,.4,.62);tcx=AV.a;tcz=AV.b;AV.scale.setScalar(1.05);
+ tRad=21;tEl=.24;tcx=AV.a;tcz=AV.b;AV.scale.setScalar(1.05);
  try{(0,eval)('GOAL=null;SPECTATE=0;if(typeof KEYS!=="undefined")for(const k in KEYS)KEYS[k]=0')}catch(e){}}
 function avatarStep(dt){
  if(!AV||!PLAYMODE)return;
@@ -1865,6 +1870,9 @@ function avatarStep(dt){
  AV.userData.head.position.y=4.12+(L>.001?Math.abs(Math.sin(U.walk))*.07:Math.sin(T*1.7)*.03);
  AV.userData.cape.rotation.x=-.09+(L>.001?Math.sin(U.walk*.5)*.16:Math.sin(T*1.5)*.05);
  tcx=U.a;tcz=U.b;
+ if(U.goal&&L>.001&&performance.now()-lastInput>1200){
+  const want=-U.dir-Math.PI/2;
+  tAz+=Math.atan2(Math.sin(want-tAz),Math.cos(want-tAz))*Math.min(1,dt*1.4)}
  try{const P=G('PL')&&G('PL').P;if(P){P.a=U.a;P.b=U.b;P.hid=0;P.mvg=L>.001?1:0;
    const CF=G('CF');if(CF&&CF.length===2){CF[0]=U.a;CF[1]=U.b}}}catch(e){}}
 function airships(){
@@ -1885,7 +1893,8 @@ function airshipStep(dt){
  for(let i=0;i<AVSHIP.length;i++){const g=AVSHIP[i];g.position.y=(i?38:32)+Math.sin(T*.45+i*2)*1.3;g.rotation.y=Math.sin(T*.16+i)*.14}}
 // ---------- camera: orbit, pan, pinch, damping, idle drift ----------
 function camUpdate(dt){const k=dt?1-Math.exp(-dt*9):1;az+=(tAz-az)*k;el+=(tEl-el)*k;rad+=(tRad-rad)*k;cx+=(tcx-cx)*k;cz+=(tcz-cz)*k;
- const ce=Math.cos(el);camera.position.set(cx+rad*ce*Math.cos(az),rad*Math.sin(el),cz+rad*ce*Math.sin(az));camera.lookAt(cx,0,cz)}
+ const hy=PLAYMODE?3.5:0,ce=Math.cos(el);
+ camera.position.set(cx+rad*ce*Math.cos(az),hy+rad*Math.sin(el),cz+rad*ce*Math.sin(az));camera.lookAt(cx,hy,cz)}
 function resize(){if(!renderer)return;renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
 let last=0,ema=.016,frames=0,pr=1;
 function update(dt){T+=dt;U.uTime.value=T;
@@ -1907,11 +1916,11 @@ function bindPointer(cv){
    const hits=rc.intersectObjects(WROOT.children,true);
    if(hits.length&&walkable3(hits[0].point.x,hits[0].point.z))AV.user.goal=[hits[0].point.x,hits[0].point.z]}});
  cv.addEventListener('pointermove',e=>{const p=ps.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;lastInput=performance.now();
-  if(ps.size===2){const d=pd();if(pinch>0)tRad=clamp(tRad*pinch/d,30,260);pinch=d;return}
+  if(ps.size===2){const d=pd();if(pinch>0)tRad=clamp(tRad*pinch/d,PLAYMODE?10:30,PLAYMODE?80:260);pinch=d;return}
   if((e.buttons&6)||e.shiftKey){const s=rad*.0017;tcx=clamp(tcx-Math.sin(tAz)*dx*s-Math.cos(tAz)*dy*s,-10,190);tcz=clamp(tcz+Math.cos(tAz)*dx*s-Math.sin(tAz)*dy*s,-14,120)}
   else{tAz-=dx*.008;tEl=clamp(tEl+dy*.006,.12,1.3)}});
  const up=e=>{ps.delete(e.pointerId);pinch=0};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
- cv.addEventListener('wheel',e=>{e.preventDefault();lastInput=performance.now();tRad=clamp(tRad*Math.exp(e.deltaY*.0011),30,260)},{passive:false});
+ cv.addEventListener('wheel',e=>{e.preventDefault();lastInput=performance.now();tRad=clamp(tRad*Math.exp(e.deltaY*.0011),PLAYMODE?10:30,PLAYMODE?80:260)},{passive:false});
  cv.addEventListener('dblclick',()=>{tAz=az+Math.atan2(Math.sin(Math.PI/4-az),Math.cos(Math.PI/4-az));tEl=.55;tRad=174;tcx=104;tcz=56;lastInput=performance.now()})}
 
 // ---------- show / hide / start-screen wiring (unchanged behaviour) ----------
