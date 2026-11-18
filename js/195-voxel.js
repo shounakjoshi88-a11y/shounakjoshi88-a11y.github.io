@@ -1826,14 +1826,23 @@ function buildAvatar(){
  B(.18,.18,.12,eye,-.3,4.16,.63);B(.18,.18,.12,eye,.3,4.16,.63);
  B(1.6,.4,1.12,scarf,0,3.38,0);
  const cape=B(1.5,1.55,.18,scarf,0,2.6,-.62);cape.rotation.x=-.09;
- g.userData={aL,aR,lL,lR,head,cape};g.visible=false;scene.add(g);return g}function walkable3(a,b){
+ g.userData={aL,aR,lL,lR,head,cape};g.visible=false;scene.add(g);return g}// the surface the character stands on: solid ground, or a bridge plank
+function surfaceY(x,z){
+ const t=colTop(x,z);if(t!==null)return[t,false];
+ for(let k=-10;k<=8;k++)if(VOX[VI(x,k,z)]===BL.PLANK)return[k,true];
+ return[null,false]}
+function walkable3(a,b){
  const x=Math.round(a),z=Math.round(b);if(!inb(x,z))return false;
- const t=colTop(x,z);let bridge=false;
- if(t===null){
-  for(let k=-10;k<=8;k++){const id=VOX[VI(x,k,z)];if(id===BL.PLANK){bridge=true;break}}
-  if(!bridge)return false}
+ const S=surfaceY(x,z),t=S[0],bridge=S[1];if(t===null)return false;
+ // a step up is one block; a drop of more than two is a cliff, not a step
+ const U=AV&&AV.user;
+ if(U){const h=surfaceY(Math.round(U.a),Math.round(U.b))[0];
+  if(h!==null&&!bridge&&(t-h>1||h-t>2))return false}
+ // nothing solid where the character's body would be (props are not voxels)
+ for(let y=t+1;y<=t+3;y++){const id=VOX[VI(x,y,z)];
+  if(id&&id!==BL.FIRE&&id!==BL.WATER&&id!==BL.PLANK)return false}
  const WDf=G('WD');if(!bridge&&WDf&&WDf(a,b)>.3)return false;
- const BLK=G('blocked');if(BLK&&BLK(a,b))return false;
+ // 2D sprite solids are decorative here: pebbles, flowers and stumps never block walking
  return true}
 function avatarSpawn(){
  const P=G('PL')&&G('PL').P;let a=P?P.a:31.5,b=P?P.b:31.5;
@@ -1848,7 +1857,8 @@ function enterPlay(){
  if(!AV.user||G('MODE')==='start'||(PP&&Math.hypot(PP.a-AV.user.a,PP.b-AV.user.b)>3))AV.user=avatarSpawn();
  if(AV.user){AV.a=AV.user.a;AV.b=AV.user.b;AV.goal=null}
  AV.visible=true;PLAYMODE=true;lastInput=performance.now();
- tRad=21;tEl=.24;tcx=AV.a;tcz=AV.b;AV.scale.setScalar(1.05);
+ tRad=21;tEl=.24;tcx=AV.a;tcz=AV.b;AV.scale.setScalar(.78);
+ AV.user.dir=-az-Math.PI/2;AV.rotation.y=AV.user.dir;
  try{(0,eval)('GOAL=null;SPECTATE=0;if(typeof KEYS!=="undefined")for(const k in KEYS)KEYS[k]=0')}catch(e){}}
 function avatarStep(dt){
  if(!AV||!PLAYMODE)return;
@@ -1862,7 +1872,22 @@ function avatarStep(dt){
  if(L>.001){dx/=L;dz/=L;const spd=4.6*dt,nx=U.a+dx*spd,nz=U.b+dz*spd;
   if(walkable3(nx,U.b))U.a=nx;if(walkable3(U.a,nz))U.b=nz;
   U.walk+=dt*10;U.dir=Math.atan2(dx,dz)}
- const y=colTop(Math.round(U.a),Math.round(U.b));AV.position.set(U.a,(y===null?-1:y)+.12,U.b);
+ const S=surfaceY(Math.round(U.a),Math.round(U.b));
+ const target=(S[0]===null?-1:S[0])+.12;
+ if(U.gy===undefined){U.gy=target;U.lastY=target;U.stepT=1;U.stepImp=0}
+ const rise=target-U.lastY;
+ if(Math.abs(rise)>.3){U.stepT=0;U.stepImp=rise>0?.42:-.22}
+ U.lastY=target;
+ U.gy+=(target-U.gy)*Math.min(1,dt*11);
+ if(U.stepT<1){U.stepT=Math.min(1,U.stepT+dt*4.4);U.stepImp*=Math.exp(-dt*6)}
+ let hop=0;
+ if(U.stepT<1)hop=Math.sin(U.stepT*Math.PI)*U.stepImp;
+ // a small jump, with gravity and a landing squash
+ if(AVKEYS[' ']&&!U.jump&&L<=.001){U.jump=1;U.jt=0}
+ if(U.jump){U.jt+=dt;const p=U.jt/.52;
+  if(p>=1){U.jump=0;U.jt=0}else hop+=Math.sin(p*Math.PI)*1.7}
+ AV.position.set(U.a,U.gy+hop,U.b);
+ AV.rotation.x=hop*.045;
  AV.rotation.y+=Math.atan2(Math.sin(U.dir-AV.rotation.y),Math.cos(U.dir-AV.rotation.y))*Math.min(1,dt*10);
  const sw=L>.001?Math.sin(U.walk)*.62:0;
  AV.userData.lL.rotation.x=sw;AV.userData.lR.rotation.x=-sw;
@@ -1870,7 +1895,7 @@ function avatarStep(dt){
  AV.userData.head.position.y=4.12+(L>.001?Math.abs(Math.sin(U.walk))*.07:Math.sin(T*1.7)*.03);
  AV.userData.cape.rotation.x=-.09+(L>.001?Math.sin(U.walk*.5)*.16:Math.sin(T*1.5)*.05);
  tcx=U.a;tcz=U.b;
- if(U.goal&&L>.001&&performance.now()-lastInput>1200){
+ if((U.goal||f||r)&&L>.001&&performance.now()-lastInput>1200){
   const want=-U.dir-Math.PI/2;
   tAz+=Math.atan2(Math.sin(want-tAz),Math.cos(want-tAz))*Math.min(1,dt*1.4)}
  try{const P=G('PL')&&G('PL').P;if(P){P.a=U.a;P.b=U.b;P.hid=0;P.mvg=L>.001?1:0;
@@ -1914,7 +1939,8 @@ function bindPointer(cv){
  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ps.set(e.pointerId,{x:e.clientX,y:e.clientY});lastInput=performance.now();if(ps.size===2)pinch=pd();
   if(PLAYMODE&&ps.size===1&&AV&&WROOT){const rc=new THREE.Raycaster();rc.setFromCamera({x:(e.clientX/innerWidth)*2-1,y:-(e.clientY/innerHeight)*2+1},camera);
    const hits=rc.intersectObjects(WROOT.children,true);
-   if(hits.length&&walkable3(hits[0].point.x,hits[0].point.z))AV.user.goal=[hits[0].point.x,hits[0].point.z]}});
+   const hit=hits.find(h=>!/^(prop_|tree_)/.test(h.object.name))||hits[0];
+  if(hit&&walkable3(hit.point.x,hit.point.z))AV.user.goal=[hit.point.x,hit.point.z]}});
  cv.addEventListener('pointermove',e=>{const p=ps.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;lastInput=performance.now();
   if(ps.size===2){const d=pd();if(pinch>0)tRad=clamp(tRad*pinch/d,PLAYMODE?10:30,PLAYMODE?80:260);pinch=d;return}
   if((e.buttons&6)||e.shiftKey){const s=rad*.0017;tcx=clamp(tcx-Math.sin(tAz)*dx*s-Math.cos(tAz)*dy*s,-10,190);tcz=clamp(tcz+Math.cos(tAz)*dx*s-Math.sin(tAz)*dy*s,-14,120)}
@@ -1985,7 +2011,7 @@ addEventListener('keydown',e=>{
  if(e.target&&e.target.closest&&e.target.closest('input,textarea,select'))return;
  const k=e.key.toLowerCase();
  if(k==='escape'&&overlay&&overlay.style.display!=='none'){e.preventDefault();e.stopImmediatePropagation();window.__voxel();return}
- if(k.length===1&&'wasd'.indexOf(k)>=0||k.indexOf('arrow')===0){AVKEYS[k]=1;e.preventDefault();e.stopImmediatePropagation()}
+ if(k.length===1&&'wasd'.indexOf(k)>=0||k===' '||k.indexOf('arrow')===0){AVKEYS[k]=1;e.preventDefault();e.stopImmediatePropagation()}
 },true);
 addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(AVKEYS[k]!==undefined)AVKEYS[k]=0},true);
 window.__voxel=function(){
