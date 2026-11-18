@@ -115,7 +115,7 @@ def('CROP_G','cropG');def('CROP_Y','cropY');def('CROP_O','cropO');def('SUNFLOWER
 const NB=BL;
 
 // ---------- the voxel volume ----------
-const X0=-8,Z0=-10,X1=184,Z1=116,Y0=-46,Y1=48;
+const X0=-88,Z0=-100,X1=272,Z1=212,Y0=-46,Y1=48;
 const SX=X1-X0+1,SY=Y1-Y0+1,SZ=Z1-Z0+1,SXZ=SX*SZ;
 const VOX=new Uint8Array(SX*SY*SZ);
 const VI=(x,y,z)=>(y-Y0)*SXZ+(z-Z0)*SX+(x-X0);
@@ -137,6 +137,202 @@ function islandKey(a,b){
 const DS={1:1,2:.84,3:.78,4:.8,5:.68},CEN={1:0,2:75,3:106,4:40,5:71},HW={1:46,2:34,3:19,4:20,5:48};
 const TOPB=[0,BL.GRASS,BL.GRASS_DRY,BL.SNOW,BL.PETAL,BL.MOSS];
 let BIOME_REPORT='';
+
+// ============================================================
+//  THE OUTER ARCHIPELAGO
+//  The 2D map is the story. This is the country it sits in: nine
+//  unpeopled rocks a bridge-walk apart, so the horizon is land
+//  instead of haze.
+// ============================================================
+const OUTER=[
+ {x:-52,z:-46,rx:34,rz:26,bio:1,hill:9 ,top:1,sd:3.1 ,kind:'lighthouse'},
+ {x: 52,z:-70,rx:30,rz:22,bio:3,hill:13,top:2,sd:7.7 ,kind:'stonecircle'},
+ {x:176,z:-56,rx:36,rz:28,bio:2,hill:7 ,top:0,sd:11.2,kind:'hamlet'},
+ {x:238,z: 40,rx:30,rz:34,bio:1,hill:11,top:1,sd:15.5,kind:'tower'},
+ {x:232,z:152,rx:34,rz:26,bio:4,hill:6 ,top:0,sd:19.3,kind:'grove'},
+ {x:118,z:184,rx:38,rz:24,bio:1,hill:9 ,top:1,sd:23.1,kind:'ruin'},
+ {x:-16,z:182,rx:32,rz:26,bio:5,hill:10,top:1,sd:27.4,kind:'windmill'},
+ {x:-58,z: 96,rx:28,rz:30,bio:2,hill:8 ,top:0,sd:31.8,kind:'torii'},
+ {x: 84,z:-80,rx:26,rz:18,bio:3,hill:12,top:3,sd:35.2,kind:'ice'}
+];
+// how far inside an outer island a cell is: <1 is land, >=1 is sea
+function outerF(a,b,o){
+ const dx=(a+.5-o.x)/o.rx,dz=(b+.5-o.z)/o.rz,d=Math.sqrt(dx*dx+dz*dz);
+ if(d>1.7)return 9;
+ const an=Math.atan2(dz,dx);
+ const w=1+Math.sin(an*3+o.sd)*.10+Math.sin(an*5+o.sd*2.1)*.07+(vnz(a*.09+o.sd*3,b*.09+o.sd)-.5)*.26;
+ return d/w}
+function outerLandPass(){
+ for(const o of OUTER){
+  const a0=Math.max(X0,Math.floor(o.x-o.rx-2)),a1=Math.min(X1,Math.ceil(o.x+o.rx+2));
+  const b0=Math.max(Z0,Math.floor(o.z-o.rz-2)),b1=Math.min(Z1,Math.ceil(o.z+o.rz+2));
+  for(let a=a0;a<=a1;a++)for(let b=b0;b<=b1;b++){
+   const ci=CI(a,b);if(KEY[ci])continue;
+   const f=outerF(a,b,o);if(f>=1)continue;
+   const dist=Math.max(.6,(1-f)*o.rx*.95);
+   KEY[ci]=7;BIO[ci]=o.bio;DST[ci]=dist;LAKE[ci]=0;
+   const rim=clamp((1-f)/.13,0,1);
+   let h=o.top+Math.round(o.hill*(1-f*f*1.02)+(vnz(a*.07+o.sd,b*.07+o.sd)-.5)*3.2-(1-rim)*6);
+   HT[ci]=h;
+   let top=TOPB[o.bio];
+   if(f>.90)top=BL.SAND;
+   else if(f>.84&&h2(a*5,b*9)>.5)top=BL.GRAVEL;
+   if(o.bio===3&&h2(a*3,b*7)>.72)top=BL.SNOW;
+   const depth=4+15*sm(0,15,dist)+(vnz(a*.35,b*.35)-.5)*5*sm(0,10,dist);
+   const dBot=Math.max(Y0+1,h-Math.round(depth));
+   for(let y=dBot;y<=h;y++){
+    const dd=h-y;let id;
+    if(dd===0)id=top;else if(dd<=2)id=BL.EARTH;
+    else{const band=Math.floor((y+(vnz(a*.03,b*.03)*6|0))/4),m=((band%3)+3)%3;id=m===0?BL.ROCK_A:m===1?BL.ROCK_B:BL.ROCK_C;
+     if(dd<13&&vnz(a*.2+y*.3,b*.2)>.62)id=BL.ROCK_MOSS;else if(h2(a*3+y,b*7)>.94)id=BL.ROCK_B}
+    VOX[VI(a,y,b)]=id}}}
+ // the same hanging vines on the new rims
+ for(const o of OUTER){
+  const a0=Math.max(X0+1,Math.floor(o.x-o.rx-2)),a1=Math.min(X1-1,Math.ceil(o.x+o.rx+2));
+  const b0=Math.max(Z0+1,Math.floor(o.z-o.rz-2)),b1=Math.min(Z1-1,Math.ceil(o.z+o.rz+2));
+  for(let a=a0;a<=a1;a++)for(let b=b0;b<=b1;b++){const ci=CI(a,b);
+   if(KEY[ci]!==7||BIO[ci]===3)continue;
+   if(h2(a*13+1,b*7+5)<.972)continue;
+   for(const[dx,dz]of[[1,0],[-1,0],[0,1],[0,-1]]){if(KEY[CI(a+dx,b+dz)])continue;
+    const L=2+Math.floor(h2(a,b*3)*3),y0=HT[ci]-1;
+    for(let k=0;k<L;k++)putIfEmpty(a+dx,y0-k,b+dz,BL.VINE);break}}}
+}
+// ---------- a landmark on each rock, and long bridges back to the map ----------
+function bridgeDeck(x0,z0,y0,x1,z1,y1){
+ const L=Math.hypot(x1-x0,z1-z0);if(!(L>4&&L<170))return;
+ const N=Math.ceil(L*1.9),sag=clamp(L*.06,2,8);
+ const alongB=Math.abs(z1-z0)>Math.abs(x1-x0);
+ const cx=(x0+x1)*.5,cz=(z0+z1)*.5;
+ for(let k=0;k<=N;k++){
+  const t=k/N,A=lerp(x0,x1,t),B=lerp(z0,z1,t),Y=Math.round(lerp(y0,y1,t)-sag*Math.sin(t*3.14159));
+  for(let w=-1;w<=1;w++)setV(Math.round(A+(alongB?w:0)),Y,Math.round(B+(alongB?0:w)),BL.PLANK);
+  // a continuous hand rope on both sides, hung from a post every six planks
+  for(const w of[-2,2]){
+   const x=Math.round(A+(alongB?w:0)),z=Math.round(B+(alongB?0:w));
+   setV(x,Y+2,z,BL.WOOD);
+   if(k%6===0){setV(x,Y+1,z,BL.WOOD);setV(x,Y,z,BL.WOOD);setV(x,Y-1,z,BL.WOOD)}
+   if(k%6===3)setV(x,Y+1,z,BL.WOOD)}
+  // a stone pier every long stretch, so the span reads as a viaduct and not a plank
+  if(k>6&&k<N-6&&k%22===11)for(let w=-1;w<=1;w++)for(let dy=-1;dy>-30;dy--){
+   const x=Math.round(A+(alongB?w:0)),z=Math.round(B+(alongB?0:w));
+   setV(x,Y+dy,z,(dy%6===0)?BL.ROCK_B:BL.ROCK_A)}
+ }
+}
+function lighthouseO(ax,az,y){
+ for(let k=0;k<18;k++){
+  const r=(k<13)?(3.7-k*.14):2.1;
+  for(let a=-4;a<=4;a++)for(let b=-4;b<=4;b++){
+   if(Math.hypot(a,b)>r)continue;
+   setV(ax+a,y+k,az+b,(k%5===0)?BL.WALL_TIMBER:BL.WALL_WHITE)}
+  if(k>=13&&k<=16)for(const[a,b]of[[0,-2],[0,2],[-2,0],[2,0]])setV(ax+a,y+k,az+b,BL.WINDOW)}
+ box(ax-3,az-3,ax+3,az+3,y+18,y+18,BL.ROOF_DARK);
+ setV(ax,y+19,az,BL.GOLD);
+ lightAt(ax+.5,y+15,az+.5,34,8,1);
+ reserve(ax-5,az-5,ax+5,az+5);
+ box(ax-5,az+7,ax-5,az+7,y,y,BL.PAVER);
+ house3(ax+8,az+4,'slate',61);
+}
+function ruinO(ax,az,y){
+ for(let i=-2;i<=2;i++){
+  const a=ax+i*4,hgt=3+((i*7+91)%3);
+  for(let k=0;k<hgt;k++)for(let da=-1;da<=1;da++)for(let db=-1;db<=1;db++){
+   if(Math.abs(da)===1&&Math.abs(db)===1)continue;
+   setV(a+da,y+k,az-3+db,(k%2)?BL.ROCK_A:BL.ROCK_B)}
+  if(i<2)for(let d=0;d<4;d++)setV(a+d,y+hgt,az-3,BL.ROCK_A)}
+ for(let k=0;k<16;k++){const a=ax+Math.round((h2(ax+k,az)-.5)*18),b=az+Math.round((h2(az+k,ax+7)-.5)*10);
+  const t=colTop(a,b);if(t!==null)setV(a,t+1,b,(k%3)?BL.ROCK_A:BL.ROCK_MOSS)}
+ box(ax-2,az+3,ax+2,az+3,y,y+1,BL.PAVER);
+ setV(ax,y+2,az+3,BL.GOLD);
+ lightAt(ax+.5,y+3,az+3.5,8,2,0);
+ reserve(ax-8,az-6,ax+8,az+6);
+}
+function toriiO(ax,az,y){
+ const H=9,W=6;
+ for(const sx of[-W,W])for(let k=0;k<H;k++){setV(ax+sx,y+k,az,BL.TORII);setV(ax+sx,y+k,az+1,BL.TORII)}
+ for(let a=ax-W-1;a<=ax+W+1;a++){setV(a,y+H,az,BL.TORII);setV(a,y+H,az+1,BL.TORII_DARK)}
+ for(let a=ax-W+1;a<=ax+W-1;a++)setV(a,y+H-2,az,BL.TORII_DARK);
+ setV(ax-W,y+H+1,az,BL.ROOF_DARK);setV(ax+W,y+H+1,az,BL.ROOF_DARK);
+ lightAt(ax+.5,y+H-2,az+.5,16,4,0);
+ reserve(ax-9,az-5,ax+9,az+5);
+}
+function towerO(ax,az,y){
+ const R=3,H=20;
+ box(ax-R,az-R,ax+R,az+R,y,y,BL.PAVER);
+ for(let k=1;k<=H;k++)for(let a=-R;a<=R;a++)for(let b=-R;b<=R;b++){
+  if(Math.abs(a)!==R&&Math.abs(b)!==R)continue;
+  setV(ax+a,y+k,az+b,(k%7===0)?BL.ROCK_B:BL.ROCK_A)}
+ for(const[a,b]of[[0,-R],[0,R],[-R,0],[R,0]])for(const kk of[5,10,15])setV(ax+a,y+kk,az+b,BL.WINDOW);
+ box(ax-R,az-R,ax+R,az+R,y+H+1,y+H+1,BL.PAVER);
+ for(let a=-R;a<=R;a+=2)for(let b=-R;b<=R;b+=2)setV(ax+a,y+H+2,az+b,BL.ROCK_A);
+ lightAt(ax+.5,y+H,az+.5,34,8,1);
+ reserve(ax-6,az-6,ax+6,az+6);
+}
+function circleO(ax,az,y){
+ for(let i=0;i<11;i++){const an=i/11*6.283,r=9;
+  const a=Math.round(ax+Math.cos(an)*r),b=Math.round(az+Math.sin(an)*r);
+  const t=colTop(a,b);if(t===null)continue;
+  const hgt=2+((i*5)%3);
+  for(let k=1;k<=hgt;k++)setV(a,t+k,b,(k===1)?BL.ROCK_MOSS:BL.ROCK_A)}
+ box(ax-1,az-1,ax+1,az+1,y,y,BL.PAVER);
+ setV(ax,y+1,az,BL.GOLD);
+ lightAt(ax+.5,y+2,az+.5,12,3,0);
+ reserve(ax-11,az-11,ax+11,az+11);
+}
+function groveO(ax,az,y){
+ reserve(ax-15,az-15,ax+15,az+15);
+ for(let i=0;i<18;i++){const an=i/18*6.283,r=7+h2(i*7,3)*5;
+  const a=Math.round(ax+Math.cos(an)*r),b=Math.round(az+Math.sin(an)*r);
+  const t=colTop(a,b);if(t===null)continue;
+  sakura(a,b,t,.9+h2(i,9)*.5)}
+ box(ax-2,az-2,ax+2,az+2,y,y+1,BL.PAVER);
+ for(const sx of[-1,1])for(const sz of[-1,1])setV(ax+sx,y+2,az+sz,BL.TORII);
+ for(let a=ax-3;a<=ax+3;a++)setV(a,y+5,az,BL.ROOF_RED);
+ setV(ax,y+3,az,BL.LANTERN);
+ lightAt(ax+.5,y+4,az+.5,14,4,0);
+}
+function outerBridges(){
+ const want=['ruin','tower','torii'];
+ for(const o of OUTER){
+  if(want.indexOf(o.kind)<0)continue;
+  let best=null,bd=1e9;
+  for(let a=Math.round(o.x-o.rx);a<=Math.round(o.x+o.rx);a++)
+   for(let b=Math.round(o.z-o.rz);b<=Math.round(o.z+o.rz);b++){
+    if(!inb(a,b))continue;if(KEY[CI(a,b)]!==7)continue;
+    const d=Math.hypot(a-88,b-53);if(d<bd){bd=d;best=[a,b]}}
+  if(!best)continue;
+  const dx0=88-best[0],dz0=53-best[1],L=Math.hypot(dx0,dz0);if(L<1)continue;
+  const dx=dx0/L,dz=dz0/L;let mb=null;
+  for(let t=1;t<170;t+=.6){const a=Math.round(best[0]+dx*t),b=Math.round(best[1]+dz*t);
+   if(!inb(a,b))break;
+   if(LAND(a,b)){mb=[a,b];break}}
+  if(!mb)continue;
+  const y0=colTop(best[0],best[1]),y1=colTop(mb[0],mb[1]);
+  if(y0===null||y1===null)continue;
+  bridgeDeck(best[0]+.5,best[1]+.5,y0+1,mb[0]+.5,mb[1]+.5,y1+1)}
+}
+function outerBuilds(){
+ for(const o of OUTER){
+  const ax=Math.round(o.x),az=Math.round(o.z);
+  const st=siteTop(ax-3,az-3,ax+3,az+3);if(!st)continue;
+  const y=st.hi+1;
+  if(o.kind==='lighthouse')lighthouseO(ax,az,y);
+  else if(o.kind==='ruin')ruinO(ax,az,y);
+  else if(o.kind==='torii')toriiO(ax,az,y);
+  else if(o.kind==='tower')towerO(ax,az,y);
+  else if(o.kind==='stonecircle')circleO(ax,az,y);
+  else if(o.kind==='grove')groveO(ax,az,y);
+  else if(o.kind==='hamlet'){
+   reserve(ax-12,az-12,ax+14,az+14);
+   house3(ax-4,az+2,'slate',41);house3(ax+4,az-3,'ochre',43);
+   windmill3(ax+9,az+5);well3(ax,az+7);
+   fenceLine(ax-9,az+8,ax+9,az+8)}
+  else if(o.kind==='windmill'){
+   reserve(ax-10,az-10,ax+10,az+10);
+   windmill3(ax,az);fenceLine(ax-7,az+6,ax+7,az+6);house3(ax-8,az-4,'ochre',47)}
+ }
+ outerBridges();
+}
+
 function buildVoxels(){
  VOX.fill(0);HT.fill(-999);KEY.fill(0);BIO.fill(0);LAKE.fill(0);BED.fill(0);RES.fill(0);OCC.fill(0);TRM.fill(0);
  const RGf=typeof RG==='function'?RG:null,ZONEf=typeof ZONE==='function'?ZONE:null,PATHf=typeof pathD==='function'?pathD:null;
@@ -195,7 +391,8 @@ function buildVoxels(){
  for(let a=X0+1;a<X1;a++)for(let b=Z0+1;b<Z1;b++){const ci=CI(a,b);if(!KEY[ci]||LAKE[ci]||BIO[ci]===3||BIO[ci]===5)continue;
   if(h2(a*13+1,b*7+5)<.972)continue;
   for(const[dx,dz]of[[1,0],[-1,0],[0,1],[0,-1]]){if(LAND(a+dx,b+dz))continue;
-   const L=2+Math.floor(h2(a,b*3)*3),y0=HT[ci]-1;for(let k=0;k<L;k++)putIfEmpty(a+dx,y0-k,b+dz,BL.VINE);break}}}
+   const L=2+Math.floor(h2(a,b*3)*3),y0=HT[ci]-1;for(let k=0;k<L;k++)putIfEmpty(a+dx,y0-k,b+dz,BL.VINE);break}}
+ outerLandPass()}
 // ---------- structures ----------
 function reserve(a0,b0,a1,b1){for(let a=a0;a<=a1;a++)for(let b=b0;b<=b1;b++)if(inb(a,b))RES[CI(a,b)]=1}
 function box(a0,b0,a1,b1,y0,y1,id){for(let a=a0;a<=a1;a++)for(let b=b0;b<=b1;b++)for(let y=y0;y<=y1;y++)setV(a,y,b,id)}
@@ -318,7 +515,7 @@ function buildStructures(){
  toriiGate(104,35,false);toriiGate(25,19,true);
  for(const[a,b]of[[101,33],[101,37],[107,33],[107,37],[95,28],[85,33],[110,30],[116,37],[88,34],[96,36]])stoneLantern(a,b);
  boatSpot(25,25);boatSpot(28,23);boatSpot(113,33)
- villageExtras();castleTown()}
+ villageExtras();castleTown();outerBuilds()}
 
 // ---------- the village's outbuildings, at the 2D map's coordinates ----------
 function villageExtras(){
@@ -836,12 +1033,13 @@ function plantTrees(){
  const ZF=G('ZONE'),EDAF=G('EDA'),PD=G('pathD'),RD=G('roadD');let n=0;
  for(let a=X0;a<=X1;a++)for(let b=Z0;b<=Z1;b++){
   const ci=CI(a,b);if(!KEY[ci]||LAKE[ci]||RES[ci])continue;
-  const bio=BIO[ci],K=KEY[ci];
+  const bio=BIO[ci],K=KEY[ci],outer=K===7;
   // the walked lanes stay clear - a tree never grows across a path
   const pd=PD?PD(a+.5,b+.5):9,rd=RD?RD(a+.5,b+.5):9;
   if(pd<2.7||rd<2.1)continue;
   if(K===1&&Math.hypot(a-22,b-18)<9)continue;
   let d=bio===3?.5:bio===2?.44:bio===4?.24:bio===5?.2:.4;
+  if(outer)d=.155;
   if(K===1&&ZF){const z=ZF(a+.5,b+.5);
    if(z==='field'||z==='orchard'||z==='river')continue;
    if(z==='town')d=.02;else if(z==='woods')d=Math.min(.8,d+.26);else if(z==='meadow')d*=.2;else if(z==='clearing')d*=.3}
@@ -853,7 +1051,7 @@ function plantTrees(){
    if(RD&&RD(a+.5,b+.5)<4)d*=.12}
   if(K===1)d*=.60;
   if(d<.015)continue;
-  for(let q=0;q<(K===1?1:2);q++){
+  for(let q=0;q<((K===1||K===7)?1:2);q++){
   if(h2(a*13+q*7+5,b*17+q*3+3)>d)continue;
   const ax=a+Math.round((h2(a*3+q,b*5+q*5)-.5)*1.6),az=b+Math.round((h2(a*7+q*3,b*3+q)-.5)*1.6);
   if(!inb(ax,az))continue;const c2=CI(ax,az);
@@ -867,7 +1065,8 @@ function plantTrees(){
   let nearR=false;
   for(let dx=-2;dx<=2&&!nearR;dx++)for(let dz=-2;dz<=2;dz++){const x2=ax+dx,z2=az+dz;if(inb(x2,z2)&&RES[CI(x2,z2)]){nearR=true;break}}
   if(nearR)continue;
-  if(!(LAND(ax+1,az)&&LAND(ax-1,az)&&LAND(ax,az+1)&&LAND(ax,az-1)))continue;
+  if(!outer&&!(LAND(ax+1,az)&&LAND(ax-1,az)&&LAND(ax,az+1)&&LAND(ax,az-1)))continue;
+  if(outer&&!(KEY[CI(ax+1,az)]&&KEY[CI(ax-1,az)]&&KEY[CI(ax,az+1)]&&KEY[CI(ax,az-1)]))continue;
   const sz=h2(ax*7,az*13),r=h2(ax+5,az*3+1),b2=BIO[c2];
   if(b2===3)pine(ax,az,top,sz,true);
   else if(b2===5)r<.7?pine(ax,az,top,sz,false):oak(ax,az,top,sz,BL.LEAF_G,BL.LEAF_G2);
@@ -1481,9 +1680,10 @@ function detailScatter(){
   const idv=VOX[VI(a,t,b)];
   if(idv===BL.COBBLE||idv===BL.PAVER||idv===BL.SAND||idv===BL.GRAVEL||idv===BL.PLANK)continue;
   const bio=BIO[ci],r=h2(a*31,b*37+5);
-  const zf=ZF?ZF(a+.5,b+.5):'forest';
+  const zf=(KEY[ci]===7)?'forest':(ZF?ZF(a+.5,b+.5):'forest');
   const townish=(zf==='town');
   let d=bio===3?.16:bio===2?.14:bio===4?.10:.13;
+  if(KEY[ci]===7)d*=.42;
   if(townish)d*=.35;
   if(h2(a*7+3,b*11+9)>d)continue;
   const x=a+.5+(h2(a*5,b*3)-.5)*.6,z=b+.5+(h2(a*3,b*7)-.5)*.6;
@@ -1536,8 +1736,8 @@ function buildScene(){
  sunL.shadow.bias=-.0004;sunL.shadow.normalBias=.85;sunL.target.position.set(86,-4,46);scene.add(sunL,sunL.target);
  sunDir=new THREE.Vector3();PC=PRESETS.map(mkPhase);CUR=mkPhase(PRESETS[0]);setPhase(0,false);stepTime(0,true);
  camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,2,4000);
- az=tAz=.86;el=tEl=.74;rad=260;tRad=178;cx=tcx=88;cz=tcz=62;camUpdate(0);
- console.info('voxel world: '+Math.round(performance.now()-t0)+' ms, '+faces+' quads, '+nt+' trees ('+nTree+' grown), '+nProp+' props, '+nVil+' people, '+nCri+' animals, '+nSky+' sky islets, '+LIGHTS.length+' lamps, '+KOI.length+' koi. '+BIOME_REPORT)}
+ az=tAz=.86;el=tEl=.70;rad=340;tRad=236;cx=tcx=90;cz=tcz=58;camUpdate(0);
+ console.info('voxel world: '+Math.round(performance.now()-t0)+' ms, '+faces+' quads, '+nt+' trees ('+nTree+' grown), '+nProp+' props, '+nVil+' people, '+nCri+' animals, '+nSky+' sky islets, '+OUTER.length+' outer isles, '+LIGHTS.length+' lamps, '+KOI.length+' koi. '+BIOME_REPORT)}
 
 
 
@@ -1592,7 +1792,7 @@ function spawnCritters(root){
  for(let a=X0;a<=X1;a++)for(let b=Z0;b<=Z1;b++){
   const ci=CI(a,b);if(!KEY[ci]||LAKE[ci]||RES[ci])continue;
   if(!grassy(a,b))continue;
-  const zf=ZF?ZF(a+.5,b+.5):'';
+  const zf=(KEY[ci]===7)?'meadow':(ZF?ZF(a+.5,b+.5):'');
   cand.push([a+.5,b+.5,zf])}
  let sd=987654321;const rnd=()=>{sd=(sd*1103515245+12345)&0x7fffffff;return sd/0x7fffffff};
  for(let i=cand.length-1;i>0;i--){const j=(rnd()*(i+1))|0;const t=cand[i];cand[i]=cand[j];cand[j]=t}
@@ -1947,7 +2147,7 @@ function bindPointer(cv){
   else{tAz-=dx*.008;tEl=clamp(tEl+dy*.006,.12,1.3)}});
  const up=e=>{ps.delete(e.pointerId);pinch=0};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
  cv.addEventListener('wheel',e=>{e.preventDefault();lastInput=performance.now();tRad=clamp(tRad*Math.exp(e.deltaY*.0011),PLAYMODE?10:30,PLAYMODE?80:260)},{passive:false});
- cv.addEventListener('dblclick',()=>{tAz=az+Math.atan2(Math.sin(Math.PI/4-az),Math.cos(Math.PI/4-az));tEl=.55;tRad=174;tcx=104;tcz=56;lastInput=performance.now()})}
+ cv.addEventListener('dblclick',()=>{tAz=az+Math.atan2(Math.sin(Math.PI/4-az),Math.cos(Math.PI/4-az));tEl=.55;tRad=200;tcx=104;tcz=56;lastInput=performance.now()})}
 
 // ---------- show / hide / start-screen wiring (unchanged behaviour) ----------
 function show(){
