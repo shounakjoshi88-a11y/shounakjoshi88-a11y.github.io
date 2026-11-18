@@ -303,6 +303,7 @@ function fields(){
   if(h2(a*3,b*7)>.93)for(let k=1;k<=3;k++)setV(a,t+k,b,k===3?BL.SUNFLOWER:BL.WOOD);
   else setV(a,t+1,b,q<.4?BL.CROP_G:q<.7?BL.CROP_Y:BL.CROP_O)}}
 function buildStructures(){
+ roads2d();
  keep();wardWalls();marketSquare();teahouse();dome();rakeGarden();
  bridges();moonMaze();skyDocks();pagodaShrine();orchardRows();meadowLights();
  const town=[[22,4],[28,4],[23,11],[30,11],[23,15],[30,15],[18,26],[10,22],[17,30],[9,29],[12,35]];
@@ -311,15 +312,32 @@ function buildStructures(){
  toriiGate(104,35,false);toriiGate(25,19,true);
  for(const[a,b]of[[101,33],[101,37],[107,33],[107,37],[95,28],[85,33],[110,30],[116,37],[88,34],[96,36]])stoneLantern(a,b);
  boatSpot(25,25);boatSpot(28,23);boatSpot(113,33)}
+// ---------- the 2D world's road network, in stone under our feet ----------
+function roads2d(){
+ const PD=G('pathD'),RD=G('roadD');
+ if(!PD&&!RD)return;
+ for(let a=X0;a<=X1;a++)for(let b=Z0;b<=Z1;b++){
+  const t=colTop(a,b);if(t===null||RES[CI(a,b)]||LAKE[CI(a,b)])continue;
+  const id=VOX[VI(a,t,b)];if(id===BL.WALL_WHITE||id===BL.ROOF_DARK||id===BL.GOLD)continue;
+  const d=Math.min(PD?PD(a,b):9,RD?RD(a,b):9);
+  if(d<.58){setV(a,t,b,d<.18?BL.PAVER:BL.COBBLE);RES[CI(a,b)]=1}}}
 // ---------- landmarks from the 2D map: rope bridges, the moon maze, the sky docks, orchard, pagoda ----------
 function ropeBridge(p,alongB){
- if(!p)return;const a0=p.a0,a1=(alongB?p.a0:p.a1),b0=(alongB?p.b0:p.b),b1=(alongB?p.b1:p.b);
- const t0=colTop(Math.round(a0),Math.round(b0)),t1=colTop(Math.round(a1),Math.round(b1));
- const y0=(t0===null?0:t0)+1,y1=(t1===null?0:t1)+1,sag=clamp((p.sag||6)/6,.7,2.4);
- const N=Math.ceil(Math.hypot(a1-a0,b1-b0)*1.6);
- for(let k=0;k<=N;k++){const t=k/N,A=lerp(a0,a1,t),B=lerp(b0,b1,t),Y=Math.round(lerp(y0,y1,t)-sag*Math.sin(t*3.14159));
-  setV(Math.round(A),Y,Math.round(B),BL.PLANK);
-  if(k%5===0){setV(Math.round(A),Y+1,Math.round(B),BL.WOOD);setV(Math.round(A),Y+2,Math.round(B),BL.WOOD)}}
+ if(!p)return;const A0=p.a0,A1=(alongB?p.a0:p.a1),B0=(alongB?p.b0:p.b),B1=(alongB?p.b1:p.b);
+ const t0=colTop(Math.round(A0),Math.round(B0)),t1=colTop(Math.round(A1),Math.round(B1));
+ const y0=(t0===null?0:t0)+1,y1=(t1===null?0:t1)+1,sag=clamp((p.sag||6)/6,1,2.6);
+ const N=Math.ceil(Math.hypot(A1-A0,B1-B0)*1.8);
+ const putAt=(x,y,z,id)=>setV(Math.round(x),Math.round(y),Math.round(z),id);
+ for(let k=0;k<=N;k++){const t=k/N,A=lerp(A0,A1,t),B=lerp(B0,B1,t),Y=Math.round(lerp(y0,y1,t)-sag*Math.sin(t*3.14159));
+  for(let w=-1;w<=1;w++)putAt(A+(alongB?w:0),Y,B+(alongB?0:w),BL.PLANK);          // a three-plank-wide deck
+  if(k%4===0)for(const w of[-2,2]){                                                   // rail posts on both sides
+   const x=A+(alongB?w:0),z=B+(alongB?0:w);
+   putAt(x,Y+1,z,BL.WOOD);putAt(x,Y+2,z,BL.WOOD);putAt(x,Y+3,z,BL.WOOD)}
+  if(k%5===1)for(const w of[-2,2]){                                                   // the rope strands between them
+   putAt(A+(alongB?w:0),Y+2,B+(alongB?0:w),BL.WOOD)}
+  if(k%9===0){                                                                         // a support pillar into the cloud
+   putAt(A,Y-1,B,BL.WOOD);putAt(A,Y-2,B,BL.WOOD);
+   for(let d=3;d<=7;d++)putAt(A,Y-d,B,d%2?BL.ROCK_A:BL.ROCK_B)}}
 }
 function bridges(){
  const GG=n=>G(n);
@@ -381,12 +399,12 @@ function blob(cx,cy,cz,rx,ry,rz,pick,seed){
   if(d<1+(h2(cx+dx*3+seed,cy*7+dz*5)-.5)*.42)putIfEmpty(cx+dx,cy+dy,cz+dz,pick(dy/ry,h2(cx+dx*5+seed,dz*3+dy*7)))}}
 function trunk(ax,az,y0,y1){for(let y=y0;y<=y1;y++)setV(ax,y,az,BL.WOOD)}
 function oak(ax,az,top,s,A,B,list){
- const h=3+(s*3|0),R=2.5+s*1.4,cy=top+h+2;trunk(ax,az,top+1,top+h+1);
+ const h=6+(s*4|0),R=3+s*1.7,cy=top+h+3;trunk(ax,az,top+1,top+h+1);
  const pk=(t,r)=>r<.18+(t+1)*.3?B:A;
  blob(ax,cy,az,R,R*.78,R,pk,1);blob(ax+2,cy-1,az+1,R*.7,R*.6,R*.7,pk,2);blob(ax-2,cy-1,az-1,R*.7,R*.6,R*.7,pk,3);blob(ax,cy+2,az,R*.62,R*.6,R*.62,pk,4);
  if(list)list.push([ax+.5,cy+1,az+.5])}
 function sakura(ax,az,top,s){
- const h=4+(s*2|0),lx=Math.round((s-.5)*2),lz=Math.round((h2(ax,az)-.5)*2);
+ const h=7+(s*3|0),lx=Math.round((s-.5)*2),lz=Math.round((h2(ax,az)-.5)*2);
  trunk(ax,az,top+1,top+2);for(let y=top+3;y<=top+h;y++)setV(ax+(y>top+3?lx:0),y,az+(y>top+3?lz:0),BL.WOOD);
  const cx=ax+lx,cz=az+lz,cy=top+h+2;
  const pk=(t,r)=>r<.3+(t+1)*.28?BL.LEAF_PINK2:BL.LEAF_PINK;
@@ -394,13 +412,13 @@ function sakura(ax,az,top,s){
  for(let i=0;i<8;i++){const dx=Math.round((h2(cx+i,cz)-.5)*7),dz=Math.round((h2(cx,cz+i)-.5)*7);if(Math.hypot(dx,dz)>2.5)putIfEmpty(cx+dx,cy-3,cz+dz,BL.LEAF_PINK)}
  SAKURA.push([cx+.5,cy+2,cz+.5])}
 function maple(ax,az,top,s){
- const h=3+(s*2|0),R=2.4+s*1.2,cy=top+h+2;trunk(ax,az,top+1,top+h+1);
+ const h=6+(s*3|0),R=2.9+s*1.5,cy=top+h+3;trunk(ax,az,top+1,top+h+1);
  const pk=(t,r)=>{const q=vnz(ax*.7+r*3,az*.7+t*2);return q<.35?BL.LEAF_RED:q<.72?BL.LEAF_ORANGE:BL.LEAF_YELLOW};
  blob(ax,cy,az,R,R*.8,R,pk,1);blob(ax+2,cy-1,az-1,R*.65,R*.6,R*.65,pk,2);blob(ax-2,cy-1,az+1,R*.65,R*.6,R*.65,pk,3);blob(ax,cy+2,az,R*.6,R*.6,R*.6,pk,4);
  MAPLES.push([ax+.5,cy+1,az+.5])}
 function pine(ax,az,top,s,snowy){
- const H=7+(s*5|0),cells=[];trunk(ax,az,top+1,top+3);
- for(let k=0;k<H;k++){const y=top+3+k,r=Math.max(0,Math.round(3.4*(1-k/H)*(k%3===2?.55:1)));
+ const H=13+(s*6|0),cells=[];trunk(ax,az,top+1,top+4);
+ for(let k=0;k<H;k++){const y=top+4+k,r=Math.max(0,Math.round(4.2*(1-k/H)*(k%3===2?.6:1)));
   for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++)if(dx*dx+dz*dz<=r*r+.5){putIfEmpty(ax+dx,y,az+dz,h2(ax+dx*3,az+dz+y)>.86?BL.LEAF_G:BL.LEAF_DARK);if(r>=1)cells.push([ax+dx,y,az+dz])}}
  putIfEmpty(ax,top+3+H,az,BL.LEAF_DARK);
  if(snowy){for(const[x,y,z]of cells){if(!VOX[VI(x,y+1,z)]&&h2(x*7+y,z*3)>.3)setV(x,y+1,z,BL.SNOW)}putIfEmpty(ax,top+4+H,az,BL.SNOW);SNOWC.push([ax,az])}}
@@ -778,28 +796,41 @@ function buildScene(){
 let AV=null,PLAYMODE=false,AVKEYS={},AVSHIP=[],WROOT=null;
 function mat(c){return new THREE.MeshLambertMaterial({color:c})}
 function buildAvatar(){
- const g=new THREE.Group(),skin=mat(0xd8a878),hair=mat(0x34261c),shirt=mat(0x397a95),pants=mat(0x3d4356),shoe=mat(0x241c16),hair2=mat(0x4a3524);
+ const g=new THREE.Group();
+ const skin=mat(0xe0ad86),hair=mat(0x4a2f22),shirt=mat(0x2c7f8c),trim=mat(0x1d5a68),
+  pants=mat(0x4a4038),boot=mat(0x2b211a),scarf=mat(0xc0432f),steel=mat(0xc4ccd4),gold=mat(0xe4b44c),eye=mat(0x201a18);
  const B=(w,h,d,m,x,y,z)=>{const q=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);q.position.set(x,y,z);q.castShadow=true;g.add(q);return q};
- const head=B(1.15,1.15,1.1,skin,0,3.15,0);
- B(1.25,.34,1.2,hair,0,3.78,0);B(.28,.22,.16,hair2,-.3,3.14,.57);B(.28,.22,.16,hair2,.3,3.14,.57);
- B(1.3,1.45,.9,shirt,0,2,0);B(1.32,.2,.94,mat(0x27566d),0,1.35,0);
- const aL=B(.36,1.15,.42,shirt,-.86,2.05,0),aR=B(.36,1.15,.42,shirt,.86,2.05,0);
- B(.32,.3,.4,skin,-.86,1.4,0);B(.32,.3,.4,skin,.86,1.4,0);
- const lL=B(.48,1.1,.52,pants,-.34,.78,0),lR=B(.48,1.1,.52,pants,.34,.78,0);
- B(.54,.3,.72,shoe,-.34,.13,.11);B(.54,.3,.72,shoe,.34,.13,.11);
- B(.5,.5,.16,mat(0xd9b46a),0,2.35,.49);                        // the star on the chest
- g.userData={aL,aR,lL,lR,head};g.visible=false;scene.add(g);return g}
-function walkable3(a,b){
- if(!inb(Math.round(a),Math.round(b)))return false;
- const t=colTop(Math.round(a),Math.round(b));if(t===null)return false;
- const WDf=G('WD');if(WDf&&WDf(a,b)>.3)return false;
+ // boots, legs, belt and tunic
+ B(.56,.42,.78,boot,-.38,.22,.14);B(.56,.42,.78,boot,.38,.22,.14);
+ const lL=B(.52,1.3,.6,pants,-.38,1.05,0),lR=B(.52,1.3,.6,pants,.38,1.05,0);
+ B(1.5,.26,1.02,trim,0,1.88,0);B(.34,.34,.16,gold,0,1.88,.54);
+ B(1.46,1.5,1.0,shirt,0,2.75,0);B(1.5,.18,1.04,trim,0,2.17,0);
+ B(.56,.62,.16,gold,0,2.85,.54);B(.14,.3,.17,gold,0,2.9,.63);
+ // arms, hands, a sword at the hip
+ const aL=B(.42,1.35,.5,shirt,-.95,2.85,0),aR=B(.42,1.35,.5,shirt,.95,2.85,0);
+ B(.4,.36,.48,skin,-.95,2.02,0);B(.4,.36,.48,skin,.95,2.02,0);
+ B(.16,1.65,.12,steel,1.18,2.05,.28);B(.42,.14,.18,gold,1.18,1.25,.28);B(.16,.4,.16,boot,1.18,1.02,.28);
+ // head, hair, eyes and a red scarf with a cape
+ const head=B(1.28,1.28,1.22,skin,0,4.12,0);
+ B(1.36,.34,1.3,hair,0,4.82,-.03);B(.22,.34,1.3,hair,-.6,4.45,0);B(.22,.34,1.3,hair,.6,4.45,0);
+ B(.18,.18,.12,eye,-.3,4.16,.63);B(.18,.18,.12,eye,.3,4.16,.63);
+ B(1.6,.4,1.12,scarf,0,3.38,0);
+ const cape=B(1.5,1.55,.18,scarf,0,2.6,-.62);cape.rotation.x=-.09;
+ g.userData={aL,aR,lL,lR,head,cape};g.visible=false;scene.add(g);return g}function walkable3(a,b){
+ const x=Math.round(a),z=Math.round(b);if(!inb(x,z))return false;
+ const t=colTop(x,z);let bridge=false;
+ if(t===null){
+  for(let k=-10;k<=8;k++){const id=VOX[VI(x,k,z)];if(id===BL.PLANK){bridge=true;break}}
+  if(!bridge)return false}
+ const WDf=G('WD');if(!bridge&&WDf&&WDf(a,b)>.3)return false;
  const BLK=G('blocked');if(BLK&&BLK(a,b))return false;
  return true}
 function avatarSpawn(){
  const P=G('PL')&&G('PL').P;let a=P?P.a:31.5,b=P?P.b:31.5;
- if(!walkable3(a,b)){outer:for(let r=1;r<10;r++)for(let k=0;k<16;k++){
-   const an=k/16*6.283,na=a+Math.cos(an)*r*.7,nb=b+Math.sin(an)*r*.7;
+ if(!walkable3(a,b)){outer:for(let r=1;r<45;r++)for(let k=0;k<24;k++){
+   const an=k/24*6.283,na=a+Math.cos(an)*r*.8,nb=b+Math.sin(an)*r*.8;
    if(walkable3(na,nb)){a=na;b=nb;break outer}}}
+ if(!walkable3(a,b)){a=26.5;b=13.4}
  return{a,b,goal:null,walk:0,dir:0,g:AV,gx:a,gz:b}}
 function enterPlay(){
  if(!AV)AV=buildAvatar();
@@ -807,7 +838,7 @@ function enterPlay(){
  if(!AV.user||G('MODE')==='start'||(PP&&Math.hypot(PP.a-AV.user.a,PP.b-AV.user.b)>3))AV.user=avatarSpawn();
  if(AV.user){AV.a=AV.user.a;AV.b=AV.user.b;AV.goal=null}
  AV.visible=true;PLAYMODE=true;lastInput=performance.now();
- tRad=62;tEl=clamp(tEl,.32,.55);tcx=AV.a;tcz=AV.b;AV.scale.setScalar(1.18);
+ tRad=62;tEl=clamp(tEl,.32,.55);tcx=AV.a;tcz=AV.b;AV.scale.setScalar(1.55);
  try{(0,eval)('GOAL=null;SPECTATE=0;if(typeof KEYS!=="undefined")for(const k in KEYS)KEYS[k]=0')}catch(e){}}
 function avatarStep(dt){
  if(!AV||!PLAYMODE)return;
@@ -826,18 +857,25 @@ function avatarStep(dt){
  const sw=L>.001?Math.sin(U.walk)*.62:0;
  AV.userData.lL.rotation.x=sw;AV.userData.lR.rotation.x=-sw;
  AV.userData.aL.rotation.x=-sw*.75;AV.userData.aR.rotation.x=sw*.75;
- AV.userData.head.position.y=3.15+(L>.001?Math.abs(Math.sin(U.walk))*.06:Math.sin(T*1.7)*.025);
+ AV.userData.head.position.y=4.12+(L>.001?Math.abs(Math.sin(U.walk))*.07:Math.sin(T*1.7)*.03);
+ AV.userData.cape.rotation.x=-.09+(L>.001?Math.sin(U.walk*.5)*.16:Math.sin(T*1.5)*.05);
  tcx=U.a;tcz=U.b;
  try{const P=G('PL')&&G('PL').P;if(P){P.a=U.a;P.b=U.b;P.hid=0;P.mvg=L>.001?1:0;
    const CF=G('CF');if(CF&&CF.length===2){CF[0]=U.a;CF[1]=U.b}}}catch(e){}}
 function airships(){
- const mk=(x,y,z,col)=>{const g=new THREE.Group(),balloon=new THREE.Mesh(new THREE.SphereGeometry(5,12,8),mat(col));
-  balloon.scale.set(1.9,.75,.85);g.add(balloon);
-  const gondola=new THREE.Mesh(new THREE.BoxGeometry(4.4,1.3,1.7),mat(0x6b4a30));gondola.position.y=-4.7;g.add(gondola);
-  const roof=new THREE.Mesh(new THREE.BoxGeometry(4.8,.3,1.9),mat(0x3d5167));roof.position.y=-3.95;g.add(roof);
-  for(const sx of[-1,1]){const rope=new THREE.Mesh(new THREE.BoxGeometry(.12,2.3,.12),mat(0x2b241d));rope.position.set(sx*1.6,-3.5,0);g.add(rope)}
-  g.position.set(x,y,z);scene.add(g);return g};
- AVSHIP=[mk(103.6,32,87.4,0xc9a24a),mk(102.4,38,98.2,0x9c5a48)]}
+ const build=(x,y,z,c1,c2)=>{
+  const cells=[],putCell=(a,b,c,col)=>cells.push([a,b,c,col]);
+  const A=new THREE.Color(c1),B=new THREE.Color(c2);
+  for(let dx=-6;dx<=6;dx++)for(let dy=-2;dy<=2;dy++)for(let dz=-2;dz<=2;dz++){
+   if((dx*dx)/42+(dy*dy)/7+(dz*dz)/6<=1)putCell(dx,dy,dz,((dx+dy*2)%7===0)?B:A)}
+  for(let dx=-2;dx<=2;dx++){putCell(dx,-4,0,new THREE.Color(0x6b4a30));putCell(dx,-5,0,new THREE.Color(0x4a3222))}
+  putCell(-2,-3,0,new THREE.Color(0x2b241d));putCell(2,-3,0,new THREE.Color(0x2b241d));
+  const inst=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial(),cells.length);
+  const d=new THREE.Object3D();
+  cells.forEach((q,i)=>{d.position.set(q[0],q[1],q[2]);d.updateMatrix();inst.setMatrixAt(i,d.matrix);inst.setColorAt(i,q[3])});
+  inst.castShadow=true;inst.instanceMatrix.needsUpdate=true;
+  const g=new THREE.Group();g.add(inst);g.position.set(x,y,z);scene.add(g);return g};
+ AVSHIP=[build(103.6,32,87.4,0xd8a94c,0xb08038),build(102.4,38,98.2,0xb4664e,0x8b4a38)]}
 function airshipStep(dt){
  for(let i=0;i<AVSHIP.length;i++){const g=AVSHIP[i];g.position.y=(i?38:32)+Math.sin(T*.45+i*2)*1.3;g.rotation.y=Math.sin(T*.16+i)*.14}}
 // ---------- camera: orbit, pan, pinch, damping, idle drift ----------
