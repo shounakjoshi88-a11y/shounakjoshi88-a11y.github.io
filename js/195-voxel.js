@@ -172,7 +172,7 @@ function outerLandPass(){
    const dist=Math.max(.6,(1-f)*o.rx*.95);
    KEY[ci]=7;BIO[ci]=o.bio;DST[ci]=dist;LAKE[ci]=0;
    const rim=clamp((1-f)/.13,0,1);
-   let h=o.top+Math.round(o.hill*(1-f*f*1.02)+(vnz(a*.07+o.sd,b*.07+o.sd)-.5)*3.2-(1-rim)*6);
+   let h=o.top+Math.round(o.hill*(1-f*f*1.02)+(vnz(a*.07+o.sd,b*.07+o.sd)-.5)*1.5-(1-rim)*5);
    HT[ci]=h;
    let top=TOPB[o.bio];
    if(f>.90)top=BL.SAND;
@@ -202,21 +202,25 @@ function bridgeDeck(x0,z0,y0,x1,z1,y1){
  const L=Math.hypot(x1-x0,z1-z0);if(!(L>4&&L<170))return;
  const N=Math.ceil(L*1.9),sag=clamp(L*.06,2,8);
  const alongB=Math.abs(z1-z0)>Math.abs(x1-x0);
- const cx=(x0+x1)*.5,cz=(z0+z1)*.5;
+ const cx=(x0+x1)*.5,cz=(z0+z1)*.5,RS=[[],[]];
  for(let k=0;k<=N;k++){
   const t=k/N,A=lerp(x0,x1,t),B=lerp(z0,z1,t),Y=Math.round(lerp(y0,y1,t)-sag*Math.sin(t*3.14159));
   for(let w=-1;w<=1;w++)setV(Math.round(A+(alongB?w:0)),Y,Math.round(B+(alongB?0:w)),BL.PLANK);
-  // a continuous hand rope on both sides, hung from a post every six planks
-  for(const w of[-2,2]){
-   const x=Math.round(A+(alongB?w:0)),z=Math.round(B+(alongB?0:w));
-   setV(x,Y+2,z,BL.WOOD);
-   if(k%6===0){setV(x,Y+1,z,BL.WOOD);setV(x,Y,z,BL.WOOD);setV(x,Y-1,z,BL.WOOD)}
-   if(k%6===3)setV(x,Y+1,z,BL.WOOD)}
+  // hand rope on both sides, sampled here and hung as a tube further down
+  if(k%6===0)for(let sd=0;sd<2;sd++){const w=sd?1.7:-1.7;
+   RS[sd].push([A+(alongB?w:0),Y+2.4,B+(alongB?0:w)])}
   // a stone pier every long stretch, so the span reads as a viaduct and not a plank
-  if(k>6&&k<N-6&&k%22===11)for(let w=-1;w<=1;w++)for(let dy=-1;dy>-30;dy--){
-   const x=Math.round(A+(alongB?w:0)),z=Math.round(B+(alongB?0:w));
-   setV(x,Y+dy,z,(dy%6===0)?BL.ROCK_B:BL.ROCK_A)}
+  if(k>8&&k<N-8&&k%26===13){
+   const px=alongB?1:0,pz=alongB?0:1;
+   for(let w=-1;w<=1;w++)for(let dy=-1;dy>-70;dy--){
+    const x=Math.round(A+(alongB?w:0)),z=Math.round(B+(alongB?0:w)),y=Y+dy;
+    setV(x,y,z,(dy%6===0)?BL.ROCK_B:BL.ROCK_A);
+    // a two-block shaft under the span, so it reads as masonry and not a stick
+    if(dy<-4&&dy>-66){for(const o of[[1,0],[0,1],[1,1]])
+     setV(x+o[0]*px,y,z+o[1]*pz,(dy%6===0)?BL.ROCK_B:BL.ROCK_A)}
+    if(y<=-51)break}}
  }
+ if(RS[0].length>1){RAILS.push(RS[0]);RAILS.push(RS[1])}
 }
 function lighthouseO(ax,az,y){
  for(let k=0;k<18;k++){
@@ -503,7 +507,7 @@ function fields(){
  for(let a=X0;a<=X1;a++)for(let b=Z0;b<=Z1;b++){const t=colTop(a,b);if(t===null||VOX[VI(a,t,b)]!==BL.FARM||RES[CI(a,b)])continue;
   const row=Math.floor(a/2),q=h2(Math.floor(b/6),row>>1);
   if(a&1)continue;
-  if(h2(a*3,b*7)>.93)for(let k=1;k<=3;k++)setV(a,t+k,b,k===3?BL.SUNFLOWER:BL.WOOD);
+  if(h2(a*3,b*7)>.962){setV(a,t+1,b,BL.CROP_G);setV(a,t+2,b,BL.SUNFLOWER)}
   else setV(a,t+1,b,q<.4?BL.CROP_G:q<.7?BL.CROP_Y:BL.CROP_O)}}
 function buildStructures(){
  roads2d();
@@ -580,18 +584,16 @@ function ropeBridge(p,alongB){
  if(!p)return;const A0=p.a0,A1=(alongB?p.a0:p.a1),B0=(alongB?p.b0:p.b),B1=(alongB?p.b1:p.b);
  const t0=colTop(Math.round(A0),Math.round(B0)),t1=colTop(Math.round(A1),Math.round(B1));
  const y0=(t0===null?0:t0)+1,y1=(t1===null?0:t1)+1,sag=clamp((p.sag||6)/6,1,2.6);
- const N=Math.ceil(Math.hypot(A1-A0,B1-B0)*1.8);
+ const N=Math.ceil(Math.hypot(A1-A0,B1-B0)*1.8),RS=[[],[]];
  const putAt=(x,y,z,id)=>setV(Math.round(x),Math.round(y),Math.round(z),id);
  for(let k=0;k<=N;k++){const t=k/N,A=lerp(A0,A1,t),B=lerp(B0,B1,t),Y=Math.round(lerp(y0,y1,t)-sag*Math.sin(t*3.14159));
   for(let w=-1;w<=1;w++)putAt(A+(alongB?w:0),Y,B+(alongB?0:w),BL.PLANK);          // a three-plank-wide deck
-  if(k%4===0)for(const w of[-2,2]){                                                   // rail posts on both sides
-   const x=A+(alongB?w:0),z=B+(alongB?0:w);
-   putAt(x,Y+1,z,BL.WOOD);putAt(x,Y+2,z,BL.WOOD)}
-  if(k%5===1)for(const w of[-2,2]){                                                   // the rope strands between them
-   putAt(A+(alongB?w:0),Y+2,B+(alongB?0:w),BL.WOOD)}
+  if(k%4===0)for(let sd=0;sd<2;sd++){const w=sd?1.7:-1.7;                              // rail posts on both sides
+   RS[sd].push([A+(alongB?w:0),Y+2.35,B+(alongB?0:w)])}
   if(k%9===0){                                                                         // a support pillar into the cloud
    putAt(A,Y-1,B,BL.WOOD);putAt(A,Y-2,B,BL.WOOD);
    for(let d=3;d<=7;d++)putAt(A,Y-d,B,d%2?BL.ROCK_A:BL.ROCK_B)}}
+ if(RS[0].length>1){RAILS.push(RS[0]);RAILS.push(RS[1])}
 }
 function bridges(){
  const GG=n=>G(n);
@@ -800,11 +802,11 @@ function prop3(ax,az,kind,seed){
  RES[CI(ax,az)]=1}
 
 function fenceLine(a0,b0,a1,b1){
- const n=Math.ceil(Math.hypot(a1-a0,b1-b0)*2.2);
+ const n=Math.ceil(Math.hypot(a1-a0,b1-b0)*1.5),pts=[];
  for(let k=0;k<=n;k++){const t=k/n,a=Math.round(a0+(a1-a0)*t),b=Math.round(b0+(b1-b0)*t);
   const q=colTop(a,b);if(q===null)continue;
-  setV(a,q+1,b,BL.WOOD);setV(a,q+2,b,BL.WOOD);
-  if(k%2===1){setV(a,q+1,b,BL.WOOD);setV(a,q+2,b,BL.PLANK)}}}
+  pts.push([a+.5,q+1,b+.5])}
+ if(pts.length>1)FENCES.push(pts)}
 
 
 // ============================================================
@@ -883,6 +885,10 @@ function bake(list){
 //  TREES - grown, not stacked
 // ============================================================
 const TREES=[];
+// hand ropes: [ [x,y,z], ... ] samples along one rail, y at the post top
+const RAILS=[];
+// fence runs: [ [x,y,z], ... ] along the run, y at the foot of the posts
+const FENCES=[];
 const TRUNK_D=[.30,.22,.16],TRUNK_L=[.52,.38,.26];
 function oak(ax,az,top,s,A,B,list){
  const t=top+1;TREES.push({x:ax+.5,z:az+.5,y:t,k:'oak',s:.85+h2(ax*7,az*11)*.45,r:h2(ax*13,az*5)*6.283});
@@ -991,16 +997,23 @@ function pineGeo(v,snow){
  const H=8.2+v*1.3,trunkH=H*.56;
  const tr=gCyl(.18,.44,trunkH+1.4,8,seed);bark(tr);
  parts.push({g:tr,m:M4(0,(trunkH+1.4)/2,0),c:[1,1,1]});
- const tiers=8,span=H-trunkH*.55;
+ const tiers=8,span=H-trunkH*.55,dark=[[.075,.190,.115],[.090,.220,.135],[.105,.250,.150]][v%3];
+ const leafLo=[dark[0],dark[1],dark[2]],leafHi=[dark[0]*1.62,dark[1]*1.50,dark[2]*1.34];
  for(let k=0;k<tiers;k++){
   const f=k/(tiers-1);
   const jit=1+(h2(seed*3+k*7,seed+k)-.5)*.18;
-  const rr=(1-f*.84)*2.10*jit,rH=1.55-f*.30,y=trunkH*.50+f*span;
-  const g=gCone(rr,rH,11,y,seed+k*5);
-  const dark=[[.075,.190,.115],[.090,.220,.135],[.105,.250,.150]][v%3];
+  const rr=(1-f*.84)*1.92*jit,rH=1.55-f*.30,y=trunkH*.50+f*span;
+  const g=gCone(rr,rH,13,y,seed+k*5);
   if(snow)paintSnow(g,dark,[.94,.97,1],y-rH*.5,y+rH*.5);
-  else paintLeaf(g,[dark[0],dark[1],dark[2]],[dark[0]*1.62,dark[1]*1.50,dark[2]*1.34],seed+k,.75);
-  parts.push({g:g,c:[1,1,1]})}
+  else paintLeaf(g,leafLo,leafHi,seed+k,.75);
+  parts.push({g:g,c:[1,1,1]})
+  // a couple of loose boughs hanging off the rim: the silhouette stops being a cone
+  if(k>0)for(let q=0;q<2;q++){
+   const an=k*2.35+q*2.9+1.1+q*.6,rad=rr*(.60+q*.26);
+   const bg=gSph(rr*(.30+q*.05),0,seed+k*13+q,.55,.5);
+   if(snow)paintSnow(bg,dark,[.94,.97,1],y-rH,y+rH*.4);
+   else paintLeaf(bg,leafLo,leafHi,seed+k*7+q,.8);
+   parts.push({g:bg,m:M4P(Math.cos(an)*rad,y-rH*.16,Math.sin(an)*rad),c:[1,1,1]})}}
  return bake(parts)}
 
 function paintSnow(g,dark,white,y0,y1){
@@ -1465,13 +1478,13 @@ function propGeo(k){
   P.push({g:new THREE.TorusGeometry(.27,.018,4,10,Math.PI),m:M4P(0,.50,0),c:[.34,.35,.38]});
   return bake(P)}
  if(k==='log'){
-  P.push({g:new THREE.CylinderGeometry(.34,.36,2.1,10),m:M4(0,.36,0,0,0,Math.PI/2),c:[.40,.27,.16]});
-  for(const xx of[-1.02,1.02])P.push({g:DISC(.35,10),m:M4(xx,.36,0,0,0,Math.PI/2),c:[.62,.50,.32]});
+  P.push({g:new THREE.CylinderGeometry(.34,.36,2.1,10),m:M4(0,.36,0,0,0,Math.PI/2),c:[.21,.13,.07]});
+  for(const xx of[-1.02,1.02])P.push({g:DISC(.35,10),m:M4(xx,.36,0,0,0,Math.PI/2),c:[.38,.28,.17]});
   return bake(P)}
  if(k==='stump'){
-  P.push({g:new THREE.CylinderGeometry(.40,.50,.55,9),m:M4P(0,.27,0),c:[.38,.26,.15]});
-  P.push({g:DISC(.40,9),m:M4P(0,.56,0),c:[.64,.52,.34]});
-  P.push({g:RING(.40,.05,9),m:M4(0,.55,0,Math.PI/2,0,0),c:[.40,.28,.17]});
+  P.push({g:new THREE.CylinderGeometry(.40,.50,.55,9),m:M4P(0,.27,0),c:[.20,.12,.06]});
+  P.push({g:DISC(.40,9),m:M4P(0,.56,0),c:[.40,.30,.18]});
+  P.push({g:RING(.40,.05,9),m:M4(0,.55,0,Math.PI/2,0,0),c:[.23,.15,.08]});
   return bake(P)}
  if(k==='wheel'){
   P.push({g:RING(.46,.07,14),m:M4(0,.46,0,0,0,0),c:[.42,.29,.16]});
@@ -1619,6 +1632,38 @@ function propGeo(k){
  return bake(P)}
 
 let PROP_MAT=null;const PROP_GEO={};
+let RV=null;
+function ropeSeg(a,b,r,c,parts){
+ if(!RV)RV=new THREE.Vector3(0,1,0);
+ const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],L=Math.hypot(dx,dy,dz);
+ if(!(L>.0004))return;
+ const q=new THREE.Quaternion().setFromUnitVectors(RV,new THREE.Vector3(dx/L,dy/L,dz/L));
+ const m=new THREE.Matrix4().compose(new THREE.Vector3((a[0]+b[0])*.5,(a[1]+b[1])*.5,(a[2]+b[2])*.5),q,new THREE.Vector3(1,1,1));
+ parts.push({g:new THREE.CylinderGeometry(r,r,L*1.06,5,1,true),m,c})}
+function buildRails(root){
+ if(!RAILS.length)return 0;
+ const wood=[.30,.20,.11],rope=[.66,.56,.36],parts=[];
+ let n=0;
+ for(const side of RAILS){
+  if(side.length<2)continue;
+  for(const p of side){
+   parts.push({g:gCyl(.095,.13,1.35,6,p[0]*3+p[2]*7),m:M4P(p[0],p[1]-.675,p[2]),c:wood});
+   parts.push({g:gSph(.125,0,p[0]*5+p[2]*3,.35),m:M4P(p[0],p[1],p[2]),c:wood});n++}
+  // the rope is smoothed so the deck's block stair-steps don't kink it
+  const pts=side.map(q=>[q[0],q[1]-.03,q[2]]);
+  for(let i=1;i<pts.length-1;i++)pts[i][1]=(side[i-1][1]+side[i][1]*2+side[i+1][1])/4-.03;
+  for(let i=1;i<pts.length;i++)ropeSeg(pts[i-1],pts[i],.045,rope,parts)}
+ for(const run of FENCES){
+  if(run.length<2)continue;
+  for(const q of run){parts.push({g:gCyl(.055,.075,.95,5,q[0]*3+q[2]),m:M4P(q[0],q[1]+.47,q[2]),c:wood});n++}
+  for(let i=1;i<run.length;i++)for(const h of[.44,.82])
+   ropeSeg([run[i-1][0],run[i-1][1]+h,run[i-1][2]],[run[i][0],run[i][1]+h,run[i][2]],.032,rope,parts)}
+ if(!parts.length)return 0;
+ const mat=new THREE.MeshLambertMaterial({vertexColors:true});patchLit(mat,1);mat.name='rail';
+ const rg=bake(parts);
+ const mesh=new THREE.Mesh(rg,mat);mesh.name='rails';
+ mesh.castShadow=true;mesh.receiveShadow=true;root.add(mesh);
+ return n}
 function buildProps(root){
  if(!PROP_MAT){PROP_MAT=new THREE.MeshLambertMaterial({vertexColors:true});PROP_MAT.name='prop'}
  let total=0;
@@ -1721,6 +1766,7 @@ function buildScene(){
  const w=waterBuild();if(w)root.add(w);
  const nTree=buildTrees(root);
  const nProp=buildProps(root);
+ const nRail=buildRails(root);
  const nVil=buildVillagers(root);
  const nCri=spawnCritters(root);
  const nSky=skyIslets(root);
@@ -1970,10 +2016,10 @@ function skyIslets(root){
  for(let i=spots.length-1;i>0;i--){const j=(rnd()*(i+1))|0;const t=spots[i];spots[i]=spots[j];spots[j]=t}
  let n=0;
  for(const[a,b,o]of spots){
-  if(n>=11)break;
-  const dist=16+rnd()*26,lat=(rnd()-.5)*24;
+  if(n>=7)break;
+  const dist=62+rnd()*76,lat=(rnd()-.5)*34;
   const x=a+.5+o[0]*dist+o[1]*lat, z=b+.5+o[1]*dist+o[0]*lat;
-  const y=-10+rnd()*26, r=2.0+rnd()*2.1;
+  const y=28+rnd()*34, r=1.05+rnd()*1.15;
   const g=new THREE.Group();
   g.add(new THREE.Mesh(isletGeo(r,(n*7+3)|0),FIGMAT));
   // a little tree or a torii and a lamp on top
@@ -2044,11 +2090,23 @@ function walkable3(a,b){
  const WDf=G('WD');if(!bridge&&WDf&&WDf(a,b)>.3)return false;
  // 2D sprite solids are decorative here: pebbles, flowers and stumps never block walking
  return true}
+// is this a spot a person can stand in and see out of?
+function spawnSpot(a,b){
+ const ra=Math.round(a),rb=Math.round(b);
+ for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){
+  const x=ra+dx,z=rb+dz;
+  if(!inb(x,z))return false;
+  if(RES[CI(x,z)]||OCC[CI(x,z)])return false;
+  const t=colTop(x,z);if(t===null)return false;              // no bridge decks
+  if(dx&&dz)continue;
+  if(dx||dz){if(!walkable3(x,z))return false}
+  const above=VOX[VI(x,t+1,z)];if(above&&above!==BL.FIRE&&above!==BL.VINE)return false}
+ return walkable3(a,b)}
 function avatarSpawn(){
  const P=G('PL')&&G('PL').P;let a=P?P.a:31.5,b=P?P.b:31.5;
- if(!walkable3(a,b)){outer:for(let r=1;r<45;r++)for(let k=0;k<24;k++){
-   const an=k/24*6.283,na=a+Math.cos(an)*r*.8,nb=b+Math.sin(an)*r*.8;
-   if(walkable3(na,nb)){a=na;b=nb;break outer}}}
+ if(!spawnSpot(a,b)){outer:for(let r=1;r<20;r++)for(let k=0;k<20;k++){
+   const an=k/20*6.283,na=a+Math.cos(an)*r*.8,nb=b+Math.sin(an)*r*.8;
+   if(spawnSpot(na,nb)){a=na;b=nb;break outer}}}
  if(!walkable3(a,b)){a=26.5;b=13.4}
  return{a,b,goal:null,walk:0,dir:0,g:AV,gx:a,gz:b}}
 function enterPlay(){
@@ -2073,7 +2131,7 @@ function avatarStep(dt){
   if(walkable3(nx,U.b))U.a=nx;if(walkable3(U.a,nz))U.b=nz;
   U.walk+=dt*10;U.dir=Math.atan2(dx,dz)}
  const S=surfaceY(Math.round(U.a),Math.round(U.b));
- const target=(S[0]===null?-1:S[0])+.12;
+ const target=(S[0]===null?-1:S[0]+1)+.02;
  if(U.gy===undefined){U.gy=target;U.lastY=target;U.stepT=1;U.stepImp=0}
  const rise=target-U.lastY;
  if(Math.abs(rise)>.3){U.stepT=0;U.stepImp=rise>0?.42:-.22}
@@ -2119,7 +2177,9 @@ function airshipStep(dt){
 // ---------- camera: orbit, pan, pinch, damping, idle drift ----------
 function camUpdate(dt){const k=dt?1-Math.exp(-dt*9):1;az+=(tAz-az)*k;el+=(tEl-el)*k;rad+=(tRad-rad)*k;cx+=(tcx-cx)*k;cz+=(tcz-cz)*k;
  const hy=PLAYMODE?3.5:0,ce=Math.cos(el);
- camera.position.set(cx+rad*ce*Math.cos(az),hy+rad*Math.sin(el),cz+rad*ce*Math.sin(az));camera.lookAt(cx,hy,cz)}
+ let px=cx+rad*ce*Math.cos(az),py=hy+rad*Math.sin(el),pz=cz+rad*ce*Math.sin(az);
+ if(PLAYMODE){const ct=colTop(Math.round(px),Math.round(pz));if(ct!==null&&py<ct+2.4)py=ct+2.4}
+ camera.position.set(px,py,pz);camera.lookAt(cx,hy,cz)}
 function resize(){if(!renderer)return;renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
 let last=0,ema=.016,frames=0,pr=1;
 function update(dt){T+=dt;U.uTime.value=T;
