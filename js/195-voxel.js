@@ -1584,8 +1584,10 @@ function setChoice(v,preview){
 if(b2)b2.addEventListener('click',()=>setChoice('2d',true));
 if(b3)b3.addEventListener('click',()=>setChoice('3d',true));
 syncChoice();
+// a remembered 3D choice has to actually build, or the button says 3D over a 2D backdrop
+if(viewChoice==='3d')setTimeout(show,0);
 const sgo=document.getElementById('sgo');
-if(sgo)sgo.addEventListener('click',()=>setTimeout(()=>setChoice(viewChoice,viewChoice==='2d'),0));
+if(sgo)sgo.addEventListener('click',()=>setTimeout(()=>setChoice(viewChoice,true),0));
 window.__voxel=function(){if(overlay&&overlay.style.display!=='none')hide();else show();syncChoice()};
 window.addEventListener('keydown',e=>{
  const t=e.target;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
