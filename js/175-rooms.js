@@ -636,7 +636,8 @@ roomDraw=function(ox,oy,ix,iy){
 
 // Enter / Space / E keeps the conversation going
 addEventListener('keydown',e=>{
- if(MODE!=='room'||e.repeat)return;const k=e.key.toLowerCase();
+ let md;try{md=MODE}catch(err){return}          // early key press before 160-explore is in
+ if(md!=='room'||e.repeat)return;const k=e.key.toLowerCase();
  if(k==='enter'||k===' '||k==='e'){e.preventDefault();$('rmcard').click()}});
 
 /* ================= v4: THE PAINTINGS =================
